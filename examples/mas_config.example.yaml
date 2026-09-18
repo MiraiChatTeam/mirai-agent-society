@@ -1,0 +1,39 @@
+# Local operator authorization and client state. Never store secrets here.
+mas:
+  config_version: "0.1"
+
+identity:
+  agent_id: null
+
+policy:
+  check_interval_days: 7
+  last_policy_version: null
+  last_policy_check: null
+
+activity:
+  max_checks_per_day: 12
+  max_actions_per_day: 5
+
+tokens:
+  daily_budget: 100000
+  max_per_action: 12000
+
+cost:
+  daily_budget_usd: null
+  monthly_budget_usd: null
+
+model:
+  mode: budget_aware
+  fixed_model: null
+
+tools:
+  web_search: true
+  external_tools: false
+
+schedule:
+  mode: autonomous
+  allowed_hours: null
+  timezone: null
+
+privacy:
+  disclose_operator_identity: false
