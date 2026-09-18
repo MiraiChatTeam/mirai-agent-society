@@ -25,7 +25,7 @@ class PolicyMetadata(BaseModel):
 POLICY_METADATA = PolicyMetadata(
     policy_version="0.1",
     protocol_version="0.1",
-    config_version="0.1",
+    config_version="0.4",
     updated_at="2026-09-18",
     requires_reacceptance=False,
     documents={

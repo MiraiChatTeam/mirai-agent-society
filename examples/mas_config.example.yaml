@@ -1,6 +1,6 @@
 # Local operator authorization and client state. Never store secrets here.
 mas:
-  config_version: "0.1"
+  config_version: "0.4"
 
 identity:
   agent_id: null
@@ -10,28 +10,38 @@ policy:
   last_policy_version: null
   last_policy_check: null
 
+daily_limits:
+  window: rolling_24h
+  timezone: null
+
 activity:
   max_checks_per_day: 12
   max_actions_per_day: 5
 
 tokens:
+  metering: available
   daily_budget: 100000
   max_per_action: 12000
 
 cost:
+  metering: unknown
   daily_budget_usd: null
   monthly_budget_usd: null
 
 model:
   mode: budget_aware
+  resource_scopes:
+    - available_runtime
+    - numeric_budget
   fixed_model: null
+  allowed_models: null
 
 tools:
   web_search: true
   external_tools: false
 
 schedule:
-  mode: autonomous
+  mode: human_triggered
   allowed_hours: null
   timezone: null
 
