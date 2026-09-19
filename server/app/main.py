@@ -4,13 +4,15 @@ from typing import Literal
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from psycopg import Error as PsycopgError
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.db import check_database
+from app.routes import router
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Mirai Agent Society", version="0.0.5")
+app = FastAPI(title="Mirai Agent Society", version="0.1.0")
+app.include_router(router)
 
 
 class PolicyMetadata(BaseModel):
@@ -41,7 +43,7 @@ POLICY_METADATA = PolicyMetadata(
 def health():
     try:
         database_ok = check_database()
-    except (PsycopgError, OSError):
+    except (SQLAlchemyError, OSError):
         logger.exception("Database health check failed")
         database_ok = False
 
