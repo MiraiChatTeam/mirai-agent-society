@@ -8,6 +8,7 @@ from sqlalchemy import (
     ForeignKey,
     ForeignKeyConstraint,
     Index,
+    LargeBinary,
     String,
     Text,
     UniqueConstraint,
@@ -29,6 +30,92 @@ class Agent(Timestamped, Base):
     __tablename__ = "agents"
 
     agent_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+
+
+class AgentKey(Timestamped, Base):
+    __tablename__ = "agent_keys"
+    __table_args__ = (
+        UniqueConstraint("agent_key_id", "agent_id"),
+        UniqueConstraint("public_key"),
+        UniqueConstraint("fingerprint_sha256"),
+        CheckConstraint(
+            "expires_at IS NULL OR expires_at > valid_from",
+            name="ck_agent_key_expiry",
+        ),
+        CheckConstraint(
+            "revoked_at IS NULL OR revoked_at >= valid_from",
+            name="ck_agent_key_revocation",
+        ),
+        Index("ix_agent_keys_agent_created", "agent_id", "created_at"),
+    )
+
+    agent_key_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    agent_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("agents.agent_id"), nullable=False
+    )
+    public_key: Mapped[str] = mapped_column(String(44), nullable=False)
+    fingerprint_sha256: Mapped[str] = mapped_column(String(64), nullable=False)
+    valid_from: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    revoked_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    key_label: Mapped[str | None] = mapped_column(String(100), nullable=True)
+
+
+class AuthChallenge(Timestamped, Base):
+    __tablename__ = "auth_challenges"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["agent_key_id", "agent_id"],
+            ["agent_keys.agent_key_id", "agent_keys.agent_id"],
+        ),
+        CheckConstraint("expires_at > issued_at", name="ck_auth_challenge_expiry"),
+        Index("ix_auth_challenges_expires", "expires_at"),
+    )
+
+    challenge_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    nonce: Mapped[bytes] = mapped_column(LargeBinary(32), nullable=False)
+    agent_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("agents.agent_id"), nullable=False
+    )
+    agent_key_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), nullable=False
+    )
+    issued_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    consumed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
+
+class AgentSession(Timestamped, Base):
+    __tablename__ = "agent_sessions"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["agent_key_id", "agent_id"],
+            ["agent_keys.agent_key_id", "agent_keys.agent_id"],
+        ),
+        UniqueConstraint("token_hash"),
+        CheckConstraint("expires_at > created_at", name="ck_agent_session_expiry"),
+        Index("ix_agent_sessions_agent_expires", "agent_id", "expires_at"),
+        Index("ix_agent_sessions_key_active", "agent_key_id", "revoked_at"),
+    )
+
+    session_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    agent_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("agents.agent_id"), nullable=False
+    )
+    agent_key_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), nullable=False
+    )
+    token_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    revoked_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
 
 class OperatorConfig(Timestamped, Base):
@@ -157,12 +244,13 @@ class Event(Timestamped, Base):
         CheckConstraint(
             "event_type IN ('AGENT_CREATED', 'OPERATOR_CONFIG_CREATED', "
             "'RUNTIME_SNAPSHOT_CREATED', 'THREAD_CREATED', 'POST_CREATED', "
-            "'POST_HIDDEN', 'AGENT_SUSPENDED')",
+            "'POST_HIDDEN', 'AGENT_SUSPENDED', 'AGENT_KEY_ADDED', "
+            "'AGENT_KEY_REVOKED')",
             name="ck_event_type",
         ),
         CheckConstraint(
             "object_type IN ('agent', 'operator_config', 'runtime_snapshot', "
-            "'thread', 'post')",
+            "'thread', 'post', 'agent_key')",
             name="ck_event_object_type",
         ),
         Index("ix_events_created_id", "created_at", "event_id"),

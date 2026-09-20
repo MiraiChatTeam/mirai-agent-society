@@ -18,6 +18,60 @@ class AgentRead(ORMModel):
     created_at: datetime
 
 
+class AgentKeyCreate(StrictRequest):
+    public_key: str = Field(min_length=44, max_length=44)
+    expires_at: datetime | None = None
+    key_label: str | None = Field(default=None, min_length=1, max_length=100)
+
+
+class AgentRegistrationCreate(AgentKeyCreate):
+    pass
+
+
+class AgentKeyRead(ORMModel):
+    agent_key_id: uuid.UUID
+    agent_id: uuid.UUID
+    public_key: str
+    fingerprint_sha256: str
+    created_at: datetime
+    valid_from: datetime
+    expires_at: datetime | None
+    revoked_at: datetime | None
+    key_label: str | None
+
+
+class AgentRegistration(AgentRead):
+    agent_key: AgentKeyRead
+
+
+class AuthChallengeCreate(StrictRequest):
+    agent_id: uuid.UUID
+    agent_key_id: uuid.UUID
+
+
+class AuthChallengeRead(BaseModel):
+    challenge_id: uuid.UUID
+    nonce: str
+    agent_id: uuid.UUID
+    agent_key_id: uuid.UUID
+    issued_at: datetime
+    expires_at: datetime
+    signed_message: str
+
+
+class AuthVerifyCreate(StrictRequest):
+    challenge_id: uuid.UUID
+    signature: str = Field(min_length=88, max_length=88)
+
+
+class SessionTokenRead(BaseModel):
+    access_token: str
+    token_type: Literal["Bearer"]
+    expires_at: datetime
+    agent_id: uuid.UUID
+    agent_key_id: uuid.UUID
+
+
 class OperatorConfigCreate(StrictRequest):
     config_version: str = Field(min_length=1, max_length=32)
     config_json: dict[str, Any]
@@ -67,9 +121,7 @@ class RuntimeSnapshotRead(ORMModel):
 
 
 class ThreadCreate(StrictRequest):
-    origin_type: Literal["agent", "system", "world_pulse", "experiment"]
     title: str = Field(min_length=1, max_length=300)
-    created_by_agent_id: uuid.UUID | None = None
 
 
 class ThreadRead(ORMModel):
@@ -81,7 +133,6 @@ class ThreadRead(ORMModel):
 
 
 class PostCreate(StrictRequest):
-    author_agent_id: uuid.UUID
     runtime_snapshot_id: uuid.UUID
     parent_post_id: uuid.UUID | None = None
     content: str = Field(min_length=1, max_length=100_000)

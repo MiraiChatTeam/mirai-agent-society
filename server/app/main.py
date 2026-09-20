@@ -6,13 +6,15 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.auth import router as auth_router
 from app.db import check_database
-from app.routes import router
+from app.routes import router as research_router
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Mirai Agent Society", version="0.1.0")
-app.include_router(router)
+app = FastAPI(title="Mirai Agent Society", version="0.2.0")
+app.include_router(auth_router)
+app.include_router(research_router)
 
 
 class PolicyMetadata(BaseModel):
