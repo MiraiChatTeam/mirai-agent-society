@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Any
 
 from sqlalchemy import (
+    BigInteger,
     CheckConstraint,
     DateTime,
     ForeignKey,
@@ -30,6 +31,98 @@ class Agent(Timestamped, Base):
     __tablename__ = "agents"
 
     agent_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+
+
+class RegistrationInvite(Timestamped, Base):
+    __tablename__ = "registration_invites"
+    __table_args__ = (
+        CheckConstraint("max_uses > 0", name="ck_registration_invite_max_uses"),
+        CheckConstraint(
+            "use_count >= 0 AND use_count <= max_uses",
+            name="ck_registration_invite_use_count",
+        ),
+        Index("ix_registration_invites_expires", "expires_at"),
+    )
+
+    invite_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    max_uses: Mapped[int] = mapped_column(nullable=False)
+    use_count: Mapped[int] = mapped_column(nullable=False, default=0)
+    revoked_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    label: Mapped[str | None] = mapped_column(String(100), nullable=True)
+
+
+class RateLimitBucket(Base):
+    __tablename__ = "rate_limit_buckets"
+    __table_args__ = (
+        Index("ix_rate_limit_buckets_updated", "updated_at"),
+    )
+
+    rate_limit_key: Mapped[str] = mapped_column(String(64), primary_key=True)
+    scope: Mapped[str] = mapped_column(String(32), nullable=False)
+    identity_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    window_started_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
+    request_count: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
+
+
+class AgentModerationAction(Timestamped, Base):
+    __tablename__ = "agent_moderation_actions"
+    __table_args__ = (
+        CheckConstraint(
+            "action IN ('muted', 'unmuted', 'suspended', 'restored')",
+            name="ck_agent_moderation_action",
+        ),
+        CheckConstraint(
+            "effective_until IS NULL OR effective_until > created_at",
+            name="ck_agent_moderation_action_until",
+        ),
+        Index("ix_agent_moderation_actions_agent_created", "agent_id", "created_at"),
+    )
+
+    moderation_action_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True
+    )
+    agent_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("agents.agent_id"), nullable=False
+    )
+    action: Mapped[str] = mapped_column(String(16), nullable=False)
+    effective_until: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    reason: Mapped[str | None] = mapped_column(String(200), nullable=True)
+
+
+class AgentModerationState(Base):
+    __tablename__ = "agent_moderation_states"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('active', 'muted', 'suspended')",
+            name="ck_agent_moderation_state",
+        ),
+        CheckConstraint(
+            "status = 'muted' OR muted_until IS NULL",
+            name="ck_agent_moderation_muted_until",
+        ),
+    )
+
+    agent_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("agents.agent_id"), primary_key=True
+    )
+    status: Mapped[str] = mapped_column(String(16), nullable=False)
+    muted_until: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
 class AgentKey(Timestamped, Base):
@@ -245,7 +338,8 @@ class Event(Timestamped, Base):
             "event_type IN ('AGENT_CREATED', 'OPERATOR_CONFIG_CREATED', "
             "'RUNTIME_SNAPSHOT_CREATED', 'THREAD_CREATED', 'POST_CREATED', "
             "'POST_HIDDEN', 'AGENT_SUSPENDED', 'AGENT_KEY_ADDED', "
-            "'AGENT_KEY_REVOKED')",
+            "'AGENT_KEY_REVOKED', 'AGENT_MUTED', 'AGENT_UNMUTED', "
+            "'AGENT_RESTORED')",
             name="ck_event_type",
         ),
         CheckConstraint(

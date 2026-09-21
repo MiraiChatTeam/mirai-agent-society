@@ -9,13 +9,22 @@ from datetime import UTC, datetime, timedelta
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app.db import get_db
-from app.models import Agent, AgentKey, AgentSession, AuthChallenge
+from app.models import (
+    Agent,
+    AgentKey,
+    AgentModerationState,
+    AgentSession,
+    AuthChallenge,
+    RegistrationInvite,
+)
+from app.moderation import require_agent_write
+from app.rate_limits import enforce_rate_limit, request_source
 from app.schemas import (
     AgentKeyCreate,
     AgentKeyRead,
@@ -26,7 +35,7 @@ from app.schemas import (
     AuthVerifyCreate,
     SessionTokenRead,
 )
-from app.services import append_event, commit_creation, not_found
+from app.services import APIError, append_event, commit_creation, not_found
 
 
 router = APIRouter(prefix="/api/v1")
@@ -155,12 +164,41 @@ def make_key(
 
 @router.post("/agents", response_model=AgentRegistration, status_code=201)
 def register_agent(
-    request: AgentRegistrationCreate, db: Session = Depends(get_db)
+    request: AgentRegistrationCreate,
+    http_request: Request,
+    db: Session = Depends(get_db),
 ) -> AgentRegistration:
+    enforce_rate_limit(
+        db,
+        "registration",
+        request_source(http_request),
+        identity_kind="ip",
+    )
     now = utc_now()
     agent = Agent(agent_id=uuid.uuid4())
     key = make_key(request, agent.agent_id, now)
-    db.add_all([agent, key])
+    invite_hash = hashlib.sha256(request.invite_token.encode("utf-8")).hexdigest()
+    invite = db.scalar(
+        select(RegistrationInvite)
+        .where(RegistrationInvite.token_hash == invite_hash)
+        .with_for_update()
+    )
+    if invite is None:
+        raise APIError(403, "invalid_invite")
+    if invite.revoked_at is not None:
+        raise APIError(403, "revoked_invite")
+    if invite.expires_at is not None and invite.expires_at <= now:
+        raise APIError(403, "expired_invite")
+    if invite.use_count >= invite.max_uses:
+        raise APIError(403, "exhausted_invite")
+    invite.use_count += 1
+    state = AgentModerationState(
+        agent_id=agent.agent_id,
+        status="active",
+        muted_until=None,
+        updated_at=now,
+    )
+    db.add_all([agent, key, state])
     append_event(db, "AGENT_CREATED", agent.agent_id, "agent", agent.agent_id)
     append_event(db, "AGENT_KEY_ADDED", agent.agent_id, "agent_key", key.agent_key_id)
     commit_creation(db, key)
@@ -174,8 +212,16 @@ def register_agent(
 
 @router.post("/auth/challenge", response_model=AuthChallengeRead, status_code=201)
 def create_challenge(
-    request: AuthChallengeCreate, db: Session = Depends(get_db)
+    request: AuthChallengeCreate,
+    http_request: Request,
+    db: Session = Depends(get_db),
 ) -> AuthChallengeRead:
+    enforce_rate_limit(
+        db,
+        "auth_challenge",
+        request_source(http_request),
+        identity_kind="ip",
+    )
     now = utc_now()
     key = db.scalar(
         select(AgentKey).where(
@@ -212,8 +258,16 @@ def create_challenge(
 
 @router.post("/auth/verify", response_model=SessionTokenRead)
 def verify_challenge(
-    request: AuthVerifyCreate, db: Session = Depends(get_db)
+    request: AuthVerifyCreate,
+    http_request: Request,
+    db: Session = Depends(get_db),
 ) -> SessionTokenRead:
+    enforce_rate_limit(
+        db,
+        "auth_verify",
+        request_source(http_request),
+        identity_kind="ip",
+    )
     challenge = db.scalar(
         select(AuthChallenge)
         .where(AuthChallenge.challenge_id == request.challenge_id)
@@ -265,6 +319,7 @@ def add_key(
     authenticated: AuthenticatedAgent = Depends(get_authenticated_agent),
     db: Session = Depends(get_db),
 ) -> AgentKey:
+    require_agent_write(db, authenticated.agent_id, public_write=False)
     key = make_key(request, authenticated.agent_id, utc_now())
     db.add(key)
     append_event(
@@ -325,3 +380,21 @@ def revoke_key(
     db.commit()
     db.refresh(key)
     return key
+
+
+@router.post("/auth/logout", status_code=204)
+def logout(
+    response: Response,
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer),
+    db: Session = Depends(get_db),
+) -> None:
+    if credentials is None or credentials.scheme.lower() != "bearer":
+        raise unauthorized()
+    token_hash = hashlib.sha256(credentials.credentials.encode("utf-8")).hexdigest()
+    session = db.scalar(select(AgentSession).where(AgentSession.token_hash == token_hash))
+    if session is None or not secrets.compare_digest(session.token_hash, token_hash):
+        raise unauthorized()
+    if session.revoked_at is None:
+        session.revoked_at = utc_now()
+        db.commit()
+    response.status_code = status.HTTP_204_NO_CONTENT

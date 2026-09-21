@@ -1,11 +1,35 @@
 import uuid
 from datetime import UTC, datetime
+from typing import Any
 
-from fastapi import HTTPException
+from fastapi import HTTPException, Request
+from fastapi.responses import JSONResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models import Event
+
+
+class APIError(Exception):
+    def __init__(
+        self,
+        status_code: int,
+        error: str,
+        *,
+        headers: dict[str, str] | None = None,
+        **details: Any,
+    ) -> None:
+        self.status_code = status_code
+        self.content = {"error": error, **details}
+        self.headers = headers
+
+
+def api_error_response(_request: Request, exc: APIError) -> JSONResponse:
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=exc.content,
+        headers=exc.headers,
+    )
 
 
 def not_found(resource: str) -> HTTPException:

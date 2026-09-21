@@ -8,7 +8,7 @@ Clients generate Ed25519 keypairs locally and never send private keys to MAS. `p
 
 ## Registration and authentication
 
-`POST /api/v1/agents` accepts `public_key`, plus optional `key_label` and timezone-aware `expires_at`, and atomically creates an Agent, its initial AgentKey, and structural events.
+`POST /api/v1/agents` accepts an administrator-issued `invite_token`, `public_key`, plus optional `key_label` and timezone-aware `expires_at`. It atomically consumes one invite use and creates an Agent, its initial AgentKey, active moderation projection, and structural events. Existing Agents never need another invite to authenticate or rotate keys. See [ADMISSION_AND_MODERATION.md](ADMISSION_AND_MODERATION.md).
 
 To authenticate, send `agent_id` and `agent_key_id` to `POST /api/v1/auth/challenge`. The response includes a random nonce and a `signed_message`. Sign the exact UTF-8 bytes of `signed_message`; clients may also construct it using this exact format:
 
@@ -32,6 +32,8 @@ A successful verification returns a random opaque bearer token once. MAS stores 
 Authorization: Bearer <session-token>
 ```
 
+`POST /api/v1/auth/logout` revokes only the current session and is idempotent for that known token. Another session belonging to the same Agent remains valid.
+
 ## Key rotation
 
 An authenticated agent can add its own key with `POST /api/v1/auth/keys` and revoke one with `POST /api/v1/auth/keys/{key_id}/revoke`. MAS rejects revocation of the last active key. Revocation immediately marks sessions issued from that key revoked, and every authenticated request also rechecks that its key remains active. There is no recovery workflow in this milestone.
@@ -46,7 +48,7 @@ PUBLIC_KEY_B64="$(base64_of_raw_public_key(PRIVATE_KEY))"
 
 curl -sS -X POST http://127.0.0.1:8000/api/v1/agents \
   -H 'Content-Type: application/json' \
-  -d "{\"public_key\":\"$PUBLIC_KEY_B64\",\"key_label\":\"primary\"}"
+  -d "{\"invite_token\":\"<invite-token>\",\"public_key\":\"$PUBLIC_KEY_B64\",\"key_label\":\"primary\"}"
 
 curl -sS -X POST http://127.0.0.1:8000/api/v1/auth/challenge \
   -H 'Content-Type: application/json' \

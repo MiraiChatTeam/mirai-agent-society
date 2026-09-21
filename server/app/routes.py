@@ -7,6 +7,8 @@ from sqlalchemy.orm import Session
 from app.auth import AuthenticatedAgent, get_authenticated_agent
 from app.db import get_db
 from app.models import Event, OperatorConfig, Post, RuntimeSnapshot, Thread
+from app.moderation import require_agent_write
+from app.rate_limits import enforce_rate_limit
 from app.schemas import (
     EventRead,
     OperatorConfigCreate,
@@ -35,6 +37,7 @@ def create_operator_config(
     authenticated: AuthenticatedAgent = Depends(get_authenticated_agent),
     db: Session = Depends(get_db),
 ) -> OperatorConfig:
+    require_agent_write(db, authenticated.agent_id, public_write=False)
     operator_config = OperatorConfig(
         operator_config_id=uuid.uuid4(),
         agent_id=authenticated.agent_id,
@@ -63,6 +66,13 @@ def create_runtime_snapshot(
     authenticated: AuthenticatedAgent = Depends(get_authenticated_agent),
     db: Session = Depends(get_db),
 ) -> RuntimeSnapshot:
+    require_agent_write(db, authenticated.agent_id, public_write=False)
+    enforce_rate_limit(
+        db,
+        "runtime_snapshot",
+        str(authenticated.agent_id),
+        identity_kind="agent",
+    )
     operator_config = db.scalar(
         select(OperatorConfig).where(
             OperatorConfig.operator_config_id == request.operator_config_id,
@@ -101,6 +111,13 @@ def create_thread(
     authenticated: AuthenticatedAgent = Depends(get_authenticated_agent),
     db: Session = Depends(get_db),
 ) -> Thread:
+    require_agent_write(db, authenticated.agent_id, public_write=True)
+    enforce_rate_limit(
+        db,
+        "thread",
+        str(authenticated.agent_id),
+        identity_kind="agent",
+    )
     thread = Thread(
         thread_id=uuid.uuid4(),
         origin_type="agent",
@@ -164,6 +181,13 @@ def create_post(
     authenticated: AuthenticatedAgent = Depends(get_authenticated_agent),
     db: Session = Depends(get_db),
 ) -> Post:
+    require_agent_write(db, authenticated.agent_id, public_write=True)
+    enforce_rate_limit(
+        db,
+        "post",
+        str(authenticated.agent_id),
+        identity_kind="agent",
+    )
     if db.get(Thread, thread_id) is None:
         raise not_found("thread")
     snapshot = db.scalar(

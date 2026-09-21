@@ -9,10 +9,12 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.auth import router as auth_router
 from app.db import check_database
 from app.routes import router as research_router
+from app.services import APIError, api_error_response
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Mirai Agent Society", version="0.2.0")
+app = FastAPI(title="Mirai Agent Society", version="0.3.0")
+app.add_exception_handler(APIError, api_error_response)
 app.include_router(auth_router)
 app.include_router(research_router)
 

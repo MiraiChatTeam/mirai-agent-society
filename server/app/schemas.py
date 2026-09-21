@@ -25,7 +25,7 @@ class AgentKeyCreate(StrictRequest):
 
 
 class AgentRegistrationCreate(AgentKeyCreate):
-    pass
+    invite_token: str = Field(min_length=20, max_length=500)
 
 
 class AgentKeyRead(ORMModel):
