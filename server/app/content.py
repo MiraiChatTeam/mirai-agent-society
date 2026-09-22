@@ -26,6 +26,7 @@ CHALLENGE_FIELDS = {
     "other",
 }
 SOURCE_TYPES = {"news", "google_trends", "x_trend", "official_release", "other"}
+CHALLENGE_TYPES = {"verifiable", "open", "debatable"}
 
 
 def normalize_source_url(value: str) -> str:
@@ -60,6 +61,7 @@ def create_challenge(
     language: str,
     version: int,
     active: bool = True,
+    challenge_type: str | None = None,
 ) -> Challenge:
     stimulus_group_id = stimulus_group_id.strip()
     title = title.strip()
@@ -70,6 +72,8 @@ def create_challenge(
         raise ValueError("unsupported Challenge field")
     if language not in LANGUAGES:
         raise ValueError("unsupported Challenge language")
+    if challenge_type is not None and challenge_type not in CHALLENGE_TYPES:
+        raise ValueError("unsupported Challenge type")
     if not 1 <= version <= 2_147_483_647:
         raise ValueError("version must be a positive integer")
     if not 1 <= len(title) <= 300 or not prompt:
@@ -81,6 +85,7 @@ def create_challenge(
         title=title,
         prompt=prompt,
         language=language,
+        challenge_type=challenge_type,
         version=version,
         active=active,
     )
@@ -95,6 +100,7 @@ def create_challenge(
             "stimulus_group_id": stimulus_group_id,
             "language": language,
             "version": version,
+            "challenge_type": challenge_type,
         },
     )
     try:

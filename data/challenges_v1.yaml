@@ -1,0 +1,290 @@
+corpus_id: mas-challenges-v1
+language: en
+version: 1
+active: true
+challenges:
+  - stimulus_group_id: CH-MATH-001
+    challenge_type: verifiable
+    field: mathematics
+    title: Bayesian Evidence Under Unequal Base Rates
+    prompt: >-
+      A condition D has prevalence P(D)=0.02 in a population. Two diagnostic
+      observations T1 and T2 are conditionally independent given D and also
+      conditionally independent given not-D. Their characteristics are
+      P(T1+|D)=0.90, P(T1+|not-D)=0.05, P(T2+|D)=0.80, and
+      P(T2+|not-D)=0.10. A randomly selected individual has both T1+ and T2+.
+      Compute P(D|T1+,T2+) from the stated assumptions, give the exact
+      expression and a decimal approximation, and determine whether it exceeds
+      a decision threshold of 0.60. Show how the unequal prior affects the
+      result.
+    sources:
+      - source_kind: generated
+        source_name: Mirai Agent Society
+        source_role: task_design
+
+  - stimulus_group_id: CH-MATH-002
+    challenge_type: verifiable
+    field: mathematics
+    title: Constrained Network Paths
+    prompt: >-
+      Consider the directed graph with vertices A, B, C, D, E, F and edges
+      A→B, A→C, A→D, B→C, B→E, B→F, C→D, C→E, C→F, D→B, D→E, D→F, and E→F.
+      How many directed paths from A to F satisfy all of the following: no
+      vertex is visited more than once; exactly one of C and D is visited; and
+      B and E are not both visited? List the qualifying paths and justify that
+      the enumeration is complete.
+    sources:
+      - source_kind: generated
+        source_name: Mirai Agent Society
+        source_role: task_design
+
+  - stimulus_group_id: CH-LOGIC-001
+    challenge_type: verifiable
+    field: logic
+    title: Common Knowledge
+    prompt: >-
+      A system is in exactly one of four worlds w1, w2, w3, w4. The following
+      observation table and the fact that all observers reason perfectly are
+      common knowledge: A observes a0 in w1, w2, w3 and a1 in w4; B observes
+      b0 in w1, w2 and b1 in w3, w4; C observes c0 in w1, w3 and c1 in w2,
+      w4. Each observer knows only their own observation. They then truthfully
+      make public statements in order. A says, “I cannot determine the world.”
+      B says, “After hearing A, I still cannot determine the world.” C says,
+      “After hearing both statements, I can determine the world, and my
+      observation is c1.” Which world is actual? Explain the sequential public
+      elimination of possibilities.
+    sources:
+      - source_kind: generated
+        source_name: Mirai Agent Society
+        source_role: task_design
+
+  - stimulus_group_id: CH-LOGIC-002
+    challenge_type: verifiable
+    field: logic
+    title: Consistency Under Competing Claims
+    prompt: >-
+      A system has one of four states. Five observers A–E each report one bit.
+      If the state is S1 their truthful reports would be 00000; for S2, 11100;
+      for S3, 10011; and for S4, 01111, in A–E order. Exactly one observer is
+      unreliable and flips their bit; the other four report truthfully. The
+      received report is 00001. Determine the system state and the unreliable
+      observer. Demonstrate consistency with the assumptions and exclude every
+      other state.
+    sources:
+      - source_kind: generated
+        source_name: Mirai Agent Society
+        source_role: task_design
+
+  - stimulus_group_id: CH-PHYS-001
+    challenge_type: verifiable
+    field: physics
+    title: Competing Physical Models
+    prompt: >-
+      A synthetic experiment measures y at x=1,2,3,4 and obtains
+      y=(2.1, 4.2, 5.8, 8.1). Every measurement has independent Gaussian
+      standard uncertainty σ=0.5. Two fixed models, with no fitted parameters,
+      are proposed: Model A predicts y=2x; Model B predicts y=x+3. Using the
+      stated comparison criterion χ²=Σ[(y_observed-y_predicted)/σ]², calculate
+      χ² for each model and determine which is better supported. State what
+      this comparison does and does not establish.
+    sources:
+      - source_kind: generated
+        source_name: Mirai Agent Society
+        source_role: task_design
+
+  - stimulus_group_id: CH-CS-001
+    challenge_type: verifiable
+    field: computer_science
+    title: Distributed-System Execution Trace
+    prompt: >-
+      A replicated slot uses five nodes A–E. A value is committed only after
+      acknowledgements from any three distinct nodes. For this slot, each node
+      may acknowledge at most one value, and its acknowledgement is durable
+      across crashes. The trace is: value X reaches A, B, C and all three
+      acknowledge it; C then crashes; value Y reaches D and E, which
+      acknowledge it; C recovers and receives Y; messages to A and B are
+      delayed. Under these rules, can X and Y both become committed? Identify
+      every acknowledgement relevant to the decision and explain the quorum
+      intersection argument, including the effect of C's crash and recovery.
+    sources:
+      - source_kind: generated
+        source_name: Mirai Agent Society
+        source_role: task_design
+
+  - stimulus_group_id: CH-MATH-003
+    challenge_type: open
+    field: mathematics
+    title: P vs NP
+    prompt: >-
+      Among the major known barriers to resolving P versus NP, which ones most
+      strongly constrain plausible future proof strategies? Compare at least
+      two approaches and distinguish established barriers from speculative
+      judgments about promising directions.
+    sources:
+      - source_kind: literature_anchored
+        source_name: Clay Mathematics Institute — P vs NP
+        source_url: https://www.claymath.org/millennium/p-vs-np/
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-PHYS-002
+    challenge_type: open
+    field: physics
+    title: Beyond the Standard Model
+    prompt: >-
+      Given the continued absence of a uniquely confirmed theory beyond the
+      Standard Model, which class of future observations would most strongly
+      discriminate among leading extensions? Compare what different outcomes
+      would actually rule out rather than merely disfavor.
+    sources:
+      - source_kind: literature_anchored
+        source_name: CERN — The Standard Model
+        source_url: https://home.cern/science/physics/standard-model
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-ASTRO-001
+    challenge_type: open
+    field: astronomy
+    title: Dark Matter
+    prompt: >-
+      Which existing observations most strongly require a dark-matter-like
+      component, and what observations would best discriminate particle dark
+      matter from leading alternatives to the standard interpretation?
+    sources:
+      - source_kind: literature_anchored
+        source_name: NASA Science — Dark Matter
+        source_url: https://science.nasa.gov/dark-matter/
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-ASTRO-002
+    challenge_type: open
+    field: astronomy
+    title: Hubble Tension
+    prompt: >-
+      What future observation or combination of observations would most
+      decisively distinguish between residual systematic error and genuinely
+      new cosmological physics as the explanation of the Hubble tension?
+    sources:
+      - source_kind: literature_anchored
+        source_name: NASA Science — Hubble Constant and Tension
+        source_url: https://science.nasa.gov/mission/hubble/science/science-behind-the-discoveries/hubble-constant-and-tension/
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-BIO-001
+    challenge_type: open
+    field: biology
+    title: Pace of Mammalian Ageing
+    prompt: >-
+      Which mechanisms are most likely to control the pace of mammalian ageing
+      rather than merely correlate with it, and what experimental evidence
+      would be required to establish their causal hierarchy?
+    sources:
+      - source_kind: literature_anchored
+        source_name: Hallmarks of Aging — Causes and Consequences
+        source_url: https://pmc.ncbi.nlm.nih.gov/articles/PMC10809922/
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-CS-002
+    challenge_type: open
+    field: computer_science
+    title: Representation for General Intelligence
+    prompt: >-
+      To what extent should a generally capable learning system rely on
+      explicit structured representations versus representations learned
+      end-to-end from data? What empirical result would substantially change
+      your position?
+    sources:
+      - source_kind: literature_anchored
+        source_name: Representation Learning — A Review and New Perspectives
+        source_url: https://pubmed.ncbi.nlm.nih.gov/23787338/
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-PHYS-003
+    challenge_type: debatable
+    field: physics
+    title: Interpretations of Quantum Mechanics
+    prompt: >-
+      If two interpretations of quantum mechanics make the same experimentally
+      accessible predictions, what scientific criteria, if any, should justify
+      preferring one over the other? How should empirical equivalence constrain
+      the strength of that preference?
+    sources:
+      - source_kind: literature_anchored
+        source_name: Stanford Encyclopedia of Philosophy — Philosophical Issues in Quantum Theory
+        source_url: https://plato.stanford.edu/entries/qt-issues/
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-ASTRO-003
+    challenge_type: debatable
+    field: astronomy
+    title: Exoplanet Biosignatures
+    prompt: >-
+      Suppose an exoplanet atmosphere exhibits a strong chemical disequilibrium
+      consistent with biological activity but no uniquely biological molecule.
+      What combination of independent observations should be required before
+      interpreting the signal as persuasive evidence of life?
+    sources:
+      - source_kind: literature_anchored
+        source_name: National Academies — Astrobiology Strategy for the Search for Life
+        source_url: https://www.nationalacademies.org/read/25252/chapter/6
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-BIO-002
+    challenge_type: debatable
+    field: biology
+    title: Hallmarks of Ageing
+    prompt: >-
+      To what extent should the hallmarks of ageing be interpreted as causal
+      drivers of ageing rather than as a useful descriptive taxonomy of
+      correlated processes? What evidence would establish a causal ordering
+      among them?
+    sources:
+      - source_kind: literature_anchored
+        source_name: Hallmarks of Aging — Causes and Consequences
+        source_url: https://pmc.ncbi.nlm.nih.gov/articles/PMC10809922/
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-BIO-003
+    challenge_type: debatable
+    field: biology
+    title: Microbiome Causality
+    prompt: >-
+      What minimum chain of evidence should be required before a
+      microbiome-disease association is treated as causal in humans? Which
+      forms of evidence are strongest when randomized intervention is
+      impractical?
+    sources:
+      - source_kind: literature_anchored
+        source_name: Thinking about the microbiome as a causal factor in human health and disease
+        source_url: https://pmc.ncbi.nlm.nih.gov/articles/PMC9464032/
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-CS-003
+    challenge_type: debatable
+    field: computer_science
+    title: Scaling vs Architectural Change
+    prompt: >-
+      When performance improves with increasing model scale, what evidence is
+      necessary to conclude that further scaling is sufficient for a capability
+      rather than that a qualitative architectural or learning change is
+      required?
+    sources:
+      - source_kind: literature_anchored
+        source_name: Scaling Laws for Neural Language Models
+        source_url: https://arxiv.org/abs/2001.08361
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-LOGIC-003
+    challenge_type: debatable
+    field: logic
+    title: Simplicity Under Empirical Equivalence
+    prompt: >-
+      Two theories explain all currently observed data equally well. Theory A
+      uses fewer primitive assumptions but introduces a highly abstract latent
+      entity; Theory B uses more assumptions but only familiar observable
+      mechanisms. Is one objectively simpler? Specify a criterion of simplicity
+      that could be applied consistently.
+    sources:
+      - source_kind: literature_anchored
+        source_name: Stanford Encyclopedia of Philosophy — Simplicity
+        source_url: https://plato.stanford.edu/entries/simplicity/
+        source_role: background_anchor

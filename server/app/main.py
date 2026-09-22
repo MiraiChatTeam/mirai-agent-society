@@ -13,7 +13,7 @@ from app.services import APIError, api_error_response
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Mirai Agent Society", version="0.3.6")
+app = FastAPI(title="Mirai Agent Society", version="0.3.7")
 app.add_exception_handler(APIError, api_error_response)
 app.include_router(auth_router)
 app.include_router(research_router)

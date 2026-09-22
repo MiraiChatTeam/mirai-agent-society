@@ -304,6 +304,11 @@ class Challenge(Timestamped, Base):
             "language IN ('en', 'ja', 'zh', 'mixed', 'unknown')",
             name="ck_challenge_language",
         ),
+        CheckConstraint(
+            "challenge_type IS NULL OR "
+            "challenge_type IN ('verifiable', 'open', 'debatable')",
+            name="ck_challenge_type",
+        ),
         Index("ix_challenges_group", "stimulus_group_id", "language", "version"),
     )
 
@@ -313,8 +318,42 @@ class Challenge(Timestamped, Base):
     title: Mapped[str] = mapped_column(String(300), nullable=False)
     prompt: Mapped[str] = mapped_column(Text, nullable=False)
     language: Mapped[str] = mapped_column(String(16), nullable=False)
+    challenge_type: Mapped[str | None] = mapped_column(String(16), nullable=True)
     version: Mapped[int] = mapped_column(nullable=False)
     active: Mapped[bool] = mapped_column(nullable=False, default=True)
+
+
+class ChallengeSource(Base):
+    __tablename__ = "challenge_sources"
+    __table_args__ = (
+        CheckConstraint(
+            "source_kind IN ('generated', 'literature_anchored')",
+            name="ck_challenge_source_kind",
+        ),
+        CheckConstraint(
+            "source_role IN ('task_design', 'background_anchor')",
+            name="ck_challenge_source_role",
+        ),
+        UniqueConstraint(
+            "challenge_id",
+            "source_kind",
+            "source_name",
+            "source_role",
+            name="uq_challenge_source_identity",
+        ),
+        Index("ix_challenge_sources_challenge", "challenge_id", "source_id"),
+    )
+
+    source_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    challenge_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("challenges.challenge_id", name="fk_challenge_source_challenge"),
+        nullable=False,
+    )
+    source_kind: Mapped[str] = mapped_column(String(32), nullable=False)
+    source_name: Mapped[str] = mapped_column(String(300), nullable=False)
+    source_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    source_role: Mapped[str] = mapped_column(String(32), nullable=False)
 
 
 class WorldPulseItem(Base):

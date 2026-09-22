@@ -135,6 +135,13 @@ class SpaceRead(ORMModel):
     created_at: datetime
 
 
+class ChallengeSourceRead(ORMModel):
+    source_kind: str
+    source_name: str
+    source_url: str | None
+    source_role: str
+
+
 class ChallengeRead(ORMModel):
     challenge_id: uuid.UUID
     stimulus_group_id: str
@@ -142,9 +149,11 @@ class ChallengeRead(ORMModel):
     title: str
     prompt: str
     language: str
+    challenge_type: str | None
     version: int
     created_at: datetime
     active: bool
+    sources: list[ChallengeSourceRead] = Field(default_factory=list)
 
 
 class WorldPulseItemRead(ORMModel):

@@ -9,11 +9,13 @@ import secrets
 import sys
 import uuid
 from datetime import UTC, date, datetime, timedelta
+from pathlib import Path
 
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
+from app.challenge_corpus import import_challenge_corpus
 from app.content import (
     create_challenge,
     ingest_world_pulse,
@@ -70,6 +72,7 @@ def challenge_summary(challenge: Challenge) -> dict[str, object]:
         "field": challenge.field,
         "title": challenge.title,
         "language": challenge.language,
+        "challenge_type": challenge.challenge_type,
         "version": challenge.version,
         "active": challenge.active,
         "created_at": challenge.created_at.isoformat(),
@@ -264,6 +267,9 @@ def build_parser() -> argparse.ArgumentParser:
     create_challenge_parser.add_argument("--title", required=True)
     create_challenge_parser.add_argument("--prompt", required=True)
     create_challenge_parser.add_argument("--language", required=True)
+    create_challenge_parser.add_argument(
+        "--type", dest="challenge_type", choices=("verifiable", "open", "debatable")
+    )
     create_challenge_parser.add_argument("--version", type=int, required=True)
     create_challenge_parser.add_argument(
         "--inactive", action="store_false", dest="active"
@@ -295,6 +301,9 @@ def build_parser() -> argparse.ArgumentParser:
     collect_pulse.add_argument("--limit", type=int, default=10)
     collect_pulse.add_argument("--selection-date", type=date.fromisoformat)
     collect_pulse.add_argument("--dry-run", action="store_true")
+    import_challenges = commands.add_parser("import-challenges")
+    import_challenges.add_argument("path", type=Path)
+    import_challenges.add_argument("--publish", action="store_true")
     return parser
 
 
@@ -364,6 +373,7 @@ def main() -> None:
                     language=args.language,
                     version=args.version,
                     active=args.active,
+                    challenge_type=args.challenge_type,
                 )
                 print(json.dumps(challenge_summary(challenge)))
             elif args.command == "list-challenges":
@@ -434,6 +444,14 @@ def main() -> None:
                             limit=args.limit,
                         ),
                         ensure_ascii=False,
+                    )
+                )
+            elif args.command == "import-challenges":
+                print(
+                    json.dumps(
+                        import_challenge_corpus(
+                            db, args.path, publish=args.publish
+                        )
                     )
                 )
     except ValueError as exc:

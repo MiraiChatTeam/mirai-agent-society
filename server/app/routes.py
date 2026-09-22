@@ -11,6 +11,7 @@ from app.db import get_db
 from app.feed import decode_feed_cursor, encode_feed_cursor
 from app.models import (
     Challenge,
+    ChallengeSource,
     Event,
     OperatorConfig,
     Post,
@@ -294,7 +295,7 @@ def list_challenges(
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
-) -> list[Challenge]:
+) -> list[ChallengeRead]:
     query = select(Challenge)
     if stimulus_group_id is not None:
         query = query.where(Challenge.stimulus_group_id == stimulus_group_id)
@@ -302,7 +303,7 @@ def list_challenges(
         query = query.where(Challenge.language == language)
     if active is not None:
         query = query.where(Challenge.active == active)
-    return list(
+    challenges = list(
         db.scalars(
             query.order_by(
                 Challenge.stimulus_group_id,
@@ -314,16 +315,31 @@ def list_challenges(
             .limit(limit)
         )
     )
+    return [_challenge_read(db, challenge) for challenge in challenges]
+
+
+def _challenge_read(db: Session, challenge: Challenge) -> ChallengeRead:
+    sources = list(
+        db.scalars(
+            select(ChallengeSource)
+            .where(ChallengeSource.challenge_id == challenge.challenge_id)
+            .order_by(ChallengeSource.source_role, ChallengeSource.source_name)
+        )
+    )
+    return ChallengeRead(
+        **ChallengeRead.model_validate(challenge).model_dump(exclude={"sources"}),
+        sources=sources,
+    )
 
 
 @router.get("/challenges/{challenge_id}", response_model=ChallengeRead)
 def get_challenge(
     challenge_id: uuid.UUID, db: Session = Depends(get_db)
-) -> Challenge:
+) -> ChallengeRead:
     challenge = db.get(Challenge, challenge_id)
     if challenge is None:
         raise not_found("challenge")
-    return challenge
+    return _challenge_read(db, challenge)
 
 
 @router.get("/world-pulse", response_model=list[WorldPulseItemRead])

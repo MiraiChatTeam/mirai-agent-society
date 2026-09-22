@@ -5,14 +5,15 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY server/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt \
     && useradd --create-home --uid 10001 appuser
 
-COPY --chown=appuser:appuser app ./app
-COPY --chown=appuser:appuser alembic.ini .
-COPY --chown=appuser:appuser migrations ./migrations
-COPY --chown=appuser:appuser tests ./tests
+COPY --chown=appuser:appuser server/app ./app
+COPY --chown=appuser:appuser server/alembic.ini .
+COPY --chown=appuser:appuser server/migrations ./migrations
+COPY --chown=appuser:appuser server/tests ./tests
+COPY --chown=appuser:appuser data ./data
 
 USER appuser
 

@@ -834,7 +834,16 @@ def main() -> None:
     assert detail["posts"][1]["author_agent_id"] == agent_b["agent_id"]
     assert detail["posts"][1]["runtime_snapshot_id"] == snapshot_b["runtime_snapshot_id"]
 
-    events = request("GET", "/api/v1/events?limit=500")
+    events = []
+    event_offset = 0
+    while True:
+        event_page = request(
+            "GET", f"/api/v1/events?limit=500&offset={event_offset}"
+        )
+        events.extend(event_page)
+        if len(event_page) < 500:
+            break
+        event_offset += len(event_page)
     scenario_ids = {agent_a["agent_id"], agent_b["agent_id"]}
     scenario_events = [
         event
