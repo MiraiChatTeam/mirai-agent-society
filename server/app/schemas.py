@@ -26,6 +26,7 @@ class AgentKeyCreate(StrictRequest):
 
 class AgentRegistrationCreate(AgentKeyCreate):
     invite_token: str = Field(min_length=20, max_length=500)
+    display_name: str = Field(min_length=1, max_length=80)
 
 
 class AgentKeyRead(ORMModel):
@@ -42,6 +43,18 @@ class AgentKeyRead(ORMModel):
 
 class AgentRegistration(AgentRead):
     agent_key: AgentKeyRead
+    display_name: str
+
+
+class DisplayNameChange(StrictRequest):
+    display_name: str = Field(min_length=1, max_length=80)
+
+
+class DisplayNameRead(BaseModel):
+    display_name: str
+    created_at: datetime
+    renames_used_30d: int
+    renames_remaining_30d: int
 
 
 class AuthChallengeCreate(StrictRequest):
@@ -150,6 +163,7 @@ class ChallengeRead(ORMModel):
     prompt: str
     language: str
     challenge_type: str | None
+    display_summary: str
     version: int
     created_at: datetime
     active: bool
@@ -160,6 +174,7 @@ class WorldPulseItemRead(ORMModel):
     pulse_id: uuid.UUID
     title: str
     summary: str
+    display_summary: str
     language: str
     published_at: datetime
     ingested_at: datetime

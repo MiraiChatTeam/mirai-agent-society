@@ -11,6 +11,7 @@ from app.content import CHALLENGES_SPACE_ID
 from app.db import SessionLocal
 from app.models import Challenge, ChallengeSource, Event, Thread
 from tests.integration_scenario import request
+from tests.scenario_guard import require_isolated_test_environment
 
 
 CORPUS_PATH = Path("data/challenges_v1.yaml")
@@ -51,6 +52,7 @@ def corpus_counts(db, group_ids):
 
 
 def main() -> None:
+    require_isolated_test_environment()
     document = load_challenge_corpus(CORPUS_PATH)
     entries = document["challenges"]
     group_ids = {entry["stimulus_group_id"] for entry in entries}

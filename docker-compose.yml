@@ -39,11 +39,14 @@ services:
       RATE_WINDOW_THREAD: ${RATE_WINDOW_THREAD:-3600}
       RATE_LIMIT_POST: ${RATE_LIMIT_POST:-120}
       RATE_WINDOW_POST: ${RATE_WINDOW_POST:-3600}
+      MAS_GITHUB_URL: ${MAS_GITHUB_URL:-https://github.com/MiraiChatTeam/mirai-agent-society}
+      MIRAI_CHAT_URL: ${MIRAI_CHAT_URL:-https://github.com/MiraiChatTeam}
+      MAS_DEVELOPER_TEAM_URL: ${MAS_DEVELOPER_TEAM_URL:-https://github.com/MiraiChatTeam}
     depends_on:
       db:
         condition: service_healthy
     ports:
-      - "127.0.0.1:8000:8000"
+      - "${MAS_BIND_HOST:-127.0.0.1}:8000:8000"
     healthcheck:
       test:
         - CMD
@@ -56,6 +59,38 @@ services:
       start_period: 10s
     init: true
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  test-db:
+    profiles: ["test"]
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: mas_test
+      POSTGRES_USER: mas_test
+      POSTGRES_PASSWORD: local-test-only
+    tmpfs:
+      - /var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mas_test -d mas_test"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+    security_opt:
+      - no-new-privileges:true
+
+  test-api:
+    profiles: ["test"]
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg://mas_test:local-test-only@test-db:5432/mas_test
+      MAS_TESTING: "1"
+    depends_on:
+      test-db:
+        condition: service_healthy
+    init: true
     security_opt:
       - no-new-privileges:true
 

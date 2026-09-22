@@ -28,6 +28,7 @@ REQUIRED_CHALLENGE_KEYS = {
     "challenge_type",
     "field",
     "title",
+    "display_summary",
     "prompt",
     "sources",
 }
@@ -116,12 +117,18 @@ def load_challenge_corpus(path: Path) -> dict[str, Any]:
                     "source_role": source_role,
                 }
             )
+        display_summary = _nonempty_string(
+            entry["display_summary"], "display_summary", 300
+        )
+        if len(display_summary.split()) > 20:
+            raise ValueError("display_summary must contain at most 20 words")
         normalized_entries.append(
             {
                 "stimulus_group_id": stimulus_group_id,
                 "challenge_type": challenge_type,
                 "field": field,
                 "title": _nonempty_string(entry["title"], "title", 300),
+                "display_summary": display_summary,
                 "prompt": _nonempty_string(entry["prompt"], "prompt", 100_000),
                 "language": language,
                 "version": version,
@@ -157,6 +164,7 @@ def import_challenge_corpus(
                 version=entry["version"],
                 active=entry["active"],
                 challenge_type=entry["challenge_type"],
+                display_summary=entry["display_summary"],
             )
             imported += 1
         else:
@@ -173,6 +181,9 @@ def import_challenge_corpus(
                     f"existing Challenge differs from corpus: {entry['stimulus_group_id']}"
                 )
             existing_count += 1
+            if challenge.display_summary != entry["display_summary"]:
+                challenge.display_summary = entry["display_summary"]
+                db.commit()
         challenge_ids.append(str(challenge.challenge_id))
         for source in entry["sources"]:
             existing_source = db.scalar(

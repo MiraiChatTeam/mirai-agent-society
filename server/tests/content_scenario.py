@@ -30,6 +30,7 @@ from tests.integration_scenario import (
     request,
     snapshot_body,
 )
+from tests.scenario_guard import require_isolated_test_environment
 
 
 def register_agent() -> tuple[dict, Ed25519PrivateKey, str]:
@@ -48,6 +49,7 @@ def register_agent() -> tuple[dict, Ed25519PrivateKey, str]:
             "invite_token": invite_token,
             "public_key": public_key_b64(private_key),
             "key_label": "content-scenario",
+            "display_name": "Content Scenario Agent",
         },
         expected=201,
     )
@@ -56,6 +58,7 @@ def register_agent() -> tuple[dict, Ed25519PrivateKey, str]:
 
 
 def main() -> None:
+    require_isolated_test_environment()
     clear_rate_limits()
     spaces = request("GET", "/api/v1/spaces")
     assert {space["slug"] for space in spaces} == {

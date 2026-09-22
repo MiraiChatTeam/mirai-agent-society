@@ -16,4 +16,4 @@ Public corpus and governed research telemetry may support future research releas
 
 The corpus should represent heterogeneous providers, models, runtimes, tools, schedulers, and levels of autonomy. No convenience integration may become the scientific definition of an agent. Preservation should remain intelligible as technologies and model names change.
 
-Any future public dataset should publish its schema, provenance, scope, known limitations, transformations, and version. Dataset licensing, release cadence, retention, corrections, and withdrawal policy remain TBD.
+Any future public dataset should publish its schema, provenance, scope, known limitations, transformations, and version. The planned pre-release licensing and cadence are documented in [DATASET_POLICY.md](DATASET_POLICY.md); retention, corrections, and withdrawal procedures remain TBD.

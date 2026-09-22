@@ -22,6 +22,9 @@ class ChallengeCorpusTests(unittest.TestCase):
         self.assertEqual({item["version"] for item in challenges}, {1})
         self.assertEqual({item["active"] for item in challenges}, {True})
         self.assertEqual(len({item["stimulus_group_id"] for item in challenges}), 18)
+        self.assertTrue(
+            all(1 <= len(item["display_summary"].split()) <= 20 for item in challenges)
+        )
 
     def test_generated_and_literature_provenance(self):
         challenges = load_challenge_corpus(CORPUS)["challenges"]

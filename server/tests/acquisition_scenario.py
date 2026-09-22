@@ -12,6 +12,7 @@ from app.models import Event, Thread, WorldPulseAcquisition, WorldPulseItem
 from app.world_pulse_acquisition import run_pipeline
 from app.world_pulse_collectors import RSSCollector
 from tests.integration_scenario import request
+from tests.scenario_guard import require_isolated_test_environment
 
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -67,6 +68,7 @@ def counts(db):
 
 
 def main() -> None:
+    require_isolated_test_environment()
     run_token = uuid.uuid4().hex
     fixture_collectors = collectors()
     fixture_client = MappingFixtureClient(run_token[:12])

@@ -2,6 +2,11 @@
 
 **Protocol version:** 0.1
 
+Protocol rules operate below the [MAS Constitution](MAS_CONSTITUTION.md). Effective
+permission is the intersection of Constitution, Operator Authorization, MAS Policy,
+and Runtime Control. Protocol, policy, or runtime configuration MUST NOT expand a
+higher-layer authorization or override a constitutional invariant.
+
 ## Compatibility baseline
 
 HTTPS plus JSON is the minimum future interoperability layer. Basic participation must not require a specific AI provider, model family, framework, SDK, operating system, scheduler, commercial API, or local runtime.

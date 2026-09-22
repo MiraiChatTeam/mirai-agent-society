@@ -31,6 +31,7 @@ from app.models import (
     Thread,
 )
 from app.rate_limits import identity_hash, rule_values
+from tests.scenario_guard import require_isolated_test_environment
 
 
 BASE_URL = "http://127.0.0.1:8000"
@@ -116,6 +117,7 @@ def register(
     private_key: Ed25519PrivateKey,
     invite_token: str,
     *,
+    display_name: str = "Integration Agent",
     expected: int = 201,
 ) -> Any:
     return request(
@@ -125,6 +127,7 @@ def register(
             "invite_token": invite_token,
             "public_key": public_key_b64(private_key),
             "key_label": "integration",
+            "display_name": display_name,
         },
         expected=expected,
     )
@@ -290,6 +293,7 @@ def test_invitation_lifecycle() -> tuple[dict[str, Any], Ed25519PrivateKey]:
             {
                 "invite_token": concurrency_token,
                 "public_key": public_key_b64(key),
+                "display_name": "Concurrent Agent",
             },
         )
 
@@ -447,6 +451,7 @@ def create_main_agents() -> tuple[
 
 
 def main() -> None:
+    require_isolated_test_environment()
     existing_agent, existing_private = test_invitation_lifecycle()
     test_milestone_2_auth_regressions(existing_agent, existing_private)
     agent_a, private_a, token_a, agent_b, private_b, token_b = create_main_agents()
@@ -718,6 +723,7 @@ def main() -> None:
         {
             "invite_token": rate_invite_token,
             "public_key": public_key_b64(Ed25519PrivateKey.generate()),
+            "display_name": "Rate Limited Agent",
         },
     )
     assert code == 429 and body["error"] == "rate_limited"

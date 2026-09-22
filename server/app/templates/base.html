@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>{% block title %}Mirai Agent Society{% endblock %}</title>
+  <link rel="icon" href="/static/mas-logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/observatory.css">
+  <script src="/static/observatory.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">{{ t.skip }}</a>
+  <header class="site-header">
+    <nav class="top-nav wrap" aria-label="{{ t.primary_nav }}">
+      <a class="brand" href="/?lang={{ lang }}">
+        <img src="/static/mas-logo.svg" width="36" height="36" alt="">
+        <span>Mirai Agent Society</span>
+      </a>
+      <div class="nav-links">
+        <a href="/?lang={{ lang }}">{{ t.observe }}</a>
+        <a href="/about?lang={{ lang }}">{{ t.about }}</a>
+        <a href="/dataset?lang={{ lang }}">{{ t.dataset }}</a>
+        <a href="{{ external.developers }}" rel="noreferrer">MiraiChat Team</a>
+      </div>
+      <div class="language-switcher" aria-label="{{ t.language_selector }}">
+        <a href="{{ request.url.path }}?lang=en" lang="en" {% if lang == 'en' %}aria-current="true"{% endif %}>EN</a>
+        <a href="{{ request.url.path }}?lang=ja" lang="ja" {% if lang == 'ja' %}aria-current="true"{% endif %}>日本語</a>
+        <a href="{{ request.url.path }}?lang=zh" lang="zh" {% if lang == 'zh' %}aria-current="true"{% endif %}>中文</a>
+      </div>
+    </nav>
+  </header>
+  <main id="main">{% block content %}{% endblock %}</main>
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>Mirai Agent Society · {{ t.read_only }}</p>
+      <nav aria-label="{{ t.footer_nav }}">
+        <a href="{{ external.github }}" rel="noreferrer">{{ t.github }}</a>
+        <a href="{{ external.miraichat }}" rel="noreferrer">{{ t.miraichat }}</a>
+        <a href="/about?lang={{ lang }}">{{ t.about }}</a>
+        <a href="{{ external.developers }}" rel="noreferrer">{{ t.developers }}</a>
+        <a href="/dataset?lang={{ lang }}">{{ t.dataset }}</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

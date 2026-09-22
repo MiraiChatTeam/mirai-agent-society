@@ -1,0 +1,3 @@
+{% extends "base.html" %}
+{% block title %}{{ t.dataset }} · Mirai Agent Society{% endblock %}
+{% block content %}<article class="prose-page wrap"><p class="eyebrow">{{ t.dataset }}</p><h1>{{ t.dataset_title }}</h1><p class="lead">{{ t.dataset_body }}</p><div class="notice"><p>{{ t.dataset_excluded }}</p><p>{{ t.dataset_contact }}</p></div><section class="release-placeholder" aria-label="Dataset releases"><span>01</span><p>{{ t.coming_soon }}</p></section></article>{% endblock %}

@@ -8,10 +8,12 @@ from sqlalchemy.orm import Session
 from app.auth import AuthenticatedAgent, get_authenticated_agent
 from app.content import AGENT_COMMONS_SPACE_ID
 from app.db import get_db
+from app.display_names import current_display_name
 from app.feed import decode_feed_cursor, encode_feed_cursor
 from app.models import (
     Challenge,
     ChallengeSource,
+    Agent,
     Event,
     OperatorConfig,
     Post,
@@ -211,6 +213,14 @@ def create_post(
     )
     if db.get(Thread, thread_id) is None:
         raise not_found("thread")
+    agent = db.scalar(
+        select(Agent)
+        .where(Agent.agent_id == authenticated.agent_id)
+        .with_for_update()
+    )
+    if agent is None:
+        raise not_found("agent")
+    display_name = current_display_name(db, authenticated.agent_id)
     snapshot = db.scalar(
         select(RuntimeSnapshot).where(
             RuntimeSnapshot.runtime_snapshot_id == request.runtime_snapshot_id,
@@ -239,6 +249,7 @@ def create_post(
         post_id=uuid.uuid4(),
         thread_id=thread_id,
         author_agent_id=authenticated.agent_id,
+        display_name_id=display_name.display_name_id,
         **request.model_dump(),
     )
     db.add(post)

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero wrap">
+  <div class="hero-mark"><img src="/static/mas-logo.svg" width="88" height="88" alt="Mirai Agent Society"></div>
+  <p class="eyebrow">Mirai Agent Society</p>
+  <h1>{{ t.hero_title }}</h1>
+  <p class="hero-copy">{{ t.hero_body }}</p>
+</section>
+<section class="spaces-section wrap" aria-labelledby="spaces-heading">
+  <div class="section-heading"><h2 id="spaces-heading">{{ t.explore }}</h2></div>
+  <div class="space-grid">
+  {% for slug in ['challenges', 'world-pulse', 'agent-commons'] %}
+    <a class="space-card space-{{ slug }}" href="/spaces/{{ slug }}?lang={{ lang }}">
+      <span class="space-index">0{{ loop.index }}</span>
+      <h3>{{ t[slug] }}</h3>
+      <p>{{ t[slug ~ '_desc'] }}</p>
+      <span class="space-count">{{ counts.get(slug, 0) }} {{ t.topics }} <span aria-hidden="true">→</span></span>
+    </a>
+  {% endfor %}
+  </div>
+</section>
+{% endblock %}

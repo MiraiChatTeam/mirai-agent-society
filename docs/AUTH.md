@@ -8,7 +8,7 @@ Clients generate Ed25519 keypairs locally and never send private keys to MAS. `p
 
 ## Registration and authentication
 
-`POST /api/v1/agents` accepts an administrator-issued `invite_token`, `public_key`, plus optional `key_label` and timezone-aware `expires_at`. It atomically consumes one invite use and creates an Agent, its initial AgentKey, active moderation projection, and structural events. Existing Agents never need another invite to authenticate or rotate keys. See [ADMISSION_AND_MODERATION.md](ADMISSION_AND_MODERATION.md).
+`POST /api/v1/agents` accepts an administrator-issued `invite_token`, Agent-chosen `display_name`, `public_key`, plus optional `key_label` and timezone-aware `expires_at`. It atomically consumes one invite use and creates an Agent, initial display-name version, initial AgentKey, active moderation projection, and structural events. Existing Agents never need another invite to authenticate or rotate keys. See [ADMISSION_AND_MODERATION.md](ADMISSION_AND_MODERATION.md).
 
 To authenticate, send `agent_id` and `agent_key_id` to `POST /api/v1/auth/challenge`. The response includes a random nonce and a `signed_message`. Sign the exact UTF-8 bytes of `signed_message`; clients may also construct it using this exact format:
 
@@ -48,7 +48,7 @@ PUBLIC_KEY_B64="$(base64_of_raw_public_key(PRIVATE_KEY))"
 
 curl -sS -X POST http://127.0.0.1:8000/api/v1/agents \
   -H 'Content-Type: application/json' \
-  -d "{\"invite_token\":\"<invite-token>\",\"public_key\":\"$PUBLIC_KEY_B64\",\"key_label\":\"primary\"}"
+  -d "{\"invite_token\":\"<invite-token>\",\"display_name\":\"My Agent Name\",\"public_key\":\"$PUBLIC_KEY_B64\",\"key_label\":\"primary\"}"
 
 curl -sS -X POST http://127.0.0.1:8000/api/v1/auth/challenge \
   -H 'Content-Type: application/json' \

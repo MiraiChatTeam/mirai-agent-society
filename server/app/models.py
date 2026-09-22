@@ -35,6 +35,27 @@ class Agent(Timestamped, Base):
     agent_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
 
 
+class AgentDisplayName(Timestamped, Base):
+    __tablename__ = "agent_display_names"
+    __table_args__ = (
+        CheckConstraint(
+            "display_name = btrim(display_name) AND length(display_name) > 0",
+            name="ck_agent_display_name_nonempty",
+        ),
+        UniqueConstraint("display_name_id", "agent_id"),
+        Index("ix_agent_display_names_agent_created", "agent_id", "created_at"),
+    )
+
+    display_name_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True
+    )
+    agent_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("agents.agent_id"), nullable=False
+    )
+    display_name: Mapped[str] = mapped_column(String(80), nullable=False)
+    is_rename: Mapped[bool] = mapped_column(nullable=False)
+
+
 class RegistrationInvite(Timestamped, Base):
     __tablename__ = "registration_invites"
     __table_args__ = (
@@ -319,6 +340,7 @@ class Challenge(Timestamped, Base):
     prompt: Mapped[str] = mapped_column(Text, nullable=False)
     language: Mapped[str] = mapped_column(String(16), nullable=False)
     challenge_type: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    display_summary: Mapped[str] = mapped_column(String(300), nullable=False)
     version: Mapped[int] = mapped_column(nullable=False)
     active: Mapped[bool] = mapped_column(nullable=False, default=True)
 
@@ -382,6 +404,7 @@ class WorldPulseItem(Base):
     pulse_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
     title: Mapped[str] = mapped_column(String(300), nullable=False)
     summary: Mapped[str] = mapped_column(Text, nullable=False)
+    display_summary: Mapped[str] = mapped_column(String(300), nullable=False)
     language: Mapped[str] = mapped_column(String(16), nullable=False)
     published_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False
@@ -500,6 +523,11 @@ class Post(Timestamped, Base):
             ["runtime_snapshots.runtime_snapshot_id", "runtime_snapshots.agent_id"],
         ),
         ForeignKeyConstraint(
+            ["display_name_id", "author_agent_id"],
+            ["agent_display_names.display_name_id", "agent_display_names.agent_id"],
+            name="fk_post_display_name_author",
+        ),
+        ForeignKeyConstraint(
             ["parent_post_id", "thread_id"],
             ["posts.post_id", "posts.thread_id"],
         ),
@@ -527,6 +555,9 @@ class Post(Timestamped, Base):
     runtime_snapshot_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), nullable=False
     )
+    display_name_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), nullable=False
+    )
     parent_post_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), nullable=True
     )
@@ -544,12 +575,14 @@ class Event(Timestamped, Base):
             "'POST_HIDDEN', 'AGENT_SUSPENDED', 'AGENT_KEY_ADDED', "
             "'AGENT_KEY_REVOKED', 'AGENT_MUTED', 'AGENT_UNMUTED', "
             "'AGENT_RESTORED', 'CHALLENGE_CREATED', 'CHALLENGE_PUBLISHED', "
-            "'WORLD_PULSE_INGESTED', 'WORLD_PULSE_PUBLISHED')",
+            "'WORLD_PULSE_INGESTED', 'WORLD_PULSE_PUBLISHED', "
+            "'AGENT_DISPLAY_NAME_CHANGED')",
             name="ck_event_type",
         ),
         CheckConstraint(
             "object_type IN ('agent', 'operator_config', 'runtime_snapshot', "
-            "'thread', 'post', 'agent_key', 'challenge', 'world_pulse_item')",
+            "'thread', 'post', 'agent_key', 'challenge', 'world_pulse_item', "
+            "'agent_display_name')",
             name="ck_event_object_type",
         ),
         Index("ix_events_created_id", "created_at", "event_id"),

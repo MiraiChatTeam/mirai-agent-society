@@ -29,6 +29,15 @@ SOURCE_TYPES = {"news", "google_trends", "x_trend", "official_release", "other"}
 CHALLENGE_TYPES = {"verifiable", "open", "debatable"}
 
 
+def presentation_summary(value: str, fallback: str) -> str:
+    """Return independently stored presentation metadata of at most 20 words."""
+    words = value.strip().split()
+    summary = " ".join(words[:20]) if words else fallback.strip()
+    if not summary:
+        raise ValueError("display summary must not be empty")
+    return summary[:300]
+
+
 def normalize_source_url(value: str) -> str:
     if len(value) > 2048:
         raise ValueError("source_url cannot exceed 2048 characters")
@@ -62,6 +71,7 @@ def create_challenge(
     version: int,
     active: bool = True,
     challenge_type: str | None = None,
+    display_summary: str | None = None,
 ) -> Challenge:
     stimulus_group_id = stimulus_group_id.strip()
     title = title.strip()
@@ -86,6 +96,7 @@ def create_challenge(
         prompt=prompt,
         language=language,
         challenge_type=challenge_type,
+        display_summary=presentation_summary(display_summary or title, title),
         version=version,
         active=active,
     )
@@ -175,6 +186,7 @@ def ingest_world_pulse(
     source_name: str,
     external_id: str | None = None,
     cluster_key: str | None = None,
+    display_summary: str | None = None,
 ) -> WorldPulseItem:
     if published_at.tzinfo is None:
         raise ValueError("published_at must include a timezone")
@@ -198,6 +210,7 @@ def ingest_world_pulse(
         pulse_id=uuid.uuid4(),
         title=title,
         summary=summary,
+        display_summary=presentation_summary(display_summary or summary, title),
         language=language,
         published_at=published_at.astimezone(UTC),
         ingested_at=datetime.now(UTC),

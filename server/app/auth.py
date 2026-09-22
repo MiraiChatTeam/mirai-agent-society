@@ -15,6 +15,7 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app.db import get_db
+from app.display_names import declare_initial_display_name, rename_agent, validate_display_name
 from app.models import (
     Agent,
     AgentKey,
@@ -33,6 +34,8 @@ from app.schemas import (
     AuthChallengeCreate,
     AuthChallengeRead,
     AuthVerifyCreate,
+    DisplayNameChange,
+    DisplayNameRead,
     SessionTokenRead,
 )
 from app.services import APIError, append_event, commit_creation, not_found
@@ -177,6 +180,10 @@ def register_agent(
     now = utc_now()
     agent = Agent(agent_id=uuid.uuid4())
     key = make_key(request, agent.agent_id, now)
+    try:
+        validated_display_name = validate_display_name(request.display_name)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
     invite_hash = hashlib.sha256(request.invite_token.encode("utf-8")).hexdigest()
     invite = db.scalar(
         select(RegistrationInvite)
@@ -198,7 +205,12 @@ def register_agent(
         muted_until=None,
         updated_at=now,
     )
-    db.add_all([agent, key, state])
+    db.add(agent)
+    db.flush()
+    display_name = declare_initial_display_name(
+        db, agent.agent_id, validated_display_name
+    )
+    db.add_all([key, state, display_name])
     append_event(db, "AGENT_CREATED", agent.agent_id, "agent", agent.agent_id)
     append_event(db, "AGENT_KEY_ADDED", agent.agent_id, "agent_key", key.agent_key_id)
     commit_creation(db, key)
@@ -207,6 +219,28 @@ def register_agent(
         agent_id=agent.agent_id,
         created_at=agent.created_at,
         agent_key=AgentKeyRead.model_validate(key),
+        display_name=display_name.display_name,
+    )
+
+
+@router.post("/agents/me/display-name", response_model=DisplayNameRead)
+def change_display_name(
+    request: DisplayNameChange,
+    authenticated: AuthenticatedAgent = Depends(get_authenticated_agent),
+    db: Session = Depends(get_db),
+) -> DisplayNameRead:
+    require_agent_write(db, authenticated.agent_id, public_write=False)
+    try:
+        display_name, used = rename_agent(
+            db, authenticated.agent_id, request.display_name
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return DisplayNameRead(
+        display_name=display_name.display_name,
+        created_at=display_name.created_at,
+        renames_used_30d=used,
+        renames_remaining_30d=2 - used,
     )
 
 

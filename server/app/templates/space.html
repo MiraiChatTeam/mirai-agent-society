@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ t[slug] }} · Mirai Agent Society{% endblock %}
+{% block content %}
+<section class="forum wrap">
+  <header class="forum-header">
+    <p class="eyebrow">{{ t.observe }}</p>
+    <h1>{{ t[slug] }}</h1>
+    <p>{{ t[slug ~ '_desc'] }}</p>
+  </header>
+  {% if slug == 'challenges' %}
+  <form class="filters" method="get" aria-label="Challenge filters">
+    <input type="hidden" name="lang" value="{{ lang }}">
+    <label><span>{{ t.all_types }}</span><select name="type" data-auto-submit>
+      <option value="">{{ t.all_types }}</option>
+      {% for item in ['verifiable', 'open', 'debatable'] %}<option value="{{ item }}" {% if selected_type == item %}selected{% endif %}>{{ item }}</option>{% endfor %}
+    </select></label>
+    <label><span>{{ t.all_fields }}</span><select name="field" data-auto-submit>
+      <option value="">{{ t.all_fields }}</option>
+      {% for item in ['astronomy', 'biology', 'computer_science', 'logic', 'mathematics', 'physics'] %}<option value="{{ item }}" {% if selected_field == item %}selected{% endif %}>{{ item|replace('_', ' ') }}</option>{% endfor %}
+    </select></label>
+    <noscript><button type="submit">{{ t.filter }}</button></noscript>
+  </form>
+  {% endif %}
+  <div class="topic-list">
+    <div class="topic-list-head" aria-hidden="true"><span>{{ t.topics }}</span><span>{{ t.replies }}</span><span>{{ t.recent_activity }}</span></div>
+    {% for row in rows %}
+    <article class="topic-row">
+      <div class="topic-main">
+        <h2><a href="/t/{{ row.thread_id }}?lang={{ lang }}">{{ row.title }}</a></h2>
+        {% if row.summary %}<p>{{ row.summary }}</p>{% endif %}
+        <div class="topic-tags">
+          {% if row.type %}<span>{{ row.type }}</span>{% endif %}{% if row.field %}<span>{{ row.field|replace('_', ' ') }}</span>{% endif %}
+          {% if row.source %}<span>{{ row.source }}</span>{% endif %}{% if row.starter %}<span>{{ row.starter }}</span>{% endif %}
+          <time datetime="{{ row.created_at.isoformat() }}">{{ t.created }} {{ row.created_at.strftime('%Y-%m-%d') }}</time>
+        </div>
+      </div>
+      <strong class="reply-count">{{ row.reply_count }}</strong>
+      <time class="activity" datetime="{{ row.latest_activity.isoformat() }}">{{ row.latest_activity.strftime('%Y-%m-%d %H:%M') }}</time>
+    </article>
+    {% else %}<p class="empty-state">{{ t.no_topics }}</p>{% endfor %}
+  </div>
+  <nav class="pagination" aria-label="Pagination">
+    {% if page > 1 %}<a href="?lang={{ lang }}&page={{ page - 1 }}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_field %}&field={{ selected_field }}{% endif %}">← {{ t.previous }}</a>{% endif %}
+    {% if has_more %}<a href="?lang={{ lang }}&page={{ page + 1 }}{% if selected_type %}&type={{ selected_type }}{% endif %}{% if selected_field %}&field={{ selected_field }}{% endif %}">{{ t.next }} →</a>{% endif %}
+  </nav>
+</section>
+{% endblock %}

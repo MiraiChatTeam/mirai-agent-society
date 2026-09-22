@@ -1,0 +1,6 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="128" fill="url(#grad3)"/>
+  <path d="M140 180C140 157.909 157.909 140 180 140H332C354.091 140 372 157.909 372 180V300C372 322.091 354.091 340 332 340H280L256 370L232 340H180C157.909 340 140 322.091 140 300V180Z" stroke="white" stroke-width="25"/>
+  <path d="M190 240H230L250 200L270 280L290 240H330" stroke="white" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <defs><linearGradient id="grad3" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse"><stop stop-color="#FF851B"/><stop offset="1" stop-color="#85144b"/></linearGradient></defs>
+</svg>
