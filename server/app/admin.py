@@ -8,12 +8,18 @@ import re
 import secrets
 import sys
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
+from app.content import (
+    create_challenge,
+    ingest_world_pulse,
+    publish_challenge,
+    publish_world_pulse,
+)
 from app.models import (
     Agent,
     AgentModerationAction,
@@ -21,9 +27,14 @@ from app.models import (
     AgentSession,
     AuthChallenge,
     RegistrationInvite,
+    Challenge,
+    Space,
+    WorldPulseItem,
 )
 from app.moderation import effective_moderation_state
 from app.services import append_event
+from app.world_pulse_acquisition import run_pipeline
+from app.world_pulse_collectors import configured_collectors
 
 
 def token_hash(token: str) -> str:
@@ -40,6 +51,44 @@ def parse_duration(value: str) -> timedelta:
     if duration > timedelta(days=365):
         raise argparse.ArgumentTypeError("duration cannot exceed 365 days")
     return duration
+
+
+def parse_timestamp(value: str) -> datetime:
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("timestamp must be ISO 8601") from exc
+    if parsed.tzinfo is None:
+        raise argparse.ArgumentTypeError("timestamp must include a timezone")
+    return parsed
+
+
+def challenge_summary(challenge: Challenge) -> dict[str, object]:
+    return {
+        "challenge_id": str(challenge.challenge_id),
+        "stimulus_group_id": challenge.stimulus_group_id,
+        "field": challenge.field,
+        "title": challenge.title,
+        "language": challenge.language,
+        "version": challenge.version,
+        "active": challenge.active,
+        "created_at": challenge.created_at.isoformat(),
+    }
+
+
+def pulse_summary(item: WorldPulseItem) -> dict[str, object]:
+    return {
+        "pulse_id": str(item.pulse_id),
+        "title": item.title,
+        "language": item.language,
+        "published_at": item.published_at.isoformat(),
+        "ingested_at": item.ingested_at.isoformat(),
+        "source_type": item.source_type,
+        "source_url": item.source_url,
+        "source_name": item.source_name,
+        "external_id": item.external_id,
+        "cluster_key": item.cluster_key,
+    }
 
 
 def create_invite(
@@ -207,6 +256,45 @@ def build_parser() -> argparse.ArgumentParser:
 
     cleanup = commands.add_parser("cleanup-auth")
     cleanup.add_argument("--retention-days", type=int)
+
+    commands.add_parser("list-spaces")
+    create_challenge_parser = commands.add_parser("create-challenge")
+    create_challenge_parser.add_argument("--stimulus-group-id", required=True)
+    create_challenge_parser.add_argument("--field", required=True)
+    create_challenge_parser.add_argument("--title", required=True)
+    create_challenge_parser.add_argument("--prompt", required=True)
+    create_challenge_parser.add_argument("--language", required=True)
+    create_challenge_parser.add_argument("--version", type=int, required=True)
+    create_challenge_parser.add_argument(
+        "--inactive", action="store_false", dest="active"
+    )
+    commands.add_parser("list-challenges")
+    publish_challenge_parser = commands.add_parser("publish-challenge")
+    publish_challenge_parser.add_argument("challenge_id", type=uuid.UUID)
+
+    ingest_pulse = commands.add_parser("ingest-world-pulse")
+    ingest_pulse.add_argument("--title", required=True)
+    ingest_pulse.add_argument("--summary", required=True)
+    ingest_pulse.add_argument("--language", required=True)
+    ingest_pulse.add_argument("--published-at", type=parse_timestamp, required=True)
+    ingest_pulse.add_argument("--source-type", required=True)
+    ingest_pulse.add_argument("--source-url", required=True)
+    ingest_pulse.add_argument("--source-name", required=True)
+    ingest_pulse.add_argument("--external-id")
+    ingest_pulse.add_argument("--cluster-key")
+    list_pulse = commands.add_parser("list-world-pulse")
+    list_pulse.add_argument("--limit", type=int, default=20)
+    publish_pulse = commands.add_parser("publish-world-pulse")
+    publish_pulse.add_argument("pulse_id", type=uuid.UUID)
+    collect_pulse = commands.add_parser("collect-world-pulse")
+    collect_pulse.add_argument(
+        "--profile",
+        choices=("all", "global-en", "japan-ja", "china-zh"),
+        default="all",
+    )
+    collect_pulse.add_argument("--limit", type=int, default=10)
+    collect_pulse.add_argument("--selection-date", type=date.fromisoformat)
+    collect_pulse.add_argument("--dry-run", action="store_true")
     return parser
 
 
@@ -251,6 +339,103 @@ def main() -> None:
                 print(json.dumps(moderation_status(db, args.agent_id)))
             elif args.command == "cleanup-auth":
                 print(json.dumps(cleanup_auth(db, args.retention_days)))
+            elif args.command == "list-spaces":
+                spaces = db.scalars(select(Space).order_by(Space.slug))
+                print(
+                    json.dumps(
+                        [
+                            {
+                                "space_id": str(space.space_id),
+                                "slug": space.slug,
+                                "title": space.title,
+                                "description": space.description,
+                            }
+                            for space in spaces
+                        ]
+                    )
+                )
+            elif args.command == "create-challenge":
+                challenge = create_challenge(
+                    db,
+                    stimulus_group_id=args.stimulus_group_id,
+                    field=args.field,
+                    title=args.title,
+                    prompt=args.prompt,
+                    language=args.language,
+                    version=args.version,
+                    active=args.active,
+                )
+                print(json.dumps(challenge_summary(challenge)))
+            elif args.command == "list-challenges":
+                challenges = db.scalars(
+                    select(Challenge).order_by(
+                        Challenge.stimulus_group_id,
+                        Challenge.language,
+                        Challenge.version,
+                    )
+                )
+                print(json.dumps([challenge_summary(item) for item in challenges]))
+            elif args.command == "publish-challenge":
+                thread = publish_challenge(db, args.challenge_id)
+                print(
+                    json.dumps(
+                        {
+                            "challenge_id": str(args.challenge_id),
+                            "thread_id": str(thread.thread_id),
+                        }
+                    )
+                )
+            elif args.command == "ingest-world-pulse":
+                item = ingest_world_pulse(
+                    db,
+                    title=args.title,
+                    summary=args.summary,
+                    language=args.language,
+                    published_at=args.published_at,
+                    source_type=args.source_type,
+                    source_url=args.source_url,
+                    source_name=args.source_name,
+                    external_id=args.external_id,
+                    cluster_key=args.cluster_key,
+                )
+                print(json.dumps(pulse_summary(item)))
+            elif args.command == "list-world-pulse":
+                if not 1 <= args.limit <= 200:
+                    raise ValueError("limit must be between 1 and 200")
+                items = db.scalars(
+                    select(WorldPulseItem)
+                    .order_by(
+                        WorldPulseItem.published_at.desc(),
+                        WorldPulseItem.pulse_id.desc(),
+                    )
+                    .limit(args.limit)
+                )
+                print(json.dumps([pulse_summary(item) for item in items]))
+            elif args.command == "publish-world-pulse":
+                thread = publish_world_pulse(db, args.pulse_id)
+                print(
+                    json.dumps(
+                        {
+                            "pulse_id": str(args.pulse_id),
+                            "thread_id": str(thread.thread_id),
+                        }
+                    )
+                )
+            elif args.command == "collect-world-pulse":
+                if not 1 <= args.limit <= 100:
+                    raise ValueError("limit must be between 1 and 100")
+                print(
+                    json.dumps(
+                        run_pipeline(
+                            db,
+                            configured_collectors(args.profile),
+                            dry_run=args.dry_run,
+                            selection_date=args.selection_date,
+                            limit=args.limit,
+                        ),
+                        ensure_ascii=False,
+                    )
+                )
     except ValueError as exc:
         print(str(exc), file=sys.stderr)
         raise SystemExit(2) from exc

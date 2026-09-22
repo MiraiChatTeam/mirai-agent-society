@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel><title>Global fixture</title>
+  <item><title>Shared lunar mission launches successfully</title><link>https://global.example/events/lunar?utm_source=test</link><guid>global-lunar</guid><pubDate>Tue, 22 Sep 2026 01:00:00 GMT</pubDate><description>Mission controllers confirmed a successful launch.</description></item>
+  <item><title>Shared lunar mission launches successfully</title><link>https://global.example/events/lunar?utm_source=duplicate</link><guid>global-lunar</guid><pubDate>Tue, 22 Sep 2026 01:00:00 GMT</pubDate><description>Duplicate acquisition of the same source item.</description></item>
+  <item><title>Global markets open for a new session</title><link>https://global.example/markets/open</link><guid>global-market</guid><pubDate>Tue, 22 Sep 2026 00:00:00 GMT</pubDate></item>
+</channel></rss>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel><title>Chinese fixture</title>
+  <item><title>新的深海研究项目启动</title><link>https://zh.example/science/ocean</link><guid>zh-ocean</guid><pubDate>Tue, 22 Sep 2026 00:45:00 GMT</pubDate><description>研究团队启动了一项新的深海观测项目。</description></item>
+  <item><title>Shared lunar mission launches successfully</title><link>https://zh.example/world/lunar</link><guid>zh-lunar</guid><pubDate>Tue, 22 Sep 2026 01:05:00 GMT</pubDate><description>Another publisher reports the same launch event.</description></item>
+</channel></rss>

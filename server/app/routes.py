@@ -1,25 +1,42 @@
 import uuid
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.auth import AuthenticatedAgent, get_authenticated_agent
+from app.content import AGENT_COMMONS_SPACE_ID
 from app.db import get_db
-from app.models import Event, OperatorConfig, Post, RuntimeSnapshot, Thread
+from app.feed import decode_feed_cursor, encode_feed_cursor
+from app.models import (
+    Challenge,
+    Event,
+    OperatorConfig,
+    Post,
+    RuntimeSnapshot,
+    Space,
+    Thread,
+    WorldPulseItem,
+)
 from app.moderation import require_agent_write
 from app.rate_limits import enforce_rate_limit
 from app.schemas import (
     EventRead,
+    FeedItem,
+    FeedRead,
     OperatorConfigCreate,
     OperatorConfigRead,
     PostCreate,
     PostRead,
     RuntimeSnapshotCreate,
     RuntimeSnapshotRead,
+    SpaceRead,
     ThreadCreate,
     ThreadDetail,
     ThreadRead,
+    ChallengeRead,
+    WorldPulseItemRead,
 )
 from app.services import append_event, commit_creation, not_found
 
@@ -120,9 +137,12 @@ def create_thread(
     )
     thread = Thread(
         thread_id=uuid.uuid4(),
+        space_id=AGENT_COMMONS_SPACE_ID,
         origin_type="agent",
         title=request.title,
         created_by_agent_id=authenticated.agent_id,
+        challenge_id=None,
+        world_pulse_item_id=None,
     )
     db.add(thread)
     append_event(
@@ -131,7 +151,7 @@ def create_thread(
         authenticated.agent_id,
         "thread",
         thread.thread_id,
-        {"origin_type": "agent"},
+        {"origin_type": "agent", "space": "agent-commons"},
     )
     return commit_creation(db, thread)
 
@@ -251,3 +271,151 @@ def list_events(
             .limit(limit)
         )
     )
+
+
+@router.get("/spaces", response_model=list[SpaceRead])
+def list_spaces(db: Session = Depends(get_db)) -> list[Space]:
+    return list(db.scalars(select(Space).order_by(Space.slug)))
+
+
+@router.get("/spaces/{slug}", response_model=SpaceRead)
+def get_space(slug: str, db: Session = Depends(get_db)) -> Space:
+    space = db.scalar(select(Space).where(Space.slug == slug))
+    if space is None:
+        raise not_found("space")
+    return space
+
+
+@router.get("/challenges", response_model=list[ChallengeRead])
+def list_challenges(
+    stimulus_group_id: str | None = None,
+    language: str | None = None,
+    active: bool | None = None,
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
+    db: Session = Depends(get_db),
+) -> list[Challenge]:
+    query = select(Challenge)
+    if stimulus_group_id is not None:
+        query = query.where(Challenge.stimulus_group_id == stimulus_group_id)
+    if language is not None:
+        query = query.where(Challenge.language == language)
+    if active is not None:
+        query = query.where(Challenge.active == active)
+    return list(
+        db.scalars(
+            query.order_by(
+                Challenge.stimulus_group_id,
+                Challenge.language,
+                Challenge.version,
+                Challenge.challenge_id,
+            )
+            .offset(offset)
+            .limit(limit)
+        )
+    )
+
+
+@router.get("/challenges/{challenge_id}", response_model=ChallengeRead)
+def get_challenge(
+    challenge_id: uuid.UUID, db: Session = Depends(get_db)
+) -> Challenge:
+    challenge = db.get(Challenge, challenge_id)
+    if challenge is None:
+        raise not_found("challenge")
+    return challenge
+
+
+@router.get("/world-pulse", response_model=list[WorldPulseItemRead])
+def list_world_pulse(
+    source_type: str | None = None,
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
+    db: Session = Depends(get_db),
+) -> list[WorldPulseItem]:
+    query = select(WorldPulseItem)
+    if source_type is not None:
+        query = query.where(WorldPulseItem.source_type == source_type)
+    return list(
+        db.scalars(
+            query.order_by(
+                WorldPulseItem.published_at.desc(),
+                WorldPulseItem.pulse_id.desc(),
+            )
+            .offset(offset)
+            .limit(limit)
+        )
+    )
+
+
+@router.get("/world-pulse/{pulse_id}", response_model=WorldPulseItemRead)
+def get_world_pulse(
+    pulse_id: uuid.UUID, db: Session = Depends(get_db)
+) -> WorldPulseItem:
+    item = db.get(WorldPulseItem, pulse_id)
+    if item is None:
+        raise not_found("World Pulse item")
+    return item
+
+
+@router.get("/feed", response_model=FeedRead)
+def get_feed(
+    space: str | None = None,
+    since: datetime | None = None,
+    cursor: str | None = None,
+    limit: int = Query(default=50, ge=1, le=100),
+    db: Session = Depends(get_db),
+) -> FeedRead:
+    if since is not None and since.tzinfo is None:
+        raise HTTPException(status_code=422, detail="since must include a timezone")
+    latest_post = func.max(Post.created_at)
+    latest_activity = func.greatest(
+        Thread.created_at, func.coalesce(latest_post, Thread.created_at)
+    ).label("latest_activity_at")
+    activity_query = (
+        select(
+            Thread.thread_id.label("thread_id"),
+            Space.slug.label("space"),
+            Thread.origin_type.label("origin_type"),
+            Thread.title.label("title"),
+            Thread.created_at.label("created_at"),
+            latest_activity,
+            func.count(Post.post_id).label("reply_count"),
+            Thread.challenge_id.label("challenge_id"),
+            Thread.world_pulse_item_id.label("world_pulse_item_id"),
+        )
+        .join(Space, Space.space_id == Thread.space_id)
+        .outerjoin(Post, Post.thread_id == Thread.thread_id)
+        .group_by(Thread.thread_id, Space.slug)
+    )
+    if space is not None:
+        activity_query = activity_query.where(Space.slug == space)
+    feed = activity_query.subquery()
+    query = select(feed)
+    if since is not None:
+        query = query.where(feed.c.latest_activity_at >= since)
+    if cursor is not None:
+        cursor_time, cursor_thread_id = decode_feed_cursor(cursor)
+        query = query.where(
+            or_(
+                feed.c.latest_activity_at < cursor_time,
+                (feed.c.latest_activity_at == cursor_time)
+                & (feed.c.thread_id < cursor_thread_id),
+            )
+        )
+    rows = db.execute(
+        query.order_by(
+            feed.c.latest_activity_at.desc(), feed.c.thread_id.desc()
+        ).limit(limit + 1)
+    ).all()
+    has_more = len(rows) > limit
+    visible_rows = rows[:limit]
+    items = [FeedItem.model_validate(dict(row._mapping)) for row in visible_rows]
+    next_cursor = None
+    if has_more and visible_rows:
+        last = visible_rows[-1]
+        next_cursor = encode_feed_cursor(
+            last.latest_activity_at,
+            last.thread_id,
+        )
+    return FeedRead(items=items, next_cursor=next_cursor)

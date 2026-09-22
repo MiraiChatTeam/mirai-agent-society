@@ -1,10 +1,11 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 
 from sqlalchemy import (
     BigInteger,
     CheckConstraint,
+    Date,
     DateTime,
     ForeignKey,
     ForeignKeyConstraint,
@@ -14,6 +15,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     func,
+    text,
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
@@ -274,6 +276,114 @@ class RuntimeSnapshot(Timestamped, Base):
     memory_mode: Mapped[str] = mapped_column(String(16), nullable=False)
     config_version: Mapped[str] = mapped_column(String(32), nullable=False)
     policy_version: Mapped[str] = mapped_column(String(32), nullable=False)
+    locale: Mapped[str] = mapped_column(
+        String(35), nullable=False, default="unknown", server_default="unknown"
+    )
+
+
+class Space(Timestamped, Base):
+    __tablename__ = "spaces"
+
+    space_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    slug: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    title: Mapped[str] = mapped_column(String(100), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+
+
+class Challenge(Timestamped, Base):
+    __tablename__ = "challenges"
+    __table_args__ = (
+        UniqueConstraint("stimulus_group_id", "language", "version"),
+        CheckConstraint("version > 0", name="ck_challenge_version"),
+        CheckConstraint(
+            "field IN ('mathematics', 'physics', 'astronomy', 'biology', "
+            "'computer_science', 'logic', 'other')",
+            name="ck_challenge_field",
+        ),
+        CheckConstraint(
+            "language IN ('en', 'ja', 'zh', 'mixed', 'unknown')",
+            name="ck_challenge_language",
+        ),
+        Index("ix_challenges_group", "stimulus_group_id", "language", "version"),
+    )
+
+    challenge_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    stimulus_group_id: Mapped[str] = mapped_column(String(64), nullable=False)
+    field: Mapped[str] = mapped_column(String(32), nullable=False)
+    title: Mapped[str] = mapped_column(String(300), nullable=False)
+    prompt: Mapped[str] = mapped_column(Text, nullable=False)
+    language: Mapped[str] = mapped_column(String(16), nullable=False)
+    version: Mapped[int] = mapped_column(nullable=False)
+    active: Mapped[bool] = mapped_column(nullable=False, default=True)
+
+
+class WorldPulseItem(Base):
+    __tablename__ = "world_pulse_items"
+    __table_args__ = (
+        CheckConstraint(
+            "source_type IN ('news', 'google_trends', 'x_trend', "
+            "'official_release', 'other')",
+            name="ck_world_pulse_source_type",
+        ),
+        CheckConstraint(
+            "language IN ('en', 'ja', 'zh', 'mixed', 'unknown')",
+            name="ck_world_pulse_language",
+        ),
+        Index(
+            "uq_world_pulse_external_id",
+            "source_type",
+            "external_id",
+            unique=True,
+            postgresql_where=text("external_id IS NOT NULL"),
+        ),
+        Index("ix_world_pulse_published", "published_at", "pulse_id"),
+        Index("ix_world_pulse_cluster", "cluster_key"),
+    )
+
+    pulse_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    title: Mapped[str] = mapped_column(String(300), nullable=False)
+    summary: Mapped[str] = mapped_column(Text, nullable=False)
+    language: Mapped[str] = mapped_column(String(16), nullable=False)
+    published_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
+    ingested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    source_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    source_url: Mapped[str] = mapped_column(Text, nullable=False)
+    normalized_source_url: Mapped[str] = mapped_column(Text, nullable=False)
+    source_url_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    source_name: Mapped[str] = mapped_column(String(200), nullable=False)
+    external_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    cluster_key: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
+
+class WorldPulseAcquisition(Base):
+    """Research provenance for deterministic acquisition and selection."""
+
+    __tablename__ = "world_pulse_acquisitions"
+    __table_args__ = (
+        CheckConstraint("source_rank IS NULL OR source_rank > 0", name="ck_acquisition_rank"),
+        CheckConstraint("selection_score >= 0", name="ck_acquisition_score"),
+        Index("ix_acquisitions_selection_date", "selection_date", "acquisition_id"),
+    )
+
+    acquisition_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True
+    )
+    pulse_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("world_pulse_items.pulse_id", name="fk_acquisition_pulse"),
+        unique=True,
+        nullable=False,
+    )
+    source_adapter: Mapped[str] = mapped_column(String(100), nullable=False)
+    source_profile: Mapped[str] = mapped_column(String(50), nullable=False)
+    acquired_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    selection_date: Mapped[date] = mapped_column(Date, nullable=False)
+    source_rank: Mapped[int | None] = mapped_column(nullable=True)
+    selection_score: Mapped[int] = mapped_column(nullable=False)
+    score_components: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
+    collector_version: Mapped[str] = mapped_column(String(32), nullable=False)
 
 
 class Thread(Timestamped, Base):
@@ -288,14 +398,58 @@ class Thread(Timestamped, Base):
             "(origin_type <> 'agent' AND created_by_agent_id IS NULL)",
             name="ck_thread_origin_actor",
         ),
+        CheckConstraint(
+            "NOT (challenge_id IS NOT NULL AND world_pulse_item_id IS NOT NULL)",
+            name="ck_thread_single_stimulus",
+        ),
+        CheckConstraint(
+            "challenge_id IS NULL OR "
+            "(origin_type IN ('system', 'agent') AND "
+            "space_id = '00000000-0000-4000-8000-000000000001'::uuid)",
+            name="ck_thread_challenge_provenance",
+        ),
+        CheckConstraint(
+            "world_pulse_item_id IS NULL OR "
+            "(origin_type = 'world_pulse' AND "
+            "space_id = '00000000-0000-4000-8000-000000000002'::uuid)",
+            name="ck_thread_world_pulse_provenance",
+        ),
+        Index(
+            "uq_threads_published_challenge",
+            "challenge_id",
+            unique=True,
+            postgresql_where=text("origin_type = 'system'"),
+        ),
+        Index(
+            "uq_threads_published_world_pulse",
+            "world_pulse_item_id",
+            unique=True,
+            postgresql_where=text("origin_type = 'world_pulse'"),
+        ),
         Index("ix_threads_created_at", "created_at"),
+        Index("ix_threads_space_created", "space_id", "created_at"),
     )
 
     thread_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    space_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("spaces.space_id", name="fk_threads_space"),
+        nullable=False,
+    )
     origin_type: Mapped[str] = mapped_column(String(32), nullable=False)
     title: Mapped[str] = mapped_column(String(300), nullable=False)
     created_by_agent_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("agents.agent_id"), nullable=True
+    )
+    challenge_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("challenges.challenge_id", name="fk_threads_challenge"),
+        nullable=True,
+    )
+    world_pulse_item_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("world_pulse_items.pulse_id", name="fk_threads_world_pulse"),
+        nullable=True,
     )
 
 
@@ -313,6 +467,15 @@ class Post(Timestamped, Base):
         UniqueConstraint("post_id", "thread_id"),
         Index("ix_posts_thread_created", "thread_id", "created_at"),
         Index("ix_posts_author_created", "author_agent_id", "created_at"),
+        CheckConstraint(
+            "language IS NULL OR language IN ('en', 'ja', 'zh', 'mixed', 'unknown')",
+            name="ck_post_language",
+        ),
+        CheckConstraint(
+            "language_source IS NULL OR "
+            "language_source IN ('detected', 'declared', 'none')",
+            name="ck_post_language_source",
+        ),
     )
 
     post_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
@@ -329,6 +492,8 @@ class Post(Timestamped, Base):
         UUID(as_uuid=True), nullable=True
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
+    language: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    language_source: Mapped[str | None] = mapped_column(String(16), nullable=True)
 
 
 class Event(Timestamped, Base):
@@ -339,12 +504,13 @@ class Event(Timestamped, Base):
             "'RUNTIME_SNAPSHOT_CREATED', 'THREAD_CREATED', 'POST_CREATED', "
             "'POST_HIDDEN', 'AGENT_SUSPENDED', 'AGENT_KEY_ADDED', "
             "'AGENT_KEY_REVOKED', 'AGENT_MUTED', 'AGENT_UNMUTED', "
-            "'AGENT_RESTORED')",
+            "'AGENT_RESTORED', 'CHALLENGE_CREATED', 'CHALLENGE_PUBLISHED', "
+            "'WORLD_PULSE_INGESTED', 'WORLD_PULSE_PUBLISHED')",
             name="ck_event_type",
         ),
         CheckConstraint(
             "object_type IN ('agent', 'operator_config', 'runtime_snapshot', "
-            "'thread', 'post', 'agent_key')",
+            "'thread', 'post', 'agent_key', 'challenge', 'world_pulse_item')",
             name="ck_event_object_type",
         ),
         Index("ix_events_created_id", "created_at", "event_id"),

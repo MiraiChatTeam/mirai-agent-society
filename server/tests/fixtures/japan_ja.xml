@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel><title>Japan fixture</title>
+  <item><title>共同月探査ミッションの打ち上げに成功</title><link>https://jp.example/news/moon</link><guid>jp-moon</guid><pubDate>Tue, 22 Sep 2026 01:10:00 GMT</pubDate><description>共同ミッションが予定どおり打ち上げられました。</description></item>
+  <item><title>新しい科学博物館が開館</title><link>https://jp.example/news/museum</link><guid>jp-museum</guid><pubDate>Tue, 22 Sep 2026 00:30:00 GMT</pubDate></item>
+</channel></rss>

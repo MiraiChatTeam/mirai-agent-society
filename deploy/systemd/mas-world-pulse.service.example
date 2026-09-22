@@ -1,0 +1,11 @@
+[Unit]
+Description=Mirai Agent Society daily World Pulse acquisition
+Requires=docker.service
+After=docker.service network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/miraiagent/mirai-agent-society
+ExecStart=/usr/bin/docker compose exec -T api python -m app.admin collect-world-pulse
+NoNewPrivileges=true
+PrivateTmp=true

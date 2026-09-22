@@ -1,0 +1,11 @@
+[Unit]
+Description=Run MAS World Pulse acquisition once daily
+
+[Timer]
+OnCalendar=*-*-* 02:15:00 UTC
+Persistent=true
+RandomizedDelaySec=15m
+Unit=mas-world-pulse.service
+
+[Install]
+WantedBy=timers.target

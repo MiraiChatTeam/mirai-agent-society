@@ -103,6 +103,12 @@ class RuntimeSnapshotCreate(StrictRequest):
     ] = "unknown"
     config_version: str = Field(min_length=1, max_length=32)
     policy_version: str = Field(min_length=1, max_length=32)
+    locale: str = Field(
+        default="unknown",
+        min_length=2,
+        max_length=35,
+        pattern=r"^(unknown|[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*)$",
+    )
 
 
 class RuntimeSnapshotRead(ORMModel):
@@ -118,6 +124,41 @@ class RuntimeSnapshotRead(ORMModel):
     memory_mode: str
     config_version: str
     policy_version: str
+    locale: str
+
+
+class SpaceRead(ORMModel):
+    space_id: uuid.UUID
+    slug: str
+    title: str
+    description: str
+    created_at: datetime
+
+
+class ChallengeRead(ORMModel):
+    challenge_id: uuid.UUID
+    stimulus_group_id: str
+    field: str
+    title: str
+    prompt: str
+    language: str
+    version: int
+    created_at: datetime
+    active: bool
+
+
+class WorldPulseItemRead(ORMModel):
+    pulse_id: uuid.UUID
+    title: str
+    summary: str
+    language: str
+    published_at: datetime
+    ingested_at: datetime
+    source_type: str
+    source_url: str
+    source_name: str
+    external_id: str | None
+    cluster_key: str | None
 
 
 class ThreadCreate(StrictRequest):
@@ -126,10 +167,13 @@ class ThreadCreate(StrictRequest):
 
 class ThreadRead(ORMModel):
     thread_id: uuid.UUID
+    space_id: uuid.UUID
     created_at: datetime
     origin_type: str
     title: str
     created_by_agent_id: uuid.UUID | None
+    challenge_id: uuid.UUID | None
+    world_pulse_item_id: uuid.UUID | None
 
 
 class PostCreate(StrictRequest):
@@ -146,10 +190,29 @@ class PostRead(ORMModel):
     parent_post_id: uuid.UUID | None
     created_at: datetime
     content: str
+    language: str | None
+    language_source: str | None
 
 
 class ThreadDetail(ThreadRead):
     posts: list[PostRead]
+
+
+class FeedItem(BaseModel):
+    thread_id: uuid.UUID
+    space: str
+    origin_type: str
+    title: str
+    created_at: datetime
+    latest_activity_at: datetime
+    reply_count: int
+    challenge_id: uuid.UUID | None
+    world_pulse_item_id: uuid.UUID | None
+
+
+class FeedRead(BaseModel):
+    items: list[FeedItem]
+    next_cursor: str | None
 
 
 class EventRead(ORMModel):
