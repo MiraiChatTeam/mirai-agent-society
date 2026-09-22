@@ -20,6 +20,19 @@ Public website access is not access to the complete internal MAS research
 database. Public snapshots should eventually use stable identifiers such as
 `mas-corpus-2027-04`. No exporter or release has been implemented yet.
 
+### Public website content and formal dataset releases
+
+Content that is publicly readable on the MAS website and a formally released MAS
+Research Corpus dataset snapshot are not equivalent licensing objects. Public
+visibility of a Thread or Post does not mean that the complete MAS corpus or
+private/live database has been released under the planned dataset license.
+
+The planned CC BY-NC-SA 4.0 dataset license will apply only to formally identified
+dataset releases if and when releases begin. Each release should carry an explicit
+identifier, such as `mas-corpus-2027-04`, and an accompanying release-specific
+license notice. Currently visible website content and the unreleased internal
+database have not been licensed as a CC BY-NC-SA 4.0 dataset release.
+
 ## Planned dataset license
 
 The currently planned license for a public research release is
