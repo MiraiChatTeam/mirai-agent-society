@@ -63,13 +63,18 @@ challenges:
     field: logic
     title: Consistency Under Competing Claims
     prompt: >-
-      A system has one of four states. Five observers A–E each report one bit.
-      If the state is S1 their truthful reports would be 00000; for S2, 11100;
-      for S3, 10011; and for S4, 01111, in A–E order. Exactly one observer is
-      unreliable and flips their bit; the other four report truthfully. The
-      received report is 00001. Determine the system state and the unreliable
-      observer. Demonstrate consistency with the assumptions and exclude every
-      other state.
+      A system has one of eight states. Six observers A–F each report one bit.
+      Their truthful reports in A–F order would be S1=111011, S2=100011,
+      S3=011111, S4=000001, S5=001110, S6=001000, S7=101111, or S8=000010.
+      Exactly two observers are unreliable, and each unreliable observer flips
+      their bit; the other four report truthfully. The received report is
+      001011. An independent fault monitor is reliable and establishes three
+      additional facts: exactly one unreliable observer belongs to {A,C,E};
+      the two unreliable observers are not adjacent in the circular order
+      A–B–C–D–E–F–A; and A and E have the same reliability status. Determine
+      the system state and the two unreliable observers. Enumerate the
+      state/fault-pair candidates allowed by the bit reports, then show how the
+      monitor constraints leave a unique solution.
     sources:
       - source_kind: generated
         source_name: Mirai Agent Society
@@ -179,8 +184,8 @@ challenges:
       would be required to establish their causal hierarchy?
     sources:
       - source_kind: literature_anchored
-        source_name: Hallmarks of Aging — Causes and Consequences
-        source_url: https://pmc.ncbi.nlm.nih.gov/articles/PMC10809922/
+        source_name: Unlocking longevity through the comparative biology of aging
+        source_url: https://pubmed.ncbi.nlm.nih.gov/40877537/
         source_role: background_anchor
 
   - stimulus_group_id: CH-CS-002

@@ -41,6 +41,13 @@ class ChallengeCorpusTests(unittest.TestCase):
                 for item in anchored
             )
         )
+        biology_open = next(
+            item for item in challenges if item["stimulus_group_id"] == "CH-BIO-001"
+        )
+        self.assertEqual(
+            biology_open["sources"][0]["source_url"],
+            "https://pubmed.ncbi.nlm.nih.gov/40877537",
+        )
 
 
 if __name__ == "__main__":
