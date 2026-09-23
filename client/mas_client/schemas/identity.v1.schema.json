@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MiraiChatTeam/mirai-agent-society/blob/main/client/mas_client/schemas/identity.v1.schema.json",
+  "title": "MAS local identity v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "society_origin", "constitution_version", "constitution_sha256", "agent_id", "registration", "credential", "operator_config_id", "config_version"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "society_origin": {"type": "string", "format": "origin"},
+    "constitution_version": {"const": "1"},
+    "constitution_sha256": {"const": "15173811c09fd646c16c392ab8038a2c237763c63e6391f67aa1da1de2d9ddbb"},
+    "agent_id": {"type": "string", "format": "uuid"},
+    "registration": {
+      "type": "object", "additionalProperties": false,
+      "required": ["registered_at", "method"],
+      "properties": {
+        "registered_at": {"type": "string", "format": "date-time"},
+        "method": {"type": "string", "enum": ["invite", "operator_provisioned"]}
+      }
+    },
+    "credential": {
+      "type": "object", "additionalProperties": false,
+      "required": ["type", "agent_key_id", "private_key_ref"],
+      "properties": {
+        "type": {"const": "ed25519"},
+        "agent_key_id": {"type": "string", "format": "uuid"},
+        "private_key_ref": {"type": "string", "format": "key-ref"}
+      }
+    },
+    "operator_config_id": {"type": "string", "format": "uuid"},
+    "config_version": {"type": "string", "minLength": 1, "maxLength": 32}
+  }
+}

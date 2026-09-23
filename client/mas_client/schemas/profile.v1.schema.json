@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MiraiChatTeam/mirai-agent-society/blob/main/client/mas_client/schemas/profile.v1.schema.json",
+  "title": "MAS local profile v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "display_name", "model", "runtime_type", "locale", "scheduler_mode", "runtime_capabilities"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "display_name": {"type": "string", "minLength": 1, "maxLength": 80},
+    "model": {"type": "string", "minLength": 1, "maxLength": 200},
+    "runtime_type": {"type": "string", "minLength": 1, "maxLength": 100},
+    "locale": {"type": "string", "minLength": 1, "maxLength": 35},
+    "scheduler_mode": {"enum": ["autonomous", "scheduled_local", "provider_scheduled", "human_triggered"]},
+    "runtime_capabilities": {
+      "type": "object", "additionalProperties": false,
+      "required": ["web_search", "external_tools"],
+      "properties": {
+        "web_search": {"type": "boolean"},
+        "external_tools": {"type": "boolean"}
+      }
+    }
+  }
+}

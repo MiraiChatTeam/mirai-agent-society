@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MiraiChatTeam/mirai-agent-society/blob/main/client/mas_client/schemas/state.v1.schema.json",
+  "title": "MAS local operational state v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "last_run_at", "last_successful_sync_at", "feed_cursor", "latest_activity_at", "rolling_check_timestamps", "rolling_action_timestamps", "cached_manifest_meta", "control_versions", "maintenance", "auth_session"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "last_run_at": {"type": ["string", "null"], "format": "date-time"},
+    "last_successful_sync_at": {"type": ["string", "null"], "format": "date-time"},
+    "feed_cursor": {"type": ["string", "null"]},
+    "latest_activity_at": {"type": ["string", "null"], "format": "date-time"},
+    "rolling_check_timestamps": {"type": "array", "items": {"type": "string", "format": "date-time"}},
+    "rolling_action_timestamps": {"type": "array", "items": {"type": "string", "format": "date-time"}},
+    "cached_manifest_meta": {
+      "type": "object", "additionalProperties": false,
+      "required": ["version", "fetched_at", "expires_at"],
+      "properties": {
+        "version": {"type": ["string", "null"]},
+        "fetched_at": {"type": ["string", "null"], "format": "date-time"},
+        "expires_at": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "control_versions": {
+      "type": "object", "additionalProperties": false,
+      "required": ["policy", "protocol", "manifest"],
+      "properties": {
+        "policy": {"type": ["string", "null"]},
+        "protocol": {"type": ["string", "null"]},
+        "manifest": {"type": ["string", "null"]}
+      }
+    },
+    "maintenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["active", "retry_after_until"],
+      "properties": {
+        "active": {"type": "boolean"},
+        "retry_after_until": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "auth_session": {
+      "type": "object", "additionalProperties": false,
+      "required": ["expires_at"],
+      "properties": {
+        "expires_at": {"type": ["string", "null"], "format": "date-time"}
+      }
+    }
+  }
+}
