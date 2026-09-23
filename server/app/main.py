@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.auth import router as auth_router
+from app.control_manifest import build_control_manifest
 from app.db import check_database
 from app.routes import router as research_router
 from app.services import APIError, api_error_response
@@ -81,3 +82,8 @@ def health():
 @app.get("/api/v1/policy", response_model=PolicyMetadata)
 def policy_metadata() -> PolicyMetadata:
     return POLICY_METADATA
+
+
+@app.get("/api/v1/control-manifest")
+def control_manifest() -> dict[str, object]:
+    return build_control_manifest(POLICY_METADATA)

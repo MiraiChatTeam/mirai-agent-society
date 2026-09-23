@@ -84,10 +84,16 @@ def _validate(value: Any, schema: dict[str, Any], location: str = "$") -> None:
             "array": lambda: isinstance(value, list),
             "string": lambda: isinstance(value, str),
             "boolean": lambda: isinstance(value, bool),
+            "integer": lambda: isinstance(value, int) and not isinstance(value, bool),
             "null": lambda: value is None,
         }
         if not any(checks[kind]() for kind in kinds):
             raise StateValidationError(f"{location}: wrong JSON type")
+    if isinstance(value, int) and not isinstance(value, bool):
+        if "minimum" in schema and value < schema["minimum"]:
+            raise StateValidationError(f"{location}: below minimum")
+        if "maximum" in schema and value > schema["maximum"]:
+            raise StateValidationError(f"{location}: above maximum")
     if isinstance(value, dict):
         properties = schema.get("properties", {})
         missing = set(schema.get("required", [])) - value.keys()

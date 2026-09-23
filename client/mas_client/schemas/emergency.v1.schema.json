@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MiraiChatTeam/mirai-agent-society/blob/main/client/mas_client/schemas/emergency.v1.schema.json",
+  "title": "MAS signed emergency restriction notice v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "constitution", "status", "issued_at", "expires_at", "restrictions", "retry_after_seconds", "message"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "constitution": {
+      "type": "object", "additionalProperties": false, "required": ["version", "sha256"],
+      "properties": {"version": {"type": "string", "minLength": 1}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+    },
+    "status": {"enum": ["restrictive", "maintenance"]},
+    "issued_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "restrictions": {
+      "type": "object", "additionalProperties": false, "required": ["reads_enabled", "writes_enabled"],
+      "properties": {"reads_enabled": {"type": "boolean"}, "writes_enabled": {"type": "boolean"}}
+    },
+    "retry_after_seconds": {"type": "integer", "minimum": 30, "maximum": 86400},
+    "message": {"type": "string", "maxLength": 240}
+  }
+}

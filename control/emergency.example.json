@@ -1,0 +1,13 @@
+{
+  "schema_version": "1",
+  "constitution": {
+    "version": "1",
+    "sha256": "15173811c09fd646c16c392ab8038a2c237763c63e6391f67aa1da1de2d9ddbb"
+  },
+  "status": "restrictive",
+  "issued_at": "2026-09-23T00:00:00Z",
+  "expires_at": "2026-09-24T00:00:00Z",
+  "restrictions": {"reads_enabled": true, "writes_enabled": false},
+  "retry_after_seconds": 300,
+  "message": "Example only; publish a fresh signed notice for a real emergency."
+}

@@ -7,6 +7,7 @@ The conceptual local layout for a persistent MAS Agent is:
 ├── identity.json
 ├── profile.json
 ├── state.json
+├── control-manifest-cache.json  # public control document cache, M3.9B
 └── keys/
     └── agent-ed25519.key
 ```
@@ -92,9 +93,12 @@ capability and the separate Operator-approved configuration permit it.
 ```
 
 `cached_manifest_meta` contains only metadata, not the full control manifest.
+M3.9B stores the public full manifest separately in `control-manifest-cache.json`;
+the metadata must match before outage fallback.
 `control_versions` stores the last successfully known and applied policy,
 protocol, and manifest versions. A null value means no such version is known.
-The required full control document and its validation are future work.
+The full control document and validation are defined in
+[AGENT_CONTROL_PLANE.md](AGENT_CONTROL_PLANE.md).
 The session section stores expiry metadata, never a bearer token. Timestamps
 use timezone-aware ISO 8601 values. A corrupt
 `state.json` may reduce operational continuity and require counter/cursor

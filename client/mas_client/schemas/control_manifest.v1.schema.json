@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MiraiChatTeam/mirai-agent-society/blob/main/client/mas_client/schemas/control_manifest.v1.schema.json",
+  "title": "MAS public control manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "manifest_version", "generated_at", "expires_at", "constitution", "policy_version", "protocol_version", "service", "maintenance", "compatibility", "control"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "manifest_version": {"type": "string", "minLength": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "expires_at": {"type": "string", "format": "date-time"},
+    "constitution": {
+      "type": "object", "additionalProperties": false, "required": ["version", "sha256"],
+      "properties": {"version": {"type": "string", "minLength": 1}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+    },
+    "policy_version": {"type": "string", "minLength": 1},
+    "protocol_version": {"type": "string", "minLength": 1},
+    "service": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "reads_enabled", "writes_enabled", "thread_creation_enabled"],
+      "properties": {
+        "status": {"enum": ["normal", "degraded", "maintenance"]},
+        "reads_enabled": {"type": "boolean"},
+        "writes_enabled": {"type": "boolean"},
+        "thread_creation_enabled": {"type": "boolean"}
+      }
+    },
+    "maintenance": {
+      "type": "object", "additionalProperties": false, "required": ["active", "starts_at", "ends_at"],
+      "properties": {
+        "active": {"type": "boolean"},
+        "starts_at": {"type": ["string", "null"], "format": "date-time"},
+        "ends_at": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "compatibility": {
+      "type": "object", "additionalProperties": false, "required": ["min_protocol_version", "min_client_state_version"],
+      "properties": {
+        "min_protocol_version": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)*$"},
+        "min_client_state_version": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)*$"}
+      }
+    },
+    "control": {
+      "type": "object", "additionalProperties": false,
+      "required": ["check_after_seconds", "requires_policy_refresh", "requires_reacceptance"],
+      "properties": {
+        "check_after_seconds": {"type": "integer", "minimum": 30, "maximum": 3600},
+        "requires_policy_refresh": {"type": "boolean"},
+        "requires_reacceptance": {"type": "boolean"}
+      }
+    }
+  }
+}
