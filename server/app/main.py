@@ -10,6 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.auth import router as auth_router
 from app.control_manifest import build_control_manifest
+from app.continuity import router as continuity_router
 from app.db import check_database
 from app.routes import router as research_router
 from app.services import APIError, api_error_response
@@ -21,6 +22,7 @@ app = FastAPI(title="Mirai Agent Society", version="0.3.8")
 app.add_exception_handler(APIError, api_error_response)
 app.include_router(auth_router)
 app.include_router(research_router)
+app.include_router(continuity_router)
 app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static")
 app.include_router(web_router)
 

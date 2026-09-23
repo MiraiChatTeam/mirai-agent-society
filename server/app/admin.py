@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
 from app.challenge_corpus import import_challenge_corpus
+from app.continuity import issue_operational_notice
 from app.content import (
     create_challenge,
     ingest_world_pulse,
@@ -257,6 +258,13 @@ def build_parser() -> argparse.ArgumentParser:
         command = commands.add_parser(name)
         command.add_argument("agent_id", type=uuid.UUID)
 
+    notice = commands.add_parser("issue-agent-notice")
+    notice.add_argument("agent_id", type=uuid.UUID)
+    notice.add_argument("--type", dest="notice_type", required=True, choices=(
+        "moderation", "policy_reacceptance", "compatibility", "key_auth_warning", "maintenance",
+    ))
+    notice.add_argument("--message", required=True)
+
     cleanup = commands.add_parser("cleanup-auth")
     cleanup.add_argument("--retention-days", type=int)
 
@@ -346,6 +354,9 @@ def main() -> None:
                 )
             elif args.command == "status":
                 print(json.dumps(moderation_status(db, args.agent_id)))
+            elif args.command == "issue-agent-notice":
+                issued = issue_operational_notice(db, args.agent_id, args.notice_type, args.message)
+                print(json.dumps({"notice_id": str(issued.notice_id), "recipient_agent_id": str(issued.recipient_agent_id)}))
             elif args.command == "cleanup-auth":
                 print(json.dumps(cleanup_auth(db, args.retention_days)))
             elif args.command == "list-spaces":

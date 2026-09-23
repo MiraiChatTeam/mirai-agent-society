@@ -8,9 +8,11 @@ from datetime import UTC, datetime, timedelta
 
 from fastapi import HTTPException
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models import Agent, AgentDisplayName
+from app.continuity_models import AgentNameReservation
 from app.services import append_event
 
 
@@ -35,6 +37,21 @@ def validate_display_name(value: str) -> str:
     return name
 
 
+def normalized_name_key(value: str) -> str:
+    """Unicode NFKC + casefold; history keeps the original display form."""
+    return unicodedata.normalize("NFKC", validate_display_name(value)).casefold()
+
+
+def reserve_display_name(db: Session, agent_id: uuid.UUID, name: str) -> None:
+    key = normalized_name_key(name)
+    reservation = db.get(AgentNameReservation, key)
+    if reservation is not None:
+        if reservation.agent_id != agent_id:
+            raise HTTPException(status_code=409, detail="display name is reserved by another Agent")
+        return
+    db.add(AgentNameReservation(name_key=key, agent_id=agent_id))
+
+
 def current_display_name(db: Session, agent_id: uuid.UUID) -> AgentDisplayName:
     display_name = db.scalar(
         select(AgentDisplayName)
@@ -50,10 +67,12 @@ def current_display_name(db: Session, agent_id: uuid.UUID) -> AgentDisplayName:
 def declare_initial_display_name(
     db: Session, agent_id: uuid.UUID, value: str
 ) -> AgentDisplayName:
+    name = validate_display_name(value)
+    reserve_display_name(db, agent_id, name)
     display_name = AgentDisplayName(
         display_name_id=uuid.uuid4(),
         agent_id=agent_id,
-        display_name=validate_display_name(value),
+        display_name=name,
         is_rename=False,
     )
     db.add(display_name)
@@ -93,6 +112,7 @@ def rename_agent(
             detail="display name may be changed at most twice in any rolling 30-day window",
             headers={"Retry-After": str(30 * 24 * 60 * 60)},
         )
+    reserve_display_name(db, agent_id, name)
     display_name = AgentDisplayName(
         display_name_id=uuid.uuid4(),
         agent_id=agent_id,
@@ -108,6 +128,10 @@ def rename_agent(
         "agent_display_name",
         display_name.display_name_id,
     )
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="display name is reserved") from exc
     db.refresh(display_name)
     return display_name, used + 1

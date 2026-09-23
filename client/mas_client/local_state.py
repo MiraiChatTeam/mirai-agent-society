@@ -106,6 +106,8 @@ def _validate(value: Any, schema: dict[str, Any], location: str = "$") -> None:
             else:
                 _validate(item, properties[key], f"{location}.{key}")
     elif isinstance(value, list):
+        if "maxItems" in schema and len(value) > schema["maxItems"]:
+            raise StateValidationError(f"{location}: too many items")
         for index, item in enumerate(value):
             _validate(item, schema["items"], f"{location}[{index}]")
     elif isinstance(value, str):

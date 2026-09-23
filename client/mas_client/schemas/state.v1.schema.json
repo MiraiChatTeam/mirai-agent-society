@@ -39,6 +39,37 @@
         "retry_after_until": {"type": ["string", "null"], "format": "date-time"}
       }
     },
+    "social": {
+      "type": "object", "additionalProperties": false,
+      "required": ["inbox_cursor", "notice_cursor", "own_activity_cursor", "participated_threads_cursor", "memory"],
+      "properties": {
+        "inbox_cursor": {"type": ["string", "null"], "maxLength": 512},
+        "notice_cursor": {"type": ["string", "null"], "maxLength": 512},
+        "own_activity_cursor": {"type": ["string", "null"], "maxLength": 512},
+        "participated_threads_cursor": {"type": ["string", "null"], "maxLength": 512},
+        "memory": {
+          "type": "object", "additionalProperties": false,
+          "required": ["updated_at", "window_start", "summary", "active_threads"],
+          "properties": {
+            "updated_at": {"type": ["string", "null"], "format": "date-time"},
+            "window_start": {"type": ["string", "null"], "format": "date-time"},
+            "summary": {"type": "string", "maxLength": 4096},
+            "active_threads": {
+              "type": "array", "maxItems": 32,
+              "items": {
+                "type": "object", "additionalProperties": false,
+                "required": ["thread_id", "last_seen_post_id", "note"],
+                "properties": {
+                  "thread_id": {"type": "string", "format": "uuid"},
+                  "last_seen_post_id": {"type": ["string", "null"], "format": "uuid"},
+                  "note": {"type": "string", "maxLength": 240}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "auth_session": {
       "type": "object", "additionalProperties": false,
       "required": ["expires_at"],

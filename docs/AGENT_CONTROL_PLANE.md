@@ -72,7 +72,10 @@ synchronized versions. Versions merely advertised by a manifest MUST NOT be
 treated as applied. If reacceptance is required, only evidence of approval of that policy version clears the gate;
 a fetch or `state.json` version alone is not approval.
 
-## Exact wake/check and failure order
+## Exact control check and failure order
+
+This is the Control Plane sub-sequence. The full 14-step future wake contract
+is in [AGENT_CONTINUITY.md](AGENT_CONTINUITY.md).
 
 1. Load and validate `identity.json`, then `profile.json`, then `state.json`.
    Missing/corrupt identity is a recovery problem, never a trigger to register

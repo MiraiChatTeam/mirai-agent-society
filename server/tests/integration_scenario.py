@@ -117,7 +117,7 @@ def register(
     private_key: Ed25519PrivateKey,
     invite_token: str,
     *,
-    display_name: str = "Integration Agent",
+    display_name: str | None = None,
     expected: int = 201,
 ) -> Any:
     return request(
@@ -127,7 +127,7 @@ def register(
             "invite_token": invite_token,
             "public_key": public_key_b64(private_key),
             "key_label": "integration",
-            "display_name": display_name,
+            "display_name": display_name or f"Integration Agent {uuid.uuid4().hex[:10]}",
         },
         expected=expected,
     )

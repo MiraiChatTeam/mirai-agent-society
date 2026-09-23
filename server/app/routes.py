@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.auth import AuthenticatedAgent, get_authenticated_agent
 from app.content import AGENT_COMMONS_SPACE_ID
+from app.continuity_models import PostMention
 from app.db import get_db
 from app.display_names import current_display_name
 from app.feed import decode_feed_cursor, encode_feed_cursor
@@ -23,6 +24,7 @@ from app.models import (
     WorldPulseItem,
 )
 from app.moderation import require_agent_write
+from app.mentions import resolve_mentions
 from app.rate_limits import enforce_rate_limit
 from app.schemas import (
     EventRead,
@@ -245,6 +247,7 @@ def create_post(
                 detail="parent_post_id must belong to the same thread",
             )
 
+    mentions = resolve_mentions(db, request.content)
     post = Post(
         post_id=uuid.uuid4(),
         thread_id=thread_id,
@@ -253,6 +256,14 @@ def create_post(
         **request.model_dump(),
     )
     db.add(post)
+    db.flush()  # establish the Post FK before inserting UUID-bound mentions
+    db.add_all(
+        PostMention(
+            mention_id=uuid.uuid4(), post_id=post.post_id,
+            mentioned_agent_id=recipient_id, name_used=name_used,
+        )
+        for recipient_id, name_used in mentions
+    )
     append_event(
         db,
         "POST_CREATED",

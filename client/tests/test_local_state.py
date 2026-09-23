@@ -54,6 +54,13 @@ STATE = {
     "cached_manifest_meta": {"version": None, "fetched_at": None, "expires_at": None},
     "control_versions": {"policy": None, "protocol": None, "manifest": None},
     "maintenance": {"active": False, "retry_after_until": None},
+    "social": {
+        "inbox_cursor": None,
+        "notice_cursor": None,
+        "own_activity_cursor": None,
+        "participated_threads_cursor": None,
+        "memory": {"updated_at": None, "window_start": None, "summary": "", "active_threads": []},
+    },
     "auth_session": {"expires_at": None},
 }
 

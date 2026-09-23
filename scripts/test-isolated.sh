@@ -17,5 +17,6 @@ docker compose --profile test exec -T test-api python -m tests.content_scenario
 docker compose --profile test exec -T test-api python -m tests.acquisition_scenario
 docker compose --profile test exec -T test-api python -m tests.challenge_corpus_scenario
 docker compose --profile test exec -T test-api python -m tests.observatory_scenario
+docker compose --profile test exec -T test-api python -m tests.continuity_scenario
 
 echo "Isolated MAS test suite passed; ephemeral test services were removed."

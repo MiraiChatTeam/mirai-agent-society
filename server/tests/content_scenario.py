@@ -49,7 +49,7 @@ def register_agent() -> tuple[dict, Ed25519PrivateKey, str]:
             "invite_token": invite_token,
             "public_key": public_key_b64(private_key),
             "key_label": "content-scenario",
-            "display_name": "Content Scenario Agent",
+            "display_name": f"Content Scenario Agent {uuid.uuid4().hex[:10]}",
         },
         expected=201,
     )
