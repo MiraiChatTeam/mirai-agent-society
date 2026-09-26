@@ -22,6 +22,7 @@ from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
 from .local_state import LocalStateStore, StateValidationError, _reject_duplicate_keys, _validate
+from .resident_readiness import accepted_policy_version as evidenced_policy_version, governance_ready_for_write
 
 
 CONSTITUTION_VERSION = "1"
@@ -144,12 +145,13 @@ def verify_emergency(
 
 
 def _retry_until(store: LocalStateStore, state: dict[str, Any], now: datetime, seconds: int) -> None:
-    updated = dict(state)
-    updated["maintenance"] = {
-        "active": state["maintenance"]["active"],
-        "retry_after_until": _iso(_utc(now) + timedelta(seconds=seconds)),
-    }
-    store.write_state(updated)
+    def change(current: dict[str, Any]) -> tuple[dict[str, Any], None]:
+        current["maintenance"] = {
+            "active": current["maintenance"]["active"],
+            "retry_after_until": _iso(_utc(now) + timedelta(seconds=seconds)),
+        }
+        return current, None
+    store.update_state(change)
 
 
 def _save_live_manifest(store: LocalStateStore, state: dict[str, Any], manifest: dict[str, Any], now: datetime) -> None:
@@ -177,16 +179,18 @@ def _save_live_manifest(store: LocalStateStore, state: dict[str, Any], manifest:
     finally:
         if os.path.exists(temporary):
             os.unlink(temporary)
-    updated = dict(state)
-    updated["last_successful_sync_at"] = _iso(now)
-    updated["cached_manifest_meta"] = {
-        "version": manifest["manifest_version"],
-        "fetched_at": _iso(now),
-        "expires_at": manifest["expires_at"],
-    }
-    updated["control_versions"] = {**state["control_versions"], "manifest": manifest["manifest_version"]}
-    updated["maintenance"] = {"active": manifest["maintenance"]["active"], "retry_after_until": None}
-    store.write_state(updated)
+    def change(current: dict[str, Any]) -> tuple[dict[str, Any], None]:
+        current["last_successful_sync_at"] = _iso(now)
+        current["cached_manifest_meta"] = {
+            "version": manifest["manifest_version"],
+            "fetched_at": _iso(now),
+            "expires_at": manifest["expires_at"],
+        }
+        current["control_versions"] = {**current["control_versions"], "manifest": manifest["manifest_version"]}
+        current["observed_versions"] = {"policy": manifest["policy_version"], "protocol": manifest["protocol_version"], "manifest": manifest["manifest_version"]}
+        current["maintenance"] = {"active": manifest["maintenance"]["active"], "retry_after_until": None}
+        return current, None
+    store.update_state(change)
 
 
 def read_cached_manifest(store: LocalStateStore) -> dict[str, Any] | None:
@@ -235,7 +239,7 @@ def evaluate_control(
     emergency_notice: Any = None,
     emergency_signature: str | None = None,
     emergency_public_key: bytes | None = None,
-    accepted_policy_version: str | None = None,
+    accepted_policy_version: str | None = None,  # legacy argument; never grants acceptance
     client_protocol_version: str = "0.1",
     retry_after_seconds: int | None = None,
 ) -> ControlDecision:
@@ -313,12 +317,13 @@ def evaluate_control(
         or manifest["policy_version"] != locally_applied_policy_version
     )
     protocol_changed = manifest["protocol_version"] != locally_applied_protocol_version
-    must_reaccept = manifest["control"]["requires_reacceptance"] and accepted_policy_version != manifest["policy_version"]
+    must_reaccept = manifest["control"]["requires_reacceptance"] and evidenced_policy_version(store) != manifest["policy_version"]
+    governance_ready = governance_ready_for_write(store)
     maintenance = manifest["maintenance"]["active"]
     reads = operator.may_read and manifest["service"]["reads_enabled"] and not maintenance
     writes = (
         operator.may_write and manifest["service"]["writes_enabled"] and not maintenance
-        and not must_refresh and not must_reaccept and not protocol_changed
+        and not must_refresh and not must_reaccept and not protocol_changed and governance_ready
     )
     threads = writes and operator.may_create_thread and manifest["service"]["thread_creation_enabled"]
     if emergency:
@@ -343,6 +348,8 @@ def evaluate_control(
         reason = "policy_refresh_required"
     elif protocol_changed:
         reason = "protocol_refresh_required"
+    elif not governance_ready:
+        reason = "governance_not_applied"
     elif not manifest["service"]["writes_enabled"]:
         reason = "writes_disabled"
     elif emergency and not emergency["restrictions"]["writes_enabled"]:
@@ -411,7 +418,7 @@ def check_control_cycle(
     operator: OperatorPermissions,
     emergency_public_key: bytes | None,
     now: datetime | None = None,
-    accepted_policy_version: str | None = None,
+    accepted_policy_version: str | None = None,  # legacy argument; never grants acceptance
     client_protocol_version: str = "0.1",
     fetch_live: Callable[[str], tuple[int | None, Any]] = _fetch_json,
     fetch_emergency: Callable[[], tuple[Any, str] | None] = fetch_signed_emergency,

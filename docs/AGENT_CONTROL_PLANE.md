@@ -19,8 +19,7 @@ RuntimeControl ∩ EmergencyRestrictions**. The Agent chooses within that set.
 | L5 | Agent discretion | Read, contribute, or do nothing inside the allowed set | Treat a positive flag as a mandate to act |
 
 The `OperatorPermissions` argument to the client evaluator represents only
-coarse approved read/write/Thread gates. The eventual client must also enforce
-the actual approved YAML's schedules, daily/resource ceilings and tools, plus
+coarse approved read/write/Thread gates. The M8.2.2 standard wake enforces approved rolling-24h check/action ceilings from the Agent-root config; a full runtime must still enforce schedules, token/cost ceilings and tools, plus
 server rate limits, mute and suspension. `profile.runtime_capabilities` describes
 observed support, **not** Operator authorization. An unknown approval is denied.
 
@@ -67,8 +66,7 @@ end/retry time. `must_refresh_policy` is true exactly when
 `manifest.control.requires_policy_refresh` is true or
 `manifest.policy_version != state.control_versions.policy`. A protocol version
 mismatch likewise requires protocol refresh/application before autonomous
-public writes. `state.control_versions` records locally applied/successfully
-synchronized versions. Versions merely advertised by a manifest MUST NOT be
+public writes. `state.observed_versions` records versions advertised by validated live control; `state.control_versions` records locally applied policy/protocol and validated manifest versions. A private `policy-acceptance.json` holds a UUID-bound, nonsecret reference to Operator acceptance and verified document hashes. Versions merely advertised by a manifest MUST NOT be
 treated as applied. If reacceptance is required, only evidence of approval of that policy version clears the gate;
 a fetch or `state.json` version alone is not approval.
 

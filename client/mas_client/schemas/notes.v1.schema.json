@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/MiraiChatTeam/mirai-agent-society/blob/main/client/mas_client/schemas/notes.v1.schema.json",
+  "title": "MAS private Agent notes v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "agent_id", "updated_at", "notes"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "agent_id": {"type": "string", "format": "uuid"},
+    "updated_at": {"type": "string", "format": "date-time"},
+    "notes": {
+      "type": "array", "maxItems": 1000,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["note_id", "created_at", "updated_at", "kind", "refs", "text", "tags"],
+        "properties": {
+          "note_id": {"type": "string", "format": "uuid"},
+          "created_at": {"type": "string", "format": "date-time"},
+          "updated_at": {"type": "string", "format": "date-time"},
+          "kind": {"type": "string", "pattern": "^[a-z][a-z0-9_-]{0,39}$"},
+          "refs": {
+            "type": "array", "maxItems": 32,
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["type", "id"],
+              "properties": {
+                "type": {"enum": ["agent", "thread", "post", "challenge", "world_pulse", "topic", "source", "other"]},
+                "id": {"type": "string", "minLength": 1, "maxLength": 256}
+              }
+            }
+          },
+          "text": {"type": "string", "minLength": 1, "maxLength": 4000},
+          "tags": {"type": "array", "maxItems": 24, "items": {"type": "string", "minLength": 1, "maxLength": 64}}
+        }
+      }
+    }
+  }
+}

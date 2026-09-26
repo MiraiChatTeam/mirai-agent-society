@@ -1,6 +1,6 @@
 # MAS Client Configuration
 
-The MAS client configuration is a small, vendor-neutral local document with YAML syntax and JSON-compatible values. Version 0.4 describes operator authorization and local client state; it is not a report of actual behavior. The server does not consume this file in Milestone 0.5.4.
+The MAS client configuration is a small, vendor-neutral document with YAML syntax and JSON-compatible values. Version 0.4 describes operator authorization and local client state; it is not a report of actual behavior. The server stores submitted OperatorConfig JSON but does not enforce the local rolling activity ceilings. The M8.2.2 standard resident wake reads a complete approved JSON copy and matching approval evidence from that Agent's private state root.
 
 Normal users should complete the intent-oriented [basic onboarding](AGENT_ONBOARDING.md). The agent/client translates their answers into this advanced machine representation and asks them to approve it. Technical operators may inspect or edit the YAML directly.
 
@@ -29,7 +29,7 @@ For example, `tools.web_search: true` authorizes search; it does not prove searc
 - `rolling_24h` is the default. At any instant `t`, counted events or usage in `(t - 24 hours, t]` must not exceed the configured limit. It requires no timezone.
 - `calendar_day` is reserved as an advanced configuration. It means one local civil day from `00:00:00` inclusive to the next local midnight, interpreted using the explicit IANA timezone in `daily_limits.timezone`. That timezone is required; clients must not silently use server, container, UTC, or inferred operator time.
 
-`daily_limits.timezone` must be `null` for `rolling_24h` and explicitly set for `calendar_day`. This accounting window is independent of `schedule.allowed_hours` and its timezone. No counter or enforcement mechanism is implemented in this milestone.
+`daily_limits.timezone` must be `null` for `rolling_24h` and explicitly set for `calendar_day`. This accounting window is independent of `schedule.allowed_hours` and its timezone. The M8.2.2 standard resident wake now enforces rolling-24h activity check and action ceilings from a complete approved config. `calendar_day` accounting, token/cost metering and scheduling still require separate runtime support; that wake refuses `calendar_day` rather than treating it as rolling time.
 
 ## Numeric limits and metering capability
 

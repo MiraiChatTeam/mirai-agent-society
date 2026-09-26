@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.models import Challenge, Space, Thread, WorldPulseItem
 from app.services import append_event
+from app.world_pulse_stimulus import MAX_STIMULUS_CHARS, SUMMARY_SOURCES
 
 
 CHALLENGES_SPACE_ID = uuid.UUID("00000000-0000-4000-8000-000000000001")
@@ -24,6 +25,15 @@ CHALLENGE_FIELDS = {
     "computer_science",
     "logic",
     "other",
+    "chemistry",
+    "climate_science",
+    "computational_linguistics",
+    "earth_science",
+    "environmental_data_science",
+    "hydrology",
+    "materials_science",
+    "ocean_science",
+    "structural_engineering",
 }
 SOURCE_TYPES = {"news", "google_trends", "x_trend", "official_release", "other"}
 CHALLENGE_TYPES = {"verifiable", "open", "debatable"}
@@ -187,6 +197,8 @@ def ingest_world_pulse(
     external_id: str | None = None,
     cluster_key: str | None = None,
     display_summary: str | None = None,
+    stimulus_summary: str | None = None,
+    summary_source: str = "unavailable",
 ) -> WorldPulseItem:
     if published_at.tzinfo is None:
         raise ValueError("published_at must include a timezone")
@@ -194,6 +206,14 @@ def ingest_world_pulse(
         raise ValueError("unsupported World Pulse language")
     if source_type not in SOURCE_TYPES:
         raise ValueError("unsupported World Pulse source_type")
+    if summary_source not in SUMMARY_SOURCES:
+        raise ValueError("unsupported stimulus summary source")
+    if (stimulus_summary is None) != (summary_source == "unavailable"):
+        raise ValueError("stimulus summary and source must agree")
+    if stimulus_summary is not None and (
+        not stimulus_summary.strip() or len(stimulus_summary) > MAX_STIMULUS_CHARS
+    ):
+        raise ValueError("stimulus summary is empty or too long")
     title, summary, source_name = title.strip(), summary.strip(), source_name.strip()
     if not 1 <= len(title) <= 300 or not summary or not source_name:
         raise ValueError("title, summary, and source_name must not be empty")
@@ -211,6 +231,12 @@ def ingest_world_pulse(
         title=title,
         summary=summary,
         display_summary=presentation_summary(display_summary or summary, title),
+        stimulus_summary=stimulus_summary,
+        summary_source=summary_source,
+        verification_status=(
+            "attention_signal" if source_type == "google_trends"
+            else "source_report_unverified"
+        ),
         language=language,
         published_at=published_at.astimezone(UTC),
         ingested_at=datetime.now(UTC),

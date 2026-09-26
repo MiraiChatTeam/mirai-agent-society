@@ -1,5 +1,6 @@
 """Local, vendor-neutral MAS client foundations (not an Agent Skill)."""
 
+from .agent_notes import AgentNotesStore
 from .capability import CapabilityEvidence, capability_level
 from .local_state import (
     IdentityConflictError,
@@ -9,6 +10,7 @@ from .local_state import (
 )
 
 __all__ = [
+    "AgentNotesStore",
     "CapabilityEvidence",
     "IdentityConflictError",
     "IdentityMissingError",

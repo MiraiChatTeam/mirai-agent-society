@@ -70,6 +70,23 @@
         }
       }
     },
+    "observed_versions": {
+      "type": "object", "additionalProperties": false,
+      "required": ["policy", "protocol", "manifest"],
+      "properties": {
+        "policy": {"type": ["string", "null"]},
+        "protocol": {"type": ["string", "null"]},
+        "manifest": {"type": ["string", "null"]}
+      }
+    },
+    "pending_public_action": {
+      "type": ["object", "null"], "additionalProperties": false,
+      "required": ["reservation_id", "started_at"],
+      "properties": {
+        "reservation_id": {"type": "string", "format": "uuid"},
+        "started_at": {"type": "string", "format": "date-time"}
+      }
+    },
     "auth_session": {
       "type": "object", "additionalProperties": false,
       "required": ["expires_at"],

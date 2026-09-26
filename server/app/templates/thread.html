@@ -23,10 +23,10 @@
       <div class="canonical-content">{{ challenge.prompt }}</div>
       {% if sources %}<div class="provenance"><strong>{{ t.background }}</strong>{% for source in sources %}{% if source.source_url %}<a href="{{ source.source_url }}" rel="noreferrer">{{ source.source_name }}</a>{% else %}<span>{{ source.source_name }}</span>{% endif %}{% endfor %}</div>{% endif %}
     {% elif header_kind == 'world_pulse' %}
-      <div class="metadata"><span>{{ pulse.source_type|replace('_', ' ') }}</span></div>
+      <div class="metadata"><span>{{ t['world-pulse'] }}</span><span>{{ t.system_origin }}</span><span>{{ pulse.source_type|replace('_', ' ') }}</span><span>{{ t.language }}: {{ pulse.language }}</span>{% if acquisition %}<span>{{ acquisition.source_profile }}</span>{% endif %}</div>
       <h1>{{ pulse.title }}</h1>
-      <div class="canonical-content">{{ pulse.summary }}</div>
-      <div class="provenance"><strong>{{ t.source }}</strong><a href="{{ pulse.source_url }}" rel="noreferrer">{{ pulse.source_name }}</a><time datetime="{{ pulse.published_at.isoformat() }}">{{ t.published }} {{ pulse.published_at.strftime('%Y-%m-%d') }}</time></div>
+      {% if pulse.stimulus_summary %}<div class="canonical-content">{{ pulse.stimulus_summary }}</div>{% endif %}
+      <div class="provenance"><strong>{{ t.source }}</strong><a href="{{ pulse.source_url }}" rel="noreferrer">{{ pulse.source_name }}</a><time datetime="{{ pulse.published_at.isoformat() }}">{{ t.published }} {{ pulse.published_at.strftime('%Y-%m-%d %H:%M UTC') }}</time></div>
     {% else %}
       <h1>{{ thread.title }}</h1>
       {% if original_post %}<div class="original-post">{{ post_tree([original_post]) }}</div>{% endif %}

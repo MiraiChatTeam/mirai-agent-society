@@ -1,0 +1,260 @@
+schema_version: 1
+corpus_id: mas-challenges-v2
+canonical_corpus_sha256: b73278f6cfa90492f3c4b81086c4400de6890a0aa94d7a3864aa4746b02d6f41
+draft_set_id: mas-challenges-m5-plus-32
+draft_sha256: 980a10dfb769e1873824a1e8d20f31d3c81ff5d368c38575ab60e15c71def5e6
+social_prompting: none
+provenance_note: These references ground original MAS questions; they are not answer keys, task origins,
+  required reading, or reuse permissions.
+m5_additions:
+- draft_id: M5-001
+  stimulus_group_id: CH-M5-001
+  source_candidate_id: M4-PHYS-02
+  source_record: data/challenge_reconnaissance_m4.json#M4-PHYS-02
+  source_refs:
+  - https://physics.nist.gov/cuu/pdf/JPCRD2018CODATA.pdf
+  - https://physics.nist.gov/cuu/pdf/JPCRD2022CODATA.pdf
+  source_family: nist_codata
+- draft_id: M5-002
+  stimulus_group_id: CH-M5-002
+  source_candidate_id: M4-PHYS-02
+  source_record: data/challenge_reconnaissance_m4.json#M4-PHYS-02
+  source_refs:
+  - https://physics.nist.gov/cuu/Constants/
+  - https://physics.nist.gov/cuu/pdf/JPCRD2022CODATA.pdf
+  source_family: nist_codata
+- draft_id: M5-003
+  stimulus_group_id: CH-M5-003
+  source_candidate_id: M4-PHYS-04
+  source_record: data/challenge_reconnaissance_m4.json#M4-PHYS-04
+  source_refs:
+  - https://gwosc.org/api/v2/catalogs/GWTC-3-marginal/events?format=api&include-default-parameters=true
+  - https://gwosc.org/GWTC-3/
+  source_family: gwosc
+- draft_id: M5-004
+  stimulus_group_id: CH-M5-004
+  source_candidate_id: M4-PHYS-04
+  source_record: data/challenge_reconnaissance_m4.json#M4-PHYS-04
+  source_refs:
+  - https://gwosc.org/eventapi/html/GWTC-2/GW190521/
+  - https://ligo.org/science-summaries/gw190521/
+  source_family: gwosc
+- draft_id: M5-005
+  stimulus_group_id: CH-M5-005
+  source_candidate_id: M4-ASTRO-01
+  source_record: data/challenge_reconnaissance_m4.json#M4-ASTRO-01
+  source_refs:
+  - https://exoplanetarchive.ipac.caltech.edu/overview/TOI-700
+  - https://archive.stsci.edu/missions-and-data/tess/data-products
+  source_family: nasa_exoplanet_archive
+- draft_id: M5-006
+  stimulus_group_id: CH-M5-006
+  source_candidate_id: M4-ASTRO-02
+  source_record: data/challenge_reconnaissance_m4.json#M4-ASTRO-02
+  source_refs:
+  - https://exoplanetarchive.ipac.caltech.edu/overview/TIC%20260128333
+  - https://science.nasa.gov/universe/exoplanets/discovery-alert-high-school-student-finds-a-world-with-two-suns/
+  - https://archive.stsci.edu/missions-and-data/tess/data-products
+  source_family: mast_tess
+- draft_id: M5-007
+  stimulus_group_id: CH-M5-007
+  source_candidate_id: M4-ASTRO-03
+  source_record: data/challenge_reconnaissance_m4.json#M4-ASTRO-03
+  source_refs:
+  - https://gea.esac.esa.int/archive/documentation/GDR3/
+  - https://gea.esac.esa.int/archive/documentation/GDR3/Catalogue_consolidation/chap_cu9val/sec_cu9val_942/ssec_cu9val_942_astrometry.html
+  source_family: esa_gaia
+- draft_id: M5-008
+  stimulus_group_id: CH-M5-008
+  source_candidate_id: M4-ASTRO-04
+  source_record: data/challenge_reconnaissance_m4.json#M4-ASTRO-04
+  source_refs:
+  - https://docs.minorplanetcenter.net/tutorials/notebooks/mpc_tutorial_api_observations/
+  - https://science.nasa.gov/open-science/planetary-defense-asteroids/
+  - https://assets.science.nasa.gov/content/dam/science/psd/planetary-science-division/2025/2025-05%20Lessons%20Learned%202024%20YR4.pdf
+  source_family: minor_planet_center
+- draft_id: M5-009
+  stimulus_group_id: CH-M5-009
+  source_candidate_id: M4-ASTRO-05
+  source_record: data/challenge_reconnaissance_m4.json#M4-ASTRO-05
+  source_refs:
+  - https://pds.nasa.gov/ds-view/pds/viewProfile.jsp?dsid=MER1%2FMER2-M-PANCAM-5-ATMOS-OPACITY-V1.0
+  - https://science.nasa.gov/resource/atmospheric-opacity-from-opportunitys-point-of-view/
+  - https://science.nasa.gov/photojournal/mars-climate-sounder-studies-2018-dust-storm/
+  source_family: nasa_pds
+- draft_id: M5-010
+  stimulus_group_id: CH-M5-010
+  source_candidate_id: M4-BIO-01
+  source_record: data/challenge_reconnaissance_m4.json#M4-BIO-01
+  source_refs:
+  - https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE24177
+  source_family: ncbi_geo
+- draft_id: M5-011
+  stimulus_group_id: CH-M5-011
+  source_candidate_id: M4-BIO-01
+  source_record: data/challenge_reconnaissance_m4.json#M4-BIO-01
+  source_refs:
+  - https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE15147
+  source_family: ncbi_geo
+- draft_id: M5-012
+  stimulus_group_id: CH-M5-012
+  source_candidate_id: M4-BIO-01
+  source_record: data/challenge_reconnaissance_m4.json#M4-BIO-01
+  source_refs:
+  - https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE176051
+  source_family: ncbi_geo
+- draft_id: M5-013
+  stimulus_group_id: CH-M5-013
+  source_candidate_id: M4-BIO-04
+  source_record: data/challenge_reconnaissance_m4.json#M4-BIO-04
+  source_refs:
+  - https://www.gbif.org/taxon/6CB8P
+  - https://techdocs.gbif.org/en/data-use/occurrence-issues-and-flags
+  source_family: gbif
+- draft_id: M5-014
+  stimulus_group_id: CH-M5-014
+  source_candidate_id: M4-BIO-03
+  source_record: data/challenge_reconnaissance_m4.json#M4-BIO-03
+  source_refs:
+  - https://www.rcsb.org/structure/2HHB
+  - https://www.rcsb.org/structure/1HHO
+  - https://www.rcsb.org/docs/general-help/assessing-the-quality-of-3d-structures
+  source_family: rcsb_pdb
+- draft_id: M5-015
+  stimulus_group_id: CH-M5-015
+  source_candidate_id: M41-BIO-01
+  source_record: data/challenge_reconnaissance_m41.json#M41-BIO-01
+  source_refs:
+  - https://www.si.edu/object/quercus-stewardii-rehder%3Anmnhbotany_10168783
+  - https://www.si.edu/openaccess/faq
+  source_family: smithsonian_nmnh
+- draft_id: M5-016
+  stimulus_group_id: CH-M5-016
+  source_candidate_id: M41-GEO-01
+  source_record: data/challenge_reconnaissance_m41.json#M41-GEO-01
+  source_refs:
+  - https://earthquake.usgs.gov/earthquakes/eventpage/ci38457511
+  - https://www.usgs.gov/data/regional-finite-fault-models-2019-mw71-ridgecrest-california-earthquake
+  source_family: usgs_earthquake_catalog
+- draft_id: M5-017
+  stimulus_group_id: CH-M5-017
+  source_candidate_id: M41-CLIM-01
+  source_record: data/challenge_reconnaissance_m41.json#M41-CLIM-01
+  source_refs:
+  - https://www.ncei.noaa.gov/cdo-web/datasets/GHCND/stations/GHCND%3AUSW00024229/detail
+  - https://www.ncei.noaa.gov/monitoring-content/extremes/scec/reports/20220210-Oregon-Maximum-Temperature.pdf
+  source_family: noaa_ghcnd
+- draft_id: M5-018
+  stimulus_group_id: CH-M5-018
+  source_candidate_id: M41-COAST-01
+  source_record: data/challenge_reconnaissance_m41.json#M41-COAST-01
+  source_refs:
+  - https://tidesandcurrents.noaa.gov/publications/Hurricane_Sandy_2012_Water_Level_and_Meteorological_Data_Report.pdf
+  - https://tidesandcurrents.noaa.gov/datums.html?datum=NAVD88&epoch=0&id=8518750&name=The+Battery&state=NY&units=0
+  source_family: noaa_coops
+- draft_id: M5-019
+  stimulus_group_id: CH-M5-019
+  source_candidate_id: M4-DATA-08
+  source_record: data/challenge_reconnaissance_m4.json#M4-DATA-08
+  source_refs:
+  - https://waterdata.usgs.gov/monitoring-location/USGS-03280000/
+  - https://www.ncei.noaa.gov/stormevents/eventdetails.jsp?id=1049189
+  source_family: noaa_storm_events
+- draft_id: M5-020
+  stimulus_group_id: CH-M5-020
+  source_candidate_id: M41-COAST-01
+  source_record: data/challenge_reconnaissance_m41.json#M41-COAST-01
+  source_refs:
+  - https://tidesandcurrents.noaa.gov/inventory.html?id=8665530
+  - https://tidesandcurrents.noaa.gov/inundationanalysis/analysisParams.html?station=8665530
+  source_family: noaa_coops
+- draft_id: M5-021
+  stimulus_group_id: CH-M5-021
+  source_candidate_id: M5-CHEM-01
+  source_record: data/challenge_sources_m5_chemistry.yaml#M5-CHEM-01
+  source_refs:
+  - https://www.aps.anl.gov/APS-Science-Highlight/2018-11-16/whats-causing-the-voltage-fade-in-lithium-rich-nmc-cathode
+- draft_id: M5-022
+  stimulus_group_id: CH-M5-022
+  source_candidate_id: M5-CHEM-02
+  source_record: data/challenge_sources_m5_chemistry.yaml#M5-CHEM-02
+  source_refs:
+  - https://www.energy.gov/cmei/vehicles/articles/investigating-stability-solidsolid-interface
+  - https://www.energy.gov/sites/default/files/2021-06/bat418_chen_2021_p_5-24_520pm_LR_FINAL_TM.pdf
+- draft_id: M5-023
+  stimulus_group_id: CH-M5-023
+  source_candidate_id: M5-CHEM-03
+  source_record: data/challenge_sources_m5_chemistry.yaml#M5-CHEM-03
+  source_refs:
+  - https://doi.org/10.18434/mds2-4162
+  - https://pages.nist.gov/CHIPS-AWACKSM-data/web/index.html
+- draft_id: M5-024
+  stimulus_group_id: CH-M5-024
+  source_candidate_id: M5-CHEM-04
+  source_record: data/challenge_sources_m5_chemistry.yaml#M5-CHEM-04
+  source_refs:
+  - https://www.nist.gov/publications/evaluating-environmental-factors-microplastic-generation-accelerated-weathering-study
+  - https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=959022
+- draft_id: M5-025
+  stimulus_group_id: CH-M5-025
+  source_candidate_id: M4-CS-01
+  source_record: data/challenge_reconnaissance_m4.json#M4-CS-01
+  source_refs:
+  - https://www.sqlite.org/queryplanner.html
+  - https://sqlite.org/eqp.html
+  source_family: sqlite
+- draft_id: M5-026
+  stimulus_group_id: CH-M5-026
+  source_candidate_id: M4-CS-02
+  source_record: data/challenge_reconnaissance_m4.json#M4-CS-02
+  source_refs:
+  - https://www.postgresql.org/docs/18/sql-explain.html
+  - https://www.postgresql.org/docs/18/using-explain.html
+  source_family: postgresql_docs
+- draft_id: M5-027
+  stimulus_group_id: CH-M5-027
+  source_candidate_id: M4-MATH-02
+  source_record: data/challenge_reconnaissance_m4.json#M4-MATH-02
+  source_refs:
+  - https://oeis.org/A005132
+  source_family: oeis
+- draft_id: M5-028
+  stimulus_group_id: CH-M5-028
+  source_candidate_id: M4-MATH-04
+  source_record: data/challenge_reconnaissance_m4.json#M4-MATH-04
+  source_refs:
+  - https://dlmf.nist.gov/9.7
+  - https://dlmf.nist.gov/9.17
+  source_family: nist_dlmf
+- draft_id: M5-029
+  stimulus_group_id: CH-M5-029
+  source_candidate_id: M4-ENG-02
+  source_record: data/challenge_reconnaissance_m4.json#M4-ENG-02
+  source_refs:
+  - https://www.nist.gov/news-events/news/2023/09/nist-provides-update-investigation-collapse-champlain-towers-south
+  - https://www.nist.gov/news-events/news/2026/06/nist-releases-technical-findings-what-caused-2021-partial-collapse
+  source_family: nist_ncst
+- draft_id: M5-030
+  stimulus_group_id: CH-M5-030
+  source_candidate_id: M4-ENG-04
+  source_record: data/challenge_reconnaissance_m4.json#M4-ENG-04
+  source_refs:
+  - https://www.usgs.gov/data/flood-august-2016-louisiana
+  - https://www.usgs.gov/news/national-news-release/usgs-records-historic-flooding-south-louisiana
+  source_family: usgs_water
+- draft_id: M5-031
+  stimulus_group_id: CH-M5-031
+  source_candidate_id: M4-DATA-07
+  source_record: data/challenge_reconnaissance_m4.json#M4-DATA-07
+  source_refs:
+  - https://www.oecd.org/en/publications/oecd-environmental-performance-reviews-norway-2022_59e71c13-en/full-report/component-3.html
+  - https://data.worldbank.org/indicator/EN.GHG.ALL.PC.CE.AR5?locations=NO
+  source_family: oecd_data_explorer
+- draft_id: M5-032
+  stimulus_group_id: CH-M5-032
+  source_candidate_id: M4-LANG-01
+  source_record: data/challenge_reconnaissance_m4.json#M4-LANG-01
+  source_refs:
+  - https://universaldependencies.org/treebanks/ja_gsd/index.html
+  - https://universaldependencies.org/treebanks/ja_gsd/ja_gsd-dep-discourse.html
+  source_family: universal_dependencies

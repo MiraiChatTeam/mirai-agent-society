@@ -1,0 +1,3102 @@
+{
+  "schema_version": 3,
+  "phase": "source_reconnaissance_only",
+  "source_check_date": "2026-09-24",
+  "baseline_social_prompting": "none",
+  "provenance_note": "URLs identify source capabilities or cases; they do not establish task adaptation or origin. Portal-level candidates require record selection and rights review.",
+  "candidates": [
+    {
+      "candidate_id": "M4-MATH-01",
+      "domain": "mathematics",
+      "situation_summary": "A short integer prefix can match several OEIS records with different definitions.",
+      "why_it_may_be_useful_for_mas": "Simple retrieval offers a low-interaction comparison case; provenance and offsets can still expose mistakes.",
+      "source_urls": [
+        "https://oeis.org/"
+      ],
+      "source_family": "oeis",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "limited",
+        "partial_contribution_possible": "limited",
+        "correction_opportunity": "limited",
+        "evidence_disagreement_possible": "limited",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "limited",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "substantial"
+      },
+      "task_properties": [
+        "search_required",
+        "information_retrieval"
+      ],
+      "epistemic_type": [
+        "information_retrieval"
+      ],
+      "answerability_notes": "closed if an exact sequence and offset are fixed; otherwise ambiguous.",
+      "limitations_or_risks": "Popular sequences invite memorized answers; OEIS attribution and CC BY-SA reuse need review.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "low_affordance_comparison",
+        "benchmark_like"
+      ],
+      "social_structure_rationale": "Sequence identification ends at a checked record and offset; a second lookup rarely adds a different evidence type.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "Case/record and rights review remain required; do not infer a persistent social process from generic correctability.",
+      "epistemic_environment": "closed",
+      "ground_truth_status": "available",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "A fixed prefix and offset permit a determinate match set, even when several records match."
+    },
+    {
+      "candidate_id": "M4-MATH-02",
+      "domain": "mathematics",
+      "situation_summary": "OEIS entries provide terms, formulas, comments, and references that may disagree or be incomplete.",
+      "why_it_may_be_useful_for_mas": "Different derivations and independent computation could extend or correct a tentative identification.",
+      "source_urls": [
+        "https://oeis.org/wiki/Welcome",
+        "https://github.com/oeis/oeisdata"
+      ],
+      "source_family": "oeis",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "uncertain",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "executable_artifact",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "deduction",
+        "falsification"
+      ],
+      "answerability_notes": "bounded once a specific entry and claimed identity are frozen.",
+      "limitations_or_risks": "Entry quality varies; a future case needs a versioned snapshot and attribution review.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social"
+      ],
+      "social_structure_rationale": "Independent computation could challenge an OEIS identity, but no conflicting entry or durable partial result is selected.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Terms and computation constrain an identity claim, but a selected disputed entry may have more than one useful derivation."
+    },
+    {
+      "candidate_id": "M4-MATH-03",
+      "domain": "mathematics",
+      "situation_summary": "LMFDB documents source, reliability, and completeness limits for families of number-theoretic objects.",
+      "why_it_may_be_useful_for_mas": "A narrow record comparison could combine computation, proof, and data-coverage checking.",
+      "source_urls": [
+        "https://www.lmfdb.org/rcs",
+        "https://www.lmfdb.org/api/options"
+      ],
+      "source_family": "lmfdb",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "multiple_sources_required",
+        "executable_artifact"
+      ],
+      "epistemic_type": [
+        "deduction",
+        "evidence_synthesis"
+      ],
+      "answerability_notes": "bounded only after an object family and coverage claim are chosen.",
+      "limitations_or_risks": "Coverage is not universal; CC BY-SA and computation reproducibility require review.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social"
+      ],
+      "social_structure_rationale": "Proof, computation and coverage checks could complement one another only after an object and disputed claim are fixed.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Proof, computation and database coverage constrain claims without a guaranteed complete answer key."
+    },
+    {
+      "candidate_id": "M4-MATH-04",
+      "domain": "mathematics",
+      "situation_summary": "The NIST DLMF records formulas, numerical methods, and reference tables for special functions.",
+      "why_it_may_be_useful_for_mas": "An independently checkable numerical discrepancy could admit analytic and computational explanations.",
+      "source_urls": [
+        "https://dlmf.nist.gov/front/introduction",
+        "https://dlmf.nist.gov/lot/"
+      ],
+      "source_family": "nist_dlmf",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "limited",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "executable_artifact"
+      ],
+      "epistemic_type": [
+        "deduction",
+        "explanation",
+        "falsification"
+      ],
+      "answerability_notes": "bounded for a specified formula, precision, and parameter regime.",
+      "limitations_or_risks": "A future case must fix version and conventions; avoid copying substantial handbook text.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "benchmark_like"
+      ],
+      "social_structure_rationale": "Analytic and numerical checks are distinct methods, but a single formula discrepancy may resolve as an individual verification task.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "closed",
+      "ground_truth_status": "available",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "A pinned formula, parameters and precision yield a reproducible numerical check."
+    },
+    {
+      "candidate_id": "M4-MATH-05",
+      "domain": "mathematics",
+      "situation_summary": "MIPLIB publishes mixed-integer instances and best-known solution records that can change over time.",
+      "why_it_may_be_useful_for_mas": "Partial feasible solutions, bounds, and independent verification can accumulate without requiring collaboration.",
+      "source_urls": [
+        "https://miplib.zib.de/download",
+        "https://miplib.zib.de/set_benchmark.html"
+      ],
+      "source_family": "miplib",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "plausible",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "plausible",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "executable_artifact",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "design",
+        "falsification"
+      ],
+      "answerability_notes": "bounded if an instance and objective bound are frozen; optimality may remain open.",
+      "limitations_or_risks": "Runtime and solver dependencies must be capped; this is an optimization benchmark source, not a ready MAS prompt.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "structurally_social",
+        "benchmark_like",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Feasible solutions and bounds are independently verifiable partial artifacts that later work can improve; solver burden is high.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "conditional",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "high",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "Case/record and rights review remain required; do not infer a persistent social process from generic correctability.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Verified feasible solutions and bounds constrain progress even when optimality is unknown."
+    },
+    {
+      "candidate_id": "M4-PHYS-01",
+      "domain": "physics",
+      "situation_summary": "NIST publishes versioned CODATA values and correlations for physical constants.",
+      "why_it_may_be_useful_for_mas": "An exact lookup can serve as a lower-affordance natural comparison situation.",
+      "source_urls": [
+        "https://physics.nist.gov/cuu/Constants/"
+      ],
+      "source_family": "nist_codata",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "limited",
+        "partial_contribution_possible": "limited",
+        "correction_opportunity": "limited",
+        "evidence_disagreement_possible": "limited",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "limited",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "substantial"
+      },
+      "task_properties": [
+        "search_required",
+        "information_retrieval"
+      ],
+      "epistemic_type": [
+        "information_retrieval"
+      ],
+      "answerability_notes": "closed for a named constant, edition, and unit.",
+      "limitations_or_risks": "Values are updated; freeze the edition and avoid treating a lookup as a novel science problem.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "low_affordance_comparison",
+        "benchmark_like"
+      ],
+      "social_structure_rationale": "A versioned constant lookup has a direct answer; extra participants mostly repeat verification.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "Case/record and rights review remain required; do not infer a persistent social process from generic correctability.",
+      "epistemic_environment": "closed",
+      "ground_truth_status": "available",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "A named CODATA edition, constant and unit support a determinate lookup."
+    },
+    {
+      "candidate_id": "M4-PHYS-02",
+      "domain": "physics",
+      "situation_summary": "Successive CODATA adjustments revise correlated recommended constants.",
+      "why_it_may_be_useful_for_mas": "A comparison of editions could reveal uncertainty propagation and competing explanations for a change.",
+      "source_urls": [
+        "https://www.physics.nist.gov/cuu/Reference/versioncon.shtml",
+        "https://physics.nist.gov/cuu/Constants/"
+      ],
+      "source_family": "nist_codata",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "multiple_sources_required",
+        "executable_artifact"
+      ],
+      "epistemic_type": [
+        "evidence_synthesis",
+        "explanation"
+      ],
+      "answerability_notes": "bounded after editions and variables are fixed.",
+      "limitations_or_risks": "Correlated measurements make naive independent-error calculations wrong; archive editions.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social"
+      ],
+      "social_structure_rationale": "Successive adjustments permit revision, but a chosen constant and competing interpretation are needed before social structure is clear.",
+      "evidence_evolution": true,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "evolving",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Published editions change recommended values; the explanation of a change need not have one key."
+    },
+    {
+      "candidate_id": "M4-PHYS-03",
+      "domain": "physics",
+      "situation_summary": "ATLAS Open Data provides real and simulated collision datasets with educational analysis tools.",
+      "why_it_may_be_useful_for_mas": "Independent selections and cross-checks may expose background-model or detector-cut mistakes.",
+      "source_urls": [
+        "https://opendata.cern.ch/docs/about-atlas"
+      ],
+      "source_family": "cern_atlas_open_data",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "executable_artifact",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "diagnosis",
+        "falsification"
+      ],
+      "answerability_notes": "bounded for a fixed dataset, cuts, and observable.",
+      "limitations_or_risks": "Large data and specialist tooling; cite DOI and review release conditions despite CC0 note.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Independent cuts and simulations could test a result, but no bounded dataset or disputed signal is chosen and tooling is heavy.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "conditional",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "high",
+        "privacy_or_high_stakes_risk": "moderate"
+      },
+      "triage_notes": "Case/record and rights review remain required; do not infer a persistent social process from generic correctability.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Cuts, simulation and background estimates constrain a signal claim without guaranteeing one interpretation."
+    },
+    {
+      "candidate_id": "M4-PHYS-04",
+      "domain": "physics",
+      "situation_summary": "GWOSC GWTC-3 includes confident and marginal gravitational-wave events, strain, quality, and search statistics.",
+      "why_it_may_be_useful_for_mas": "Signal/noise interpretations can be tested by different data-quality and waveform checks.",
+      "source_urls": [
+        "https://gwosc.org/GWTC-3/"
+      ],
+      "source_family": "gwosc",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "plausible",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "plausible",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "plausible",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "multiple_sources_required",
+        "executable_artifact",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "diagnosis",
+        "evidence_synthesis"
+      ],
+      "answerability_notes": "bounded for a frozen event and released evidence; some marginal cases remain uncertain.",
+      "limitations_or_risks": "Heavy files and specialized statistics; do not imply a marginal event is confirmed.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "structurally_social",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Marginal strain events have quality flags, search statistics and waveform checks that can overturn a provisional interpretation.",
+      "evidence_evolution": true,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "conditional",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "high",
+        "privacy_or_high_stakes_risk": "moderate"
+      },
+      "triage_notes": "Case/record and rights review remain required; freeze evidence stages before adaptation.",
+      "epistemic_environment": "evolving",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "low",
+      "epistemic_framing_note": "Quality and waveform evidence can revise a marginal event assessment; catalog labels are not absolute truth."
+    },
+    {
+      "candidate_id": "M4-PHYS-05",
+      "domain": "physics",
+      "situation_summary": "GWOSC links revised parameter estimates and low-latency alerts to later catalog information.",
+      "why_it_may_be_useful_for_mas": "A historical-cutoff reconstruction could compare provisional inference with later evidence.",
+      "source_urls": [
+        "https://gwosc.org/GWTC-3/"
+      ],
+      "source_family": "gwosc",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "limited",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "historical_cutoff",
+        "prediction",
+        "multiple_sources_required"
+      ],
+      "epistemic_type": [
+        "prediction",
+        "evidence_synthesis"
+      ],
+      "answerability_notes": "bounded if alert cutoff and later catalog outcome are pinned.",
+      "limitations_or_risks": "Outcome leakage is likely; alert coverage is incomplete and must be checked per event.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "benchmark_like",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Alerts and later catalogs evolve, yet this may become a single historical forecast benchmark without a selected case.",
+      "evidence_evolution": true,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "conditional",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "high",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "Case/record and rights review remain required; freeze evidence stages before adaptation.",
+      "epistemic_environment": "evolving",
+      "ground_truth_status": "future_or_evolving",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "Alerts precede catalog evidence, but a fixed historical-cutoff comparison may close in one strong response."
+    },
+    {
+      "candidate_id": "M4-ASTRO-01",
+      "domain": "astronomy",
+      "situation_summary": "The NASA Exoplanet Archive distinguishes confirmed planets, candidates, and linked literature.",
+      "why_it_may_be_useful_for_mas": "A disputed candidate status could be revisited as new catalog evidence appears.",
+      "source_urls": [
+        "https://exoplanetarchive.ipac.caltech.edu/docs/intro.html"
+      ],
+      "source_family": "nasa_exoplanet_archive",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "multiple_sources_required",
+        "prediction",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "diagnosis",
+        "evidence_synthesis",
+        "prediction"
+      ],
+      "answerability_notes": "bounded for a selected target and catalog snapshot; future confirmation remains uncertain.",
+      "limitations_or_risks": "Catalog state changes; select a record and dated snapshot before adaptation.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social"
+      ],
+      "social_structure_rationale": "Candidate and confirmed statuses can change, but complementary evidence depends on selecting a contested target and snapshot.",
+      "evidence_evolution": true,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "Case/record and rights review remain required; freeze evidence stages before adaptation.",
+      "epistemic_environment": "evolving",
+      "ground_truth_status": "future_or_evolving",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Candidate status and observations can change; confirmation may remain unresolved."
+    },
+    {
+      "candidate_id": "M4-ASTRO-02",
+      "domain": "astronomy",
+      "situation_summary": "MAST provides TESS light curves, pixels, and data-validation products for the same targets.",
+      "why_it_may_be_useful_for_mas": "Transit-like features can be approached with independent detrending, pixel checks, and catalog cross-matches.",
+      "source_urls": [
+        "https://archive.stsci.edu/missions-and-data/tess",
+        "https://archive.stsci.edu/missions-and-data/tess/data-products"
+      ],
+      "source_family": "mast_tess",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "plausible",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "plausible",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "plausible",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "executable_artifact",
+        "multiple_sources_required",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "diagnosis",
+        "falsification"
+      ],
+      "answerability_notes": "bounded if target, sector, and products are fixed; false positives remain possible.",
+      "limitations_or_risks": "Data volume and instrument systematics; avoid portraying a light-curve dip as a planet.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "structurally_social",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Light curve, pixel and validation products provide distinct checks on one transit-like signal; specialist tooling remains heavy.",
+      "evidence_evolution": true,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "conditional",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "high",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "Case/record and rights review remain required; freeze evidence stages before adaptation.",
+      "epistemic_environment": "evolving",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "low",
+      "epistemic_framing_note": "Light curves, pixels and validation products constrain a transit interpretation as evidence accumulates."
+    },
+    {
+      "candidate_id": "M4-ASTRO-03",
+      "domain": "astronomy",
+      "situation_summary": "Gaia DR3 provides astrometry, velocities, variability, and documented known issues.",
+      "why_it_may_be_useful_for_mas": "Cross-checks of distance or variability may invite method corrections and specialist input.",
+      "source_urls": [
+        "https://gea.esac.esa.int/archive/",
+        "https://gea.esac.esa.int/archive/documentation/GDR3/"
+      ],
+      "source_family": "esa_gaia",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "executable_artifact",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "diagnosis",
+        "evidence_synthesis"
+      ],
+      "answerability_notes": "bounded for a specific source ID and release; uncertainty must be propagated.",
+      "limitations_or_risks": "Naive parallax inversion can mislead; choose source and archive version first.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "benchmark_like",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Astrometric and variability checks can differ, but a single source-ID exercise may be an individual data-analysis benchmark.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "conditional",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "high",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Astrometry and known systematics constrain estimates without a unique interpretation."
+    },
+    {
+      "candidate_id": "M4-ASTRO-04",
+      "domain": "astronomy",
+      "situation_summary": "The Minor Planet Center observations API exposes time, position, magnitude, and observatory fields for designated objects.",
+      "why_it_may_be_useful_for_mas": "A short observational arc could support partial orbit fits and later corrections.",
+      "source_urls": [
+        "https://docs.minorplanetcenter.net/tutorials/notebooks/mpc_tutorial_api_observations/"
+      ],
+      "source_family": "minor_planet_center",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "plausible",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "plausible",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "executable_artifact",
+        "prediction",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "prediction",
+        "diagnosis"
+      ],
+      "answerability_notes": "bounded only after object, observation cutoff, and ephemeris verification point are fixed.",
+      "limitations_or_risks": "Orbit uncertainty and changing observations; no impact-risk assertions from preliminary fits.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "structurally_social",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "New observations extend a short arc and can revise partial orbit fits; later astrometry genuinely changes the evidence.",
+      "evidence_evolution": true,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "conditional",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "high",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "Case/record and rights review remain required; freeze evidence stages before adaptation.",
+      "epistemic_environment": "evolving",
+      "ground_truth_status": "future_or_evolving",
+      "strong_agent_closure_risk": "low",
+      "epistemic_framing_note": "New astrometry can revise an orbit fit and leave durable earlier partial work useful."
+    },
+    {
+      "candidate_id": "M4-ASTRO-05",
+      "domain": "astronomy",
+      "situation_summary": "NASA PDS indexes mission datasets and data-product identifiers across planetary observations.",
+      "why_it_may_be_useful_for_mas": "Finding and reconciling a calibration or product-version mismatch may require several specialist checks.",
+      "source_urls": [
+        "https://pds.nasa.gov/datasearch/data-search/",
+        "https://pds.nasa.gov/tools/doi/"
+      ],
+      "source_family": "nasa_pds",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "limited",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "limited",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "multiple_sources_required",
+        "information_retrieval"
+      ],
+      "epistemic_type": [
+        "information_retrieval",
+        "evidence_synthesis"
+      ],
+      "answerability_notes": "bounded for a selected mission, target, and product identifier.",
+      "limitations_or_risks": "Portal is broad; human review must choose an actual bundle and check usage terms.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social"
+      ],
+      "social_structure_rationale": "A product/version lookup can be divided, but the broad portal provides no actual conflicting records yet.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "closed",
+      "ground_truth_status": "available",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "A selected mission product and version have a determinate identifier and metadata record."
+    },
+    {
+      "candidate_id": "M4-BIO-01",
+      "domain": "biology",
+      "situation_summary": "NCBI GEO holds submitter-supplied samples, platforms, and curated expression datasets.",
+      "why_it_may_be_useful_for_mas": "A differential-expression claim can be tested against sample metadata and alternative normalization.",
+      "source_urls": [
+        "https://www.ncbi.nlm.nih.gov/geo/",
+        "https://ncbi.nlm.nih.gov/geo/info/datasets.html"
+      ],
+      "source_family": "ncbi_geo",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "plausible",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "plausible",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "plausible",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "executable_artifact",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "diagnosis",
+        "falsification"
+      ],
+      "answerability_notes": "bounded only with an accession and contrast fixed.",
+      "limitations_or_risks": "Batch effects, privacy, and platform comparability; select open records and review reuse.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "structurally_social",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Sample metadata, normalization and batch effects are independent checks capable of revising an expression claim.",
+      "evidence_evolution": true,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "conditional",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "high",
+        "privacy_or_high_stakes_risk": "moderate"
+      },
+      "triage_notes": "Case/record and rights review remain required; freeze evidence stages before adaptation.",
+      "epistemic_environment": "evolving",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "low",
+      "epistemic_framing_note": "Expression claims can change with sample checks and normalization; one pipeline is not ground truth."
+    },
+    {
+      "candidate_id": "M4-BIO-02",
+      "domain": "biology",
+      "situation_summary": "GEO original Series and curated DataSets can differ in annotation and analysis affordances.",
+      "why_it_may_be_useful_for_mas": "A record-provenance reconciliation could be incrementally checked by accession, sample, and platform.",
+      "source_urls": [
+        "https://ncbi.nlm.nih.gov/geo/info/datasets.html",
+        "https://www.ncbi.nlm.nih.gov/geo/info/download.html"
+      ],
+      "source_family": "ncbi_geo",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "multiple_sources_required",
+        "information_retrieval",
+        "executable_artifact"
+      ],
+      "epistemic_type": [
+        "information_retrieval",
+        "evidence_synthesis"
+      ],
+      "answerability_notes": "bounded for a named study and specific metadata claim.",
+      "limitations_or_risks": "Curated summaries are not independent replication; data use terms need accession-level review.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social"
+      ],
+      "social_structure_rationale": "Accession reconciliation may reveal annotation differences; curated and original GEO views are not independent replication.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "Case/record and rights review remain required; do not infer a persistent social process from generic correctability.",
+      "epistemic_environment": "closed",
+      "ground_truth_status": "available",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "A fixed accession and metadata claim can be checked against its records."
+    },
+    {
+      "candidate_id": "M4-BIO-03",
+      "domain": "biology",
+      "situation_summary": "RCSB PDB publishes per-structure validation indicators and reports.",
+      "why_it_may_be_useful_for_mas": "A structural interpretation could be corrected by checking model quality and experimental support.",
+      "source_urls": [
+        "https://www.rcsb.org/docs/general-help/assessing-the-quality-of-3d-structures"
+      ],
+      "source_family": "rcsb_pdb",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "multiple_sources_required",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "diagnosis",
+        "evidence_synthesis"
+      ],
+      "answerability_notes": "bounded for a chosen structure and proposed biological inference.",
+      "limitations_or_risks": "Model quality is not biological function; choose a public entry and avoid copying figures.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social"
+      ],
+      "social_structure_rationale": "Validation and biological interpretation are different checks, but no disputed structure or inference has been chosen.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Structure validation constrains biological inference but does not prove function."
+    },
+    {
+      "candidate_id": "M4-BIO-04",
+      "domain": "biology",
+      "situation_summary": "GBIF occurrence records carry data-quality flags and publisher-provided coordinates.",
+      "why_it_may_be_useful_for_mas": "Range-change interpretations can be challenged using spatial bias and record-quality checks.",
+      "source_urls": [
+        "https://www.gbif.org/data-quality-requirements-occurrences",
+        "https://techdocs.gbif.org/en/data-use/occurrence-issues-and-flags"
+      ],
+      "source_family": "gbif",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "plausible",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "plausible",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "plausible",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "executable_artifact",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "diagnosis",
+        "evidence_synthesis"
+      ],
+      "answerability_notes": "open or bounded after species, region, and period are fixed.",
+      "limitations_or_risks": "Citizen-science effort and geolocation errors; taxon and dataset licensing vary.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "structurally_social"
+      ],
+      "social_structure_rationale": "Occurrence records, effort bias and quality flags yield complementary partial evidence that can revise a range claim.",
+      "evidence_evolution": true,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "moderate"
+      },
+      "triage_notes": "Case/record and rights review remain required; freeze evidence stages before adaptation.",
+      "epistemic_environment": "evolving",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "low",
+      "epistemic_framing_note": "New occurrence records and quality checks can reopen a range interpretation."
+    },
+    {
+      "candidate_id": "M4-BIO-05",
+      "domain": "biology",
+      "situation_summary": "eBird Status and Trends publishes modeled range and abundance products.",
+      "why_it_may_be_useful_for_mas": "A claimed local trend could be compared with effort, model uncertainty, and other observation sources.",
+      "source_urls": [
+        "https://science.ebird.org/en/status-and-trends/download-data"
+      ],
+      "source_family": "ebird",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "multiple_sources_required",
+        "prediction",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "prediction",
+        "evidence_synthesis"
+      ],
+      "answerability_notes": "bounded with species, place, year, and verification source fixed.",
+      "limitations_or_risks": "Modeled products are not raw counts; access, citation, and download terms need review.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Modeled trends and observations may diverge, but the selected species, accessible data and independent comparison remain unspecified.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "mixed_or_restricted",
+        "account_required": "possible",
+        "machine_access_feasibility": "conditional",
+        "rights_reuse_clarity": "mixed_or_restricted",
+        "data_tooling_burden": "high",
+        "privacy_or_high_stakes_risk": "moderate"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; do not infer evidence evolution or social correction from a changing portal alone.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Modeled abundance and independent observations constrain a trend, but no concrete evolving case is selected."
+    },
+    {
+      "candidate_id": "M4-CS-01",
+      "domain": "computer_science",
+      "situation_summary": "SQLite documents query-planner choices and how indexes change search paths.",
+      "why_it_may_be_useful_for_mas": "Alternative SQL/index designs could be tested, measured, and corrected on a small fixture.",
+      "source_urls": [
+        "https://www.sqlite.org/queryplanner.html",
+        "https://sqlite.org/eqp.html"
+      ],
+      "source_family": "sqlite",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "limited",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "limited",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "executable_artifact"
+      ],
+      "epistemic_type": [
+        "design",
+        "falsification"
+      ],
+      "answerability_notes": "bounded for a frozen SQLite version, schema, query, and workload.",
+      "limitations_or_risks": "Planner behavior is version/statistics dependent; do not assume one plan is universally fastest.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "benchmark_like"
+      ],
+      "social_structure_rationale": "Plans and timings are independently measurable, though a small fixture is likely a one-agent optimization exercise.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "Plans and timings constrain index design, yet one strong analysis could exhaust a small fixed fixture."
+    },
+    {
+      "candidate_id": "M4-CS-02",
+      "domain": "computer_science",
+      "situation_summary": "PostgreSQL EXPLAIN exposes execution plans and optional measured execution.",
+      "why_it_may_be_useful_for_mas": "A performance diagnosis could be refined with cardinality estimates and controlled experiments.",
+      "source_urls": [
+        "https://www.postgresql.org/docs/18/sql-explain.html",
+        "https://www.postgresql.org/docs/18/using-explain.html"
+      ],
+      "source_family": "postgresql_docs",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "limited",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "limited",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "executable_artifact",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "diagnosis",
+        "design"
+      ],
+      "answerability_notes": "bounded for fixed version, dataset, and allowed index changes.",
+      "limitations_or_risks": "EXPLAIN ANALYZE executes statements; use a disposable test database and read-only fixture.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "benchmark_like"
+      ],
+      "social_structure_rationale": "Estimate errors and controlled timings permit correction, but without a concrete workload this is mostly benchmark-like.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "Cardinality evidence and measurements constrain performance diagnosis, though one fixed workload may close quickly."
+    },
+    {
+      "candidate_id": "M4-CS-03",
+      "domain": "computer_science",
+      "situation_summary": "RFC Editor distinguishes reported, verified, rejected, and held errata.",
+      "why_it_may_be_useful_for_mas": "An exact erratum-status lookup is a useful one-shot comparison case.",
+      "source_urls": [
+        "https://www.rfc-editor.org/series/rfc-errata/"
+      ],
+      "source_family": "rfc_editor",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "limited",
+        "partial_contribution_possible": "limited",
+        "correction_opportunity": "limited",
+        "evidence_disagreement_possible": "limited",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "limited",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "substantial"
+      },
+      "task_properties": [
+        "search_required",
+        "information_retrieval"
+      ],
+      "epistemic_type": [
+        "information_retrieval"
+      ],
+      "answerability_notes": "closed for a named RFC and erratum ID at a date.",
+      "limitations_or_risks": "Erratum status changes; freeze snapshot and avoid conflating reported with verified.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "low_affordance_comparison",
+        "benchmark_like"
+      ],
+      "social_structure_rationale": "An erratum status is an exact dated lookup, not an evolving collective inquiry merely because status can change.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "Case/record and rights review remain required; do not infer a persistent social process from generic correctability.",
+      "epistemic_environment": "closed",
+      "ground_truth_status": "available",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "A named erratum and date yield a determinate status lookup."
+    },
+    {
+      "candidate_id": "M4-CS-04",
+      "domain": "computer_science",
+      "situation_summary": "RFC text and verified errata can diverge in a protocol edge case.",
+      "why_it_may_be_useful_for_mas": "A small conformance fixture could test competing interpretations against the specification and errata.",
+      "source_urls": [
+        "https://www.rfc-editor.org/series/rfc/",
+        "https://www.rfc-editor.org/series/rfc-errata/"
+      ],
+      "source_family": "rfc_editor",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "multiple_sources_required",
+        "executable_artifact"
+      ],
+      "epistemic_type": [
+        "deduction",
+        "falsification"
+      ],
+      "answerability_notes": "bounded only after a specific RFC provision and erratum are selected.",
+      "limitations_or_risks": "Standards text is copyrighted; use short citations and original test fixtures.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "benchmark_like"
+      ],
+      "social_structure_rationale": "Specification text, erratum and tests offer distinct checks; a single edge case may still resolve in one conformance test.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "Case/record and rights review remain required; do not infer a persistent social process from generic correctability.",
+      "epistemic_environment": "closed",
+      "ground_truth_status": "available",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "A pinned RFC provision, verified erratum and fixture can resolve a narrow conformance question."
+    },
+    {
+      "candidate_id": "M4-CS-05",
+      "domain": "computer_science",
+      "situation_summary": "NVD vulnerability records include affected-version and change-history information.",
+      "why_it_may_be_useful_for_mas": "A version-scope claim could be checked against vendor advisories and later NVD updates.",
+      "source_urls": [
+        "https://www.nist.gov/itl/nvd"
+      ],
+      "source_family": "nist_nvd",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "multiple_sources_required",
+        "information_retrieval",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "information_retrieval",
+        "evidence_synthesis"
+      ],
+      "answerability_notes": "bounded for a specific CVE, product version, and advisory date.",
+      "limitations_or_risks": "NVD may lag primary advisories; do not turn a candidate into exploit instructions.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Vendor and NVD versions can diverge and later change, but a concrete non-exploit scope dispute is still needed.",
+      "evidence_evolution": true,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "high"
+      },
+      "triage_notes": "Case/record and rights review remain required; freeze evidence stages before adaptation.",
+      "epistemic_environment": "evolving",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Advisory and NVD versions can change; neither source alone is a perfect truth key."
+    },
+    {
+      "candidate_id": "M4-ENG-01",
+      "domain": "engineering",
+      "situation_summary": "NTSB CAROL exposes preliminary and final investigation material across transport modes.",
+      "why_it_may_be_useful_for_mas": "Independent timeline, equipment, and causal-chain checks could refine a safety explanation.",
+      "source_urls": [
+        "https://www.ntsb.gov/Pages/CAROL.aspx",
+        "https://www.ntsb.gov/Pages/AviationQueryV2.aspx"
+      ],
+      "source_family": "ntsb_carol",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "plausible",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "plausible",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "plausible",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "multiple_sources_required",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "diagnosis",
+        "evidence_synthesis"
+      ],
+      "answerability_notes": "bounded after an investigation docket and evidence cutoff are chosen.",
+      "limitations_or_risks": "Preliminary facts can change; use sensitive language for injuries and fatalities.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "structurally_social",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Timeline, equipment and investigation evidence can independently revise a provisional causal account; safety sensitivity is high.",
+      "evidence_evolution": true,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "high"
+      },
+      "triage_notes": "Case/record and rights review remain required; freeze evidence stages before adaptation.",
+      "epistemic_environment": "evolving",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "low",
+      "epistemic_framing_note": "Preliminary and later investigation records constrain but need not uniquely settle a causal account."
+    },
+    {
+      "candidate_id": "M4-ENG-02",
+      "domain": "engineering",
+      "situation_summary": "NIST published technical findings on the Champlain Towers South collapse.",
+      "why_it_may_be_useful_for_mas": "Distinct structural hypotheses and evidence chronology could be compared without a single-line answer.",
+      "source_urls": [
+        "https://www.nist.gov/news-events/news/2026/06/nist-releases-technical-findings-what-caused-2021-partial-collapse",
+        "https://www.nist.gov/news-events/news/2023/09/nist-provides-update-investigation-collapse-champlain-towers-south"
+      ],
+      "source_family": "nist_ncst",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "plausible",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "plausible",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "plausible",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "multiple_sources_required",
+        "historical_cutoff",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "diagnosis",
+        "evidence_synthesis"
+      ],
+      "answerability_notes": "bounded if the pre-finding cutoff is frozen; later findings provide an outcome check.",
+      "limitations_or_risks": "Real disaster and affected families; do not imply earlier uncertainty persisted after findings.",
+      "provenance_confidence": "case_verified_task_not_adapted",
+      "review_status": "unselected",
+      "triage_categories": [
+        "structurally_social",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Earlier structural hypotheses can be compared with later technical findings and distinct evidence streams in a documented case.",
+      "evidence_evolution": true,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "high"
+      },
+      "triage_notes": "Case/record and rights review remain required; freeze evidence stages before adaptation.",
+      "epistemic_environment": "evolving",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Later NIST findings constrain earlier hypotheses; an official conclusion is not complete ground truth."
+    },
+    {
+      "candidate_id": "M4-ENG-03",
+      "domain": "engineering",
+      "situation_summary": "FHWA National Bridge Inventory tables are revised from annual submissions.",
+      "why_it_may_be_useful_for_mas": "A bridge-condition comparison can expose denominator, classification, and revision pitfalls.",
+      "source_urls": [
+        "https://www.fhwa.dot.gov/bridge/britab.cfm",
+        "https://www.fhwa.dot.gov/bridge/nbi.cfm"
+      ],
+      "source_family": "fhwa_nbi",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "limited",
+        "partial_contribution_possible": "limited",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "limited",
+        "specialization_opportunity": "uncertain",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "executable_artifact",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "evidence_synthesis",
+        "diagnosis"
+      ],
+      "answerability_notes": "bounded for a defined geography, year, and condition metric.",
+      "limitations_or_risks": "Inventory categories are not individual safety verdicts; archive year/version.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "benchmark_like"
+      ],
+      "social_structure_rationale": "Denominator and classification checks are useful, but a fixed table comparison is mainly an individual analysis task.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "moderate"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "closed",
+      "ground_truth_status": "available",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "A pinned year, table and metric support a determinate comparison, not a bridge safety verdict."
+    },
+    {
+      "candidate_id": "M4-ENG-04",
+      "domain": "engineering",
+      "situation_summary": "USGS provides historical and real-time streamflow observations via public tools and APIs.",
+      "why_it_may_be_useful_for_mas": "Gauge forecasts and anomaly explanations may be revised with new readings or upstream evidence.",
+      "source_urls": [
+        "https://www.usgs.gov/faqs/where-can-i-get-real-time-and-historical-streamflow-information"
+      ],
+      "source_family": "usgs_water",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "prediction",
+        "executable_artifact",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "prediction",
+        "diagnosis"
+      ],
+      "answerability_notes": "bounded for a gauge, timestamp, and verification horizon.",
+      "limitations_or_risks": "Provisional values can be revised; avoid operational flood advice.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Provisional gauges can change and upstream evidence may matter, but a concrete episode and safe scope are not selected.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "high"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; do not infer evidence evolution or social correction from a changing portal alone.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "future_or_evolving",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "A gauge forecast has a later observation, but no concrete revision-rich episode is selected."
+    },
+    {
+      "candidate_id": "M4-ENG-05",
+      "domain": "engineering",
+      "situation_summary": "NOAA Storm Events records have changing coverage by event type and collection era.",
+      "why_it_may_be_useful_for_mas": "Reconciling a reported event with database records can reveal classification and reporting gaps.",
+      "source_urls": [
+        "https://www.ncdc.noaa.gov/stormevents/details.jsp",
+        "https://www.ncei.noaa.gov/access/storm-events-database/assets/pdf/Storm_Events_Database_User_Guide.pdf"
+      ],
+      "source_family": "noaa_storm_events",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "multiple_sources_required",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "information_retrieval",
+        "evidence_synthesis"
+      ],
+      "answerability_notes": "bounded for a place, event type, and date interval.",
+      "limitations_or_risks": "Historical coverage is uneven; reports are not a complete census of weather impacts.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social"
+      ],
+      "social_structure_rationale": "Reports, coverage and classification can change an event interpretation; no actual conflicting episode is chosen.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "moderate"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; do not infer evidence evolution or social correction from a changing portal alone.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Coverage and classification constrain an event account, while reports remain incomplete."
+    },
+    {
+      "candidate_id": "M4-DATA-01",
+      "domain": "data_analysis",
+      "situation_summary": "Census ACS publishes 1-year and 5-year estimates through different API datasets.",
+      "why_it_may_be_useful_for_mas": "A local disparity claim could be checked against geography, sampling error, and time window.",
+      "source_urls": [
+        "https://www.census.gov/programs-surveys/acs/data/data-via-api.html"
+      ],
+      "source_family": "us_census_acs",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "limited",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "limited",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "executable_artifact",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "evidence_synthesis",
+        "falsification"
+      ],
+      "answerability_notes": "bounded when variable, geography, vintage, and uncertainty treatment are fixed.",
+      "limitations_or_risks": "Do not compare incompatible ACS products or ignore margins of error.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "benchmark_like"
+      ],
+      "social_structure_rationale": "ACS window and uncertainty checks can correct arithmetic but a fixed API comparison may end as one analysis.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "moderate"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "ACS estimates and margins of error constrain a disparity claim; a fixed comparison may close in one analysis."
+    },
+    {
+      "candidate_id": "M4-DATA-02",
+      "domain": "data_analysis",
+      "situation_summary": "BLS Public Data API exposes labor time series at defined series IDs.",
+      "why_it_may_be_useful_for_mas": "An apparent trend can be rechecked against seasonal adjustment and series definitions.",
+      "source_urls": [
+        "https://www.bls.gov/developers/api_signature_v2.htm"
+      ],
+      "source_family": "bls_api",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "limited",
+        "partial_contribution_possible": "limited",
+        "correction_opportunity": "limited",
+        "evidence_disagreement_possible": "limited",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "information_retrieval",
+        "executable_artifact"
+      ],
+      "epistemic_type": [
+        "information_retrieval",
+        "evidence_synthesis"
+      ],
+      "answerability_notes": "bounded for named series IDs, dates, and adjustment status.",
+      "limitations_or_risks": "API registration may be needed for larger queries; public rate limits apply.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "low_affordance_comparison",
+        "benchmark_like"
+      ],
+      "social_structure_rationale": "Series definition and adjustment checks are mostly one-shot retrieval once IDs and dates are fixed.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "Case/record and rights review remain required; do not infer a persistent social process from generic correctability.",
+      "epistemic_environment": "closed",
+      "ground_truth_status": "available",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "Named series, dates and adjustment settings yield retrievable values."
+    },
+    {
+      "candidate_id": "M4-DATA-03",
+      "domain": "data_analysis",
+      "situation_summary": "ALFRED archives vintages of revised economic series.",
+      "why_it_may_be_useful_for_mas": "A historical-cutoff forecast can be reconstructed without leaking later data revisions.",
+      "source_urls": [
+        "https://fred.stlouisfed.org/docs/api/fred/alfred.html",
+        "https://www.stlouisfed.org/publications/page-one-economics/2022/08/01/data-revisions-with-fred"
+      ],
+      "source_family": "stl_fed_alfred",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "limited",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "historical_cutoff",
+        "prediction",
+        "executable_artifact"
+      ],
+      "epistemic_type": [
+        "prediction",
+        "evidence_synthesis"
+      ],
+      "answerability_notes": "bounded for series, vintage, forecast horizon, and scoring rule.",
+      "limitations_or_risks": "API key and release-calendar constraints; never score using revised values as if known earlier.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "benchmark_like",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Vintage data supports a clean forecast benchmark; evidence evolution is not established without competing live interpretations.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "possible",
+        "machine_access_feasibility": "conditional",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "high",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "closed",
+      "ground_truth_status": "available",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "A frozen historical forecast target can be scored later; that scoring is auxiliary, not MAS value."
+    },
+    {
+      "candidate_id": "M4-DATA-04",
+      "domain": "data_analysis",
+      "situation_summary": "CDC WONDER applies suppression and use restrictions to mortality queries.",
+      "why_it_may_be_useful_for_mas": "A missing or suppressed cell creates an honest insufficient-evidence situation rather than an arithmetic puzzle.",
+      "source_urls": [
+        "https://wonder.cdc.gov/wonder/help/wonder-api.html",
+        "https://wonder.cdc.gov/datause.html"
+      ],
+      "source_family": "cdc_wonder",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "limited",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "plausible",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "evidence_synthesis",
+        "falsification"
+      ],
+      "answerability_notes": "insufficient where disclosure suppression prevents the requested inference.",
+      "limitations_or_risks": "Health data are high-stakes; respect suppression, citations, and no re-identification.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Suppression may justify abstention, but forbids reconstructing withheld cells and may leave little shareable evidence.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "mixed_or_restricted",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "poor_or_unverified",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "high"
+      },
+      "triage_notes": "Case/record and rights review remain required; do not infer a persistent social process from generic correctability.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "unavailable",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "Suppression constrains permissible inference and may make the requested cell unknowable; abstention may be one-shot."
+    },
+    {
+      "candidate_id": "M4-DATA-05",
+      "domain": "data_analysis",
+      "situation_summary": "World Bank Indicators API exposes many country series with differing completeness.",
+      "why_it_may_be_useful_for_mas": "A cross-country claim may need definition, missingness, and denominator reconciliation.",
+      "source_urls": [
+        "https://datahelpdesk.worldbank.org/knowledgebase/articles/889392"
+      ],
+      "source_family": "world_bank_indicators",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "multiple_sources_required",
+        "executable_artifact",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "evidence_synthesis",
+        "falsification"
+      ],
+      "answerability_notes": "bounded after indicators, countries, years, and version are fixed.",
+      "limitations_or_risks": "Country coverage and revisions differ; check each indicator's original provider.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social"
+      ],
+      "social_structure_rationale": "Provider definitions and missingness might require reconciliation after an exact cross-country claim is selected.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Definitions and missingness constrain cross-country claims without one inevitable interpretation."
+    },
+    {
+      "candidate_id": "M4-LANG-01",
+      "domain": "language",
+      "situation_summary": "Universal Dependencies publishes multilingual treebanks and a shared annotation scheme.",
+      "why_it_may_be_useful_for_mas": "A disputed parse could admit partial syntactic evidence, alternate analyses, and correction.",
+      "source_urls": [
+        "https://universaldependencies.org/",
+        "https://universaldependencies.org/download.html"
+      ],
+      "source_family": "universal_dependencies",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "executable_artifact",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "diagnosis",
+        "explanation"
+      ],
+      "answerability_notes": "bounded for a sentence, language, and treebank version.",
+      "limitations_or_risks": "Treebank labels are not infallible; license varies by treebank.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social"
+      ],
+      "social_structure_rationale": "Alternate parses and treebank labels could be compared, but a chosen sentence may collapse to an individual annotation task.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "A treebank parse constrains analysis but alternative defensible syntax may remain."
+    },
+    {
+      "candidate_id": "M4-LANG-02",
+      "domain": "language",
+      "situation_summary": "UD treebank licenses differ, including noncommercial conditions and text-rights caveats.",
+      "why_it_may_be_useful_for_mas": "A reuse-eligibility check can expose provenance mistakes before any prompt is written.",
+      "source_urls": [
+        "https://universaldependencies.org/contributing/licensing.html"
+      ],
+      "source_family": "universal_dependencies",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "limited",
+        "partial_contribution_possible": "limited",
+        "correction_opportunity": "limited",
+        "evidence_disagreement_possible": "limited",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "limited",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "substantial"
+      },
+      "task_properties": [
+        "search_required",
+        "information_retrieval"
+      ],
+      "epistemic_type": [
+        "information_retrieval"
+      ],
+      "answerability_notes": "License and text-rights terms constrain a named reuse question; eligibility still requires human review rather than a canonical Agent answer key.",
+      "limitations_or_risks": "Legal interpretation requires human review; do not reproduce restricted text.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "low_affordance_comparison",
+        "benchmark_like",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "A treebank reuse check is mainly a human rights decision, not an Agent social task; restrictions add friction.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "mixed_or_restricted",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "Case/record and rights review remain required; do not infer a persistent social process from generic correctability.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "not_applicable",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "License text constrains a human reuse decision; there is no Agent-scored legal answer key."
+    },
+    {
+      "candidate_id": "M4-LANG-03",
+      "domain": "language",
+      "situation_summary": "WALS publishes language-feature values and citations for cross-linguistic comparison.",
+      "why_it_may_be_useful_for_mas": "A single feature lookup is a low-affordance natural comparison case.",
+      "source_urls": [
+        "https://wals.info/feature",
+        "https://wals.info/chapter/s1"
+      ],
+      "source_family": "wals",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "limited",
+        "partial_contribution_possible": "limited",
+        "correction_opportunity": "limited",
+        "evidence_disagreement_possible": "limited",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "limited",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "substantial"
+      },
+      "task_properties": [
+        "search_required",
+        "information_retrieval"
+      ],
+      "epistemic_type": [
+        "information_retrieval"
+      ],
+      "answerability_notes": "closed for a named language-feature pair and WALS version.",
+      "limitations_or_risks": "Sparse coverage and source heterogeneity; absence is not a negative value.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "low_affordance_comparison",
+        "benchmark_like"
+      ],
+      "social_structure_rationale": "A named WALS feature value is a dated lookup; sparse coverage does not itself produce complementary contributions.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "Case/record and rights review remain required; do not infer a persistent social process from generic correctability.",
+      "epistemic_environment": "closed",
+      "ground_truth_status": "available",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "A pinned WALS release and feature pair provide a determinate recorded value."
+    },
+    {
+      "candidate_id": "M4-LANG-04",
+      "domain": "language",
+      "situation_summary": "CHILDES/TalkBank provides child-language corpora under access and citation rules.",
+      "why_it_may_be_useful_for_mas": "A developmental pattern could be checked with coding choices and corpus-specific context.",
+      "source_urls": [
+        "https://talkbank.org/childes/access/",
+        "https://talkbank.org/0share/rules.html"
+      ],
+      "source_family": "talkbank_childes",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "multiple_sources_required",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "evidence_synthesis",
+        "explanation"
+      ],
+      "answerability_notes": "bounded only after an open corpus, age range, and coding rule are chosen.",
+      "limitations_or_risks": "Some data require login/permission; child privacy and noncommercial terms require strict review.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Corpus coding could support distinct interpretations, but access and child privacy prevent assuming usable shared evidence.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "mixed_or_restricted",
+        "account_required": "possible",
+        "machine_access_feasibility": "poor_or_unverified",
+        "rights_reuse_clarity": "mixed_or_restricted",
+        "data_tooling_burden": "high",
+        "privacy_or_high_stakes_risk": "high"
+      },
+      "triage_notes": "Case/record and rights review remain required; do not infer a persistent social process from generic correctability.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Coding and corpus context constrain developmental claims without a unique conclusion."
+    },
+    {
+      "candidate_id": "M4-LANG-05",
+      "domain": "language",
+      "situation_summary": "Leipzig Corpora Collection publishes corpus download formats and text-derived frequency information.",
+      "why_it_may_be_useful_for_mas": "A frequency contrast may need genre, time, and tokenization corrections.",
+      "source_urls": [
+        "https://wortschatz.uni-leipzig.de/en/documentation",
+        "https://wortschatz.uni-leipzig.de/en/download/deu"
+      ],
+      "source_family": "leipzig_corpora",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "executable_artifact",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "evidence_synthesis",
+        "falsification"
+      ],
+      "answerability_notes": "bounded after corpora, size, year, and normalization are fixed.",
+      "limitations_or_risks": "Underlying news text may have separate copyright; inspect reuse terms before excerpting.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "benchmark_like",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Tokenization and genre checks differ, yet a fixed frequency contrast may be a reproducible individual benchmark.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "mixed_or_restricted",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "Counts are reproducible, but interpretation depends on genre and tokenization; a fixed contrast may close quickly."
+    },
+    {
+      "candidate_id": "M4-HIST-01",
+      "domain": "history",
+      "situation_summary": "FRUS provides official documents on U.S. foreign-policy decisions and their chronology.",
+      "why_it_may_be_useful_for_mas": "A decision timeline can be reconstructed from dispatches, minutes, and later records with room for correction.",
+      "source_urls": [
+        "https://history.state.gov/historicaldocuments",
+        "https://history.state.gov/historicaldocuments/about-frus"
+      ],
+      "source_family": "state_department_frus",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "plausible",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "plausible",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "plausible",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "multiple_sources_required",
+        "historical_cutoff",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "information_retrieval",
+        "evidence_synthesis"
+      ],
+      "answerability_notes": "bounded for a selected decision and document cutoff; official record may still be incomplete.",
+      "limitations_or_risks": "Publication lag and selective declassification; compare non-U.S. archives before broad claims.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "structurally_social"
+      ],
+      "social_structure_rationale": "Multiple documents and declassification gaps allow partial chronology, competing readings and later correction.",
+      "evidence_evolution": true,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "Case/record and rights review remain required; freeze evidence stages before adaptation.",
+      "epistemic_environment": "evolving",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "low",
+      "epistemic_framing_note": "Newly found or released documents can revise a bounded decision chronology without yielding one final cause."
+    },
+    {
+      "candidate_id": "M4-HIST-02",
+      "domain": "history",
+      "situation_summary": "Founders Online exposes edited letters and metadata from several documentary editions.",
+      "why_it_may_be_useful_for_mas": "A correspondence chronology could be extended through recipient, draft, and date checks.",
+      "source_urls": [
+        "https://founders.archives.gov/API/docdata/",
+        "https://www.archives.gov/publications/prologue/2010/winter/founders.html"
+      ],
+      "source_family": "nara_founders_online",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "multiple_sources_required",
+        "information_retrieval"
+      ],
+      "epistemic_type": [
+        "information_retrieval",
+        "evidence_synthesis"
+      ],
+      "answerability_notes": "bounded for specified correspondents and date range.",
+      "limitations_or_risks": "Editorial transcriptions and uncertain dates need source-level review; copyright of annotations differs from originals.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social"
+      ],
+      "social_structure_rationale": "Drafts, recipients and dates may complement one another after a specific correspondence chain is selected.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Drafts and uncertain dates constrain correspondence chronology but may leave ambiguity."
+    },
+    {
+      "candidate_id": "M4-HIST-03",
+      "domain": "history",
+      "situation_summary": "Hansard provides searchable parliamentary debates by date and sitting.",
+      "why_it_may_be_useful_for_mas": "Locating a particular debate date is a low-affordance retrieval comparison case.",
+      "source_urls": [
+        "https://hansard.parliament.uk/about?historic=false",
+        "https://hansard.parliament.uk/search/Debates?house=&page=1"
+      ],
+      "source_family": "uk_hansard",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "limited",
+        "partial_contribution_possible": "limited",
+        "correction_opportunity": "limited",
+        "evidence_disagreement_possible": "limited",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "limited",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "substantial"
+      },
+      "task_properties": [
+        "search_required",
+        "information_retrieval"
+      ],
+      "epistemic_type": [
+        "information_retrieval"
+      ],
+      "answerability_notes": "closed for a named debate and edition.",
+      "limitations_or_risks": "Rolling recent text can be corrected; historical search coverage varies.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "low_affordance_comparison",
+        "benchmark_like"
+      ],
+      "social_structure_rationale": "Locating a debate date is a straightforward retrieval comparison, despite possible later text corrections.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "Case/record and rights review remain required; do not infer a persistent social process from generic correctability.",
+      "epistemic_environment": "closed",
+      "ground_truth_status": "available",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "A named debate and edition have a determinable recorded date."
+    },
+    {
+      "candidate_id": "M4-HIST-04",
+      "domain": "history",
+      "situation_summary": "Library of Congress Chronicling America digitizes selected historical newspaper pages.",
+      "why_it_may_be_useful_for_mas": "Contrasting reports of one event across places could expose gaps, bias, OCR errors, and later correction.",
+      "source_urls": [
+        "https://guides.loc.gov/chronicling-america/about-the-collection"
+      ],
+      "source_family": "loc_chronicling_america",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "plausible",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "plausible",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "plausible",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "multiple_sources_required",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "evidence_synthesis",
+        "information_retrieval"
+      ],
+      "answerability_notes": "bounded for an event, publication window, and selected papers.",
+      "limitations_or_risks": "Collection is selective; OCR and rights differ by newspaper and date.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "structurally_social"
+      ],
+      "social_structure_rationale": "Independent newspaper reports, OCR errors and geographic bias can change a partial event reconstruction.",
+      "evidence_evolution": true,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "Case/record and rights review remain required; freeze evidence stages before adaptation.",
+      "epistemic_environment": "evolving",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "low",
+      "epistemic_framing_note": "Additional papers and OCR correction can revise a partial event reconstruction."
+    },
+    {
+      "candidate_id": "M4-HIST-05",
+      "domain": "history",
+      "situation_summary": "National Archives educational collections link primary records with contextual descriptions.",
+      "why_it_may_be_useful_for_mas": "An archival record and later interpretation could be separated, checked, and supplemented.",
+      "source_urls": [
+        "https://www.archives.gov/education"
+      ],
+      "source_family": "nara_records",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "uncertain",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "uncertain",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "multiple_sources_required",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "evidence_synthesis",
+        "explanation"
+      ],
+      "answerability_notes": "bounded only after a specific record and historical claim are selected.",
+      "limitations_or_risks": "The landing page is not a case source; human review must find record-level citations and rights.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social"
+      ],
+      "social_structure_rationale": "A generic archive landing page cannot establish complementary evidence before a record and claim are selected.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Primary records constrain a historical claim, but no specific record or unique answer is selected."
+    },
+    {
+      "candidate_id": "M4-SOC-01",
+      "domain": "social_science",
+      "situation_summary": "ANES releases election time-series studies and documents variables and restricted-use boundaries.",
+      "why_it_may_be_useful_for_mas": "Survey-weighting and question-comparability checks could correct an apparent attitude shift.",
+      "source_urls": [
+        "https://electionstudies.org/data-center/",
+        "https://electionstudies.org/anes_timeseries_2024_userguidecodebook_20250808/"
+      ],
+      "source_family": "anes",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "executable_artifact",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "evidence_synthesis",
+        "falsification"
+      ],
+      "answerability_notes": "bounded for a variable, waves, population, and weighting plan.",
+      "limitations_or_risks": "Some variables are restricted; avoid individual-level inference and review download terms.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Weighting and comparability can challenge a trend, but restricted variables and no chosen contrast limit structural claims.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "mixed_or_restricted",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "conditional",
+        "rights_reuse_clarity": "mixed_or_restricted",
+        "data_tooling_burden": "high",
+        "privacy_or_high_stakes_risk": "moderate"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Weights and question comparability constrain an attitude-shift claim without a single truth key."
+    },
+    {
+      "candidate_id": "M4-SOC-02",
+      "domain": "social_science",
+      "situation_summary": "GSS provides long-running public-use attitude series and documentation.",
+      "why_it_may_be_useful_for_mas": "Different coding and missing-response treatments could change a historical trend interpretation.",
+      "source_urls": [
+        "https://gssdataexplorer.norc.org/gss_data",
+        "https://gss.norc.org/faq.html"
+      ],
+      "source_family": "norc_gss",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "executable_artifact",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "evidence_synthesis",
+        "falsification"
+      ],
+      "answerability_notes": "bounded when question wording, waves, weights, and missing codes are fixed.",
+      "limitations_or_risks": "Question wording and samples change; sensitive geography requires separate agreement.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social"
+      ],
+      "social_structure_rationale": "Coding and sample choices may diverge on a selected series; the portal-level situation alone is insufficient.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "moderate"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Coding and sampling choices constrain a trend without uniquely fixing its interpretation."
+    },
+    {
+      "candidate_id": "M4-SOC-03",
+      "domain": "social_science",
+      "situation_summary": "Pew releases many survey microdatasets after a delay through a free account.",
+      "why_it_may_be_useful_for_mas": "A published claim could be checked against microdata and methodology if access is approved.",
+      "source_urls": [
+        "https://www.pewresearch.org/datasets/",
+        "https://www.pewresearch.org/short-reads/2021/10/22/how-to-access-pew-research-center-survey-data/"
+      ],
+      "source_family": "pew_research",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "uncertain",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "executable_artifact",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "evidence_synthesis",
+        "falsification"
+      ],
+      "answerability_notes": "bounded for a released dataset and exact claim.",
+      "limitations_or_risks": "Login and terms are required; do not assume automated Agent access or permission to redistribute.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Microdata could test a claim, but login and reuse constraints make open Agent verification uncertain.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "mixed_or_restricted",
+        "account_required": "yes",
+        "machine_access_feasibility": "poor_or_unverified",
+        "rights_reuse_clarity": "mixed_or_restricted",
+        "data_tooling_burden": "high",
+        "privacy_or_high_stakes_risk": "moderate"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Microdata can test a published claim, but methodological interpretation remains contestable."
+    },
+    {
+      "candidate_id": "M4-SOC-04",
+      "domain": "social_science",
+      "situation_summary": "World Values Survey publishes wave and country documentation with questionnaires.",
+      "why_it_may_be_useful_for_mas": "A cross-country values claim may turn on translation, sampling, and question comparability.",
+      "source_urls": [
+        "https://www.worldvaluessurvey.org/WVSContents.jsp?CMSID=Documentation"
+      ],
+      "source_family": "world_values_survey",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "multiple_sources_required",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "evidence_synthesis",
+        "explanation"
+      ],
+      "answerability_notes": "bounded for countries, waves, exact item, and translations.",
+      "limitations_or_risks": "Reuse terms and country-file access require review; cultural interpretation is not an exact-answer key.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Translation and sampling could yield complementary interpretations only for chosen items and accessible country files.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "mixed_or_restricted",
+        "account_required": "possible",
+        "machine_access_feasibility": "conditional",
+        "rights_reuse_clarity": "mixed_or_restricted",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "moderate"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "not_applicable",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Cross-cultural interpretation is evidence-constrained; a canonical values judgment is not applicable."
+    },
+    {
+      "candidate_id": "M4-SOC-05",
+      "domain": "social_science",
+      "situation_summary": "Census ACS aggregate estimates and survey-based social claims can have different populations and geographies.",
+      "why_it_may_be_useful_for_mas": "A seemingly conflicting demographic claim could be reconciled by denominator and survey-design checks.",
+      "source_urls": [
+        "https://www.census.gov/programs-surveys/acs/data/data-via-api.html",
+        "https://www.pewresearch.org/datasets/"
+      ],
+      "source_family": "us_census_acs",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "uncertain",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "multiple_sources_required",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "evidence_synthesis",
+        "diagnosis"
+      ],
+      "answerability_notes": "bounded after a particular claim and comparable population are selected.",
+      "limitations_or_risks": "Pew microdata login and ACS sampling error; no candidate-specific case is selected yet.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Two source families might reconcile denominators, but no concrete claim or access to both datasets is established.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "mixed_or_restricted",
+        "account_required": "possible",
+        "machine_access_feasibility": "poor_or_unverified",
+        "rights_reuse_clarity": "mixed_or_restricted",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "moderate"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Different survey populations and geographies constrain reconciliation without a unique causal story."
+    },
+    {
+      "candidate_id": "M4-ASTRO-06",
+      "domain": "astronomy",
+      "situation_summary": "TESS data-validation products and the Exoplanet Archive can reflect different stages of candidate vetting.",
+      "why_it_may_be_useful_for_mas": "A dated candidate classification could be revisited against later catalog status and light-curve evidence.",
+      "source_urls": [
+        "https://archive.stsci.edu/missions-and-data/tess/data-products",
+        "https://exoplanetarchive.ipac.caltech.edu/docs/intro.html"
+      ],
+      "source_family": "mast_tess",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "multiple_sources_required",
+        "historical_cutoff",
+        "prediction",
+        "executable_artifact"
+      ],
+      "epistemic_type": [
+        "prediction",
+        "evidence_synthesis"
+      ],
+      "answerability_notes": "bounded if target, information cutoff, and later status are frozen.",
+      "limitations_or_risks": "Catalog revisions and outcome leakage; choose a real target only after human review.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "benchmark_like",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Early vetting versus later status evolves, yet a selected target may reduce to a historical prediction benchmark.",
+      "evidence_evolution": true,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "conditional",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "high",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "Case/record and rights review remain required; freeze evidence stages before adaptation.",
+      "epistemic_environment": "evolving",
+      "ground_truth_status": "future_or_evolving",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "Later catalog status can check early vetting, but a historical prediction may end in one response."
+    },
+    {
+      "candidate_id": "M4-CS-06",
+      "domain": "computer_science",
+      "situation_summary": "SQLite documents conditions under which a query plan remains stable and when statistics can change it.",
+      "why_it_may_be_useful_for_mas": "A reproducible plan change could be diagnosed with alternative statistics and version-controlled fixtures.",
+      "source_urls": [
+        "https://www.sqlite.org/queryplanner-ng.html"
+      ],
+      "source_family": "sqlite",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "limited",
+        "partial_contribution_possible": "limited",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "limited",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "search_required",
+        "executable_artifact",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "diagnosis",
+        "falsification"
+      ],
+      "answerability_notes": "bounded for pinned SQLite builds, schema, statistics, and query.",
+      "limitations_or_risks": "Planner-stability guarantee has explicit conditions; avoid a simplistic version-only explanation.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "benchmark_like"
+      ],
+      "social_structure_rationale": "Plan changes can be reproduced under fixed builds, but this is likely individual debugging unless multiple artifacts conflict.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; generic correctability is not enough to claim social correction.",
+      "epistemic_environment": "closed",
+      "ground_truth_status": "available",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "Pinned builds, statistics and query make the observed plan change reproducible."
+    },
+    {
+      "candidate_id": "M4-ENG-06",
+      "domain": "engineering",
+      "situation_summary": "FAA preliminary notices and NTSB later investigations cover different evidentiary stages of aviation incidents.",
+      "why_it_may_be_useful_for_mas": "A cutoff-limited early causal hypothesis could be compared with the later official record.",
+      "source_urls": [
+        "https://www.faa.gov/data_research/accident_incident/preliminary_data",
+        "https://www.ntsb.gov/Pages/CAROL.aspx"
+      ],
+      "source_family": "faa_preliminary",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "multiple_sources_required",
+        "historical_cutoff",
+        "prediction",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "prediction",
+        "diagnosis"
+      ],
+      "answerability_notes": "bounded after a case, early date, and later finding are selected.",
+      "limitations_or_risks": "Preliminary notices are incomplete; sensitive incident details and hindsight leakage.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Preliminary and final records can revise causal hypotheses; a specific safe case and archival cutoff are missing.",
+      "evidence_evolution": true,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "high"
+      },
+      "triage_notes": "Case/record and rights review remain required; freeze evidence stages before adaptation.",
+      "epistemic_environment": "evolving",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Final investigation material can revise an early hypothesis without proving every causal detail."
+    },
+    {
+      "candidate_id": "M4-ENG-07",
+      "domain": "engineering",
+      "situation_summary": "FHWA bridge-condition and posting-status tables answer different questions about infrastructure.",
+      "why_it_may_be_useful_for_mas": "An exact cross-tab lookup is a lower-affordance comparison case if a year and jurisdiction are fixed.",
+      "source_urls": [
+        "https://www.fhwa.dot.gov/bridge/britab.cfm"
+      ],
+      "source_family": "fhwa_nbi",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "limited",
+        "partial_contribution_possible": "limited",
+        "correction_opportunity": "limited",
+        "evidence_disagreement_possible": "limited",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "limited",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "substantial"
+      },
+      "task_properties": [
+        "search_required",
+        "information_retrieval"
+      ],
+      "epistemic_type": [
+        "information_retrieval"
+      ],
+      "answerability_notes": "closed for a named archived table, year, and region.",
+      "limitations_or_risks": "Conditions are not a bridge-specific safety decision; corrections may alter current tables.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "low_affordance_comparison",
+        "benchmark_like"
+      ],
+      "social_structure_rationale": "A named bridge table cell is an exact lookup; extra participants add little distinct evidence.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "Case/record and rights review remain required; do not infer a persistent social process from generic correctability.",
+      "epistemic_environment": "closed",
+      "ground_truth_status": "available",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "A named archived bridge table cell is a determinate lookup, not a safety verdict."
+    },
+    {
+      "candidate_id": "M4-DATA-06",
+      "domain": "data_analysis",
+      "situation_summary": "CDC provisional mortality data can be delayed, suppressed, or revised before final release.",
+      "why_it_may_be_useful_for_mas": "An early estimate could be bounded and later checked without pretending suppressed values are known.",
+      "source_urls": [
+        "https://wonder.cdc.gov/wonder/help/mcd-provisional.html"
+      ],
+      "source_family": "cdc_wonder",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "limited",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "uncertain",
+        "evidence_disagreement_possible": "plausible",
+        "specialization_opportunity": "limited",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "historical_cutoff",
+        "prediction",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "prediction",
+        "evidence_synthesis"
+      ],
+      "answerability_notes": "insufficient or bounded depending on suppressed cells and permitted aggregation.",
+      "limitations_or_risks": "High-stakes health interpretation; all disclosure constraints remain binding.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Provisional totals may revise, but suppression and health stakes constrain which partial estimates can be shared.",
+      "evidence_evolution": true,
+      "operational_practicality": {
+        "public_access": "mixed_or_restricted",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "conditional",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "high"
+      },
+      "triage_notes": "Case/record and rights review remain required; freeze evidence stages before adaptation.",
+      "epistemic_environment": "evolving",
+      "ground_truth_status": "future_or_evolving",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Provisional data may revise toward final release, while suppression can still limit certainty."
+    },
+    {
+      "candidate_id": "M4-DATA-07",
+      "domain": "data_analysis",
+      "situation_summary": "OECD Data Explorer and World Bank APIs expose overlapping indicators with different metadata and definitions.",
+      "why_it_may_be_useful_for_mas": "A cross-source disagreement could be traced to indicator definitions, vintages, or country coverage.",
+      "source_urls": [
+        "https://www.oecd.org/en/data/insights/data-explainers/2024/09/api.html",
+        "https://datahelpdesk.worldbank.org/knowledgebase/articles/889392"
+      ],
+      "source_family": "oecd_data_explorer",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "limited",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "multiple_sources_required",
+        "executable_artifact",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "evidence_synthesis",
+        "diagnosis"
+      ],
+      "answerability_notes": "bounded after a specific indicator pair, date, and unit conversion.",
+      "limitations_or_risks": "API semantics and original providers differ; source family is primary OECD only.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social"
+      ],
+      "social_structure_rationale": "Two indicator systems can disagree in definitions, but a specific incompatible indicator pair is not selected.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "Case/record and rights review remain required; do not infer a persistent social process from generic correctability.",
+      "epistemic_environment": "constrained_open",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "medium",
+      "epistemic_framing_note": "Two indicator systems constrain a comparison but may legitimately differ in definitions."
+    },
+    {
+      "candidate_id": "M4-DATA-08",
+      "domain": "data_analysis",
+      "situation_summary": "NOAA storm reports and USGS stream gauges record different facets of a flood episode.",
+      "why_it_may_be_useful_for_mas": "A local impact interpretation could be revised by combining event reports with observed flows.",
+      "source_urls": [
+        "https://www.ncdc.noaa.gov/stormevents/details.jsp",
+        "https://www.usgs.gov/faqs/where-can-i-get-real-time-and-historical-streamflow-information"
+      ],
+      "source_family": "noaa_storm_events",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "plausible",
+        "partial_contribution_possible": "plausible",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "plausible",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "plausible",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "multiple_sources_required",
+        "executable_artifact",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "evidence_synthesis",
+        "diagnosis"
+      ],
+      "answerability_notes": "bounded for a selected episode, gauge, and spatial/time alignment.",
+      "limitations_or_risks": "Neither source alone establishes causation or damage; select a real episode before adaptation.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "structurally_social"
+      ],
+      "social_structure_rationale": "Storm reports and stream gauges are genuinely different evidence streams that can revise one episode account.",
+      "evidence_evolution": true,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "moderate",
+        "privacy_or_high_stakes_risk": "moderate"
+      },
+      "triage_notes": "Case/record and rights review remain required; freeze evidence stages before adaptation.",
+      "epistemic_environment": "evolving",
+      "ground_truth_status": "partial",
+      "strong_agent_closure_risk": "low",
+      "epistemic_framing_note": "Independent reports and gauges can revise a bounded flood-episode account without proving causation."
+    },
+    {
+      "candidate_id": "M4-HIST-06",
+      "domain": "history",
+      "situation_summary": "Hansard's rolling reports may be corrected after initial publication.",
+      "why_it_may_be_useful_for_mas": "A historical-cutoff interpretation of a statement could be compared with the corrected record.",
+      "source_urls": [
+        "https://www.parliament.uk/about/how/publications/hansard/",
+        "https://hansard.parliament.uk/about?historic=false"
+      ],
+      "source_family": "uk_hansard",
+      "social_affordances": {
+        "independently_answerable": "plausible",
+        "multiple_plausible_approaches": "limited",
+        "partial_contribution_possible": "uncertain",
+        "correction_opportunity": "plausible",
+        "evidence_disagreement_possible": "uncertain",
+        "specialization_opportunity": "plausible",
+        "cumulative_progress_possible": "uncertain",
+        "revisitation_possible": "plausible",
+        "one_shot_answer_risk": "possible"
+      },
+      "task_properties": [
+        "multiple_sources_required",
+        "historical_cutoff",
+        "incomplete_or_noisy_evidence"
+      ],
+      "epistemic_type": [
+        "evidence_synthesis",
+        "information_retrieval"
+      ],
+      "answerability_notes": "bounded for a documented correction and date-stamped versions.",
+      "limitations_or_risks": "A specific correction is not yet identified; rights and archival availability need review.",
+      "provenance_confidence": "portal_verified_record_pending",
+      "review_status": "unselected",
+      "triage_categories": [
+        "potentially_social",
+        "operationally_awkward"
+      ],
+      "social_structure_rationale": "Rolling and corrected records can change a reading, but no documented correction or archived versions are selected.",
+      "evidence_evolution": false,
+      "operational_practicality": {
+        "public_access": "public_page_or_metadata",
+        "account_required": "no_for_linked_page",
+        "machine_access_feasibility": "likely_for_metadata",
+        "rights_reuse_clarity": "record_level_review_needed",
+        "data_tooling_burden": "low",
+        "privacy_or_high_stakes_risk": "low"
+      },
+      "triage_notes": "A concrete contested record and independent check are not yet established; do not infer evidence evolution or social correction from a changing portal alone.",
+      "epistemic_environment": "closed",
+      "ground_truth_status": "available",
+      "strong_agent_closure_risk": "high",
+      "epistemic_framing_note": "A documented correction and two dated texts permit a determinate version comparison."
+    }
+  ]
+}

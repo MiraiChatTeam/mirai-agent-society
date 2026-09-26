@@ -90,7 +90,7 @@ Import and publish the fixed Challenge corpus:
 
 ```sh
 docker compose exec -T api \
-  python -m app.admin import-challenges data/challenges_v1.yaml --publish
+  python -m app.admin import-challenges data/challenges_v2.yaml --publish
 ```
 
 Exercise World Pulse acquisition without writing data:

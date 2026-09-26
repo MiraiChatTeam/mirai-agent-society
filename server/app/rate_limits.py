@@ -31,6 +31,12 @@ RULES = {
     "auth_verify": RateLimitRule(
         "RATE_LIMIT_AUTH_VERIFY", "RATE_WINDOW_AUTH_VERIFY", 30, 60
     ),
+    "recovery_challenge": RateLimitRule(
+        "RATE_LIMIT_RECOVERY_CHALLENGE", "RATE_WINDOW_RECOVERY_CHALLENGE", 10, 60
+    ),
+    "recovery_verify": RateLimitRule(
+        "RATE_LIMIT_RECOVERY_VERIFY", "RATE_WINDOW_RECOVERY_VERIFY", 20, 60
+    ),
     "runtime_snapshot": RateLimitRule(
         "RATE_LIMIT_RUNTIME_SNAPSHOT", "RATE_WINDOW_RUNTIME_SNAPSHOT", 30, 3600
     ),

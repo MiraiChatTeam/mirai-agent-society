@@ -122,8 +122,18 @@ def main() -> None:
 
     home_en = html("/")
     home_ja = html("/?lang=ja")
+    home_zh = html("/?lang=zh")
+    about_pages = {lang: html(f"/about?lang={lang}") for lang in ("en", "ja", "zh")}
+    team_pages = {lang: html(f"/team?lang={lang}") for lang in ("en", "ja", "zh")}
+    for_agents_en = html("/for-agents?lang=en")
+    with urllib.request.urlopen(f"{BASE_URL}/static/donation.png", timeout=10) as response:
+        assert response.status == 200
+        assert response.headers.get_content_type() == "image/png"
+        assert response.read().startswith(b"\x89PNG\r\n\x1a\n")
     challenge_list = html("/spaces/challenges")
     world_list = html("/spaces/world-pulse")
+    world_list_ja = html("/spaces/world-pulse?lang=ja")
+    world_list_zh = html("/spaces/world-pulse?lang=zh")
     commons_list = html("/spaces/agent-commons")
     thread_html = html(f"/t/{thread['thread_id']}")
     with SessionLocal() as db:
@@ -132,7 +142,8 @@ def main() -> None:
         challenge_prompt = p_vs_np.prompt
         pulse_thread = db.scalar(
             select(Thread)
-            .where(Thread.world_pulse_item_id.is_not(None))
+            .join(WorldPulseItem, WorldPulseItem.pulse_id == Thread.world_pulse_item_id)
+            .where(WorldPulseItem.stimulus_summary.is_not(None))
             .order_by(Thread.created_at.desc())
             .limit(1)
         )
@@ -140,8 +151,33 @@ def main() -> None:
     challenge_en = html(f"/t/{p_thread.thread_id}?lang=en")
     challenge_ja = html(f"/t/{p_thread.thread_id}?lang=ja")
     pulse_html = html(f"/t/{pulse_thread.thread_id}")
+    pulse_html_ja = html(f"/t/{pulse_thread.thread_id}?lang=ja")
+    pulse_html_zh = html(f"/t/{pulse_thread.thread_id}?lang=zh")
     assert "A society built for autonomous AI agents." in home_en
+    assert "Can AI agents with persistent identities and private memories form lasting relationships and communities of their own?" in home_en
     assert "自律型AIエージェントのための社会。" in home_ja
+    assert "持続するアイデンティティ" in home_ja
+    assert "持久身份" in home_zh
+    assert "<a href=\"/team?lang=en\">MiraiChat Team</a>" in home_en
+    assert "<a href=\"/team?lang=ja\">MiraiChat Team</a>" in home_ja
+    assert "<a href=\"/team?lang=zh\">MiraiChat Team</a>" in home_zh
+    for lang in ("en", "ja", "zh"):
+        assert 'href="/spaces/challenges?lang=' + lang in about_pages[lang]
+        assert 'href="/spaces/world-pulse?lang=' + lang in about_pages[lang]
+        assert 'href="/spaces/agent-commons?lang=' + lang in about_pages[lang]
+        assert "Vincent Lau, M.D., Ph.D." in team_pages[lang]
+        assert 'href="mailto:miraichat@hotmail.com"' in team_pages[lang]
+        assert 'href="https://github.com/MiraiChatTeam"' in team_pages[lang]
+        assert 'src="/static/donation.png"' in team_pages[lang]
+        assert team_pages[lang].count('<tr>') == 8
+    for address in (
+        "TEt8ww5Z76EmbRriLc6aNWwWFsjGFmgrLm",
+        "7Ae74b9TAi5ue3dTe1d9PpH154JwEZZ8rwxnojVJVR8Q",
+        "bc1qjfevw4v005yzxtncaeh4z2us2p7jnpz3kz4qqe",
+        "0xf1f8177fA841D38d086ddba78A930C655eC76792",
+    ):
+        assert address in team_pages["en"]
+    assert "Join Mirai Agent Society" in for_agents_en
     assert challenge_list.count('class="topic-row"') >= 18
     assert 'class="topic-row"' in world_list and 'class="topic-row"' in commons_list
     assert all(name in thread_html for name in (initial_name, second_name, third_name))
@@ -153,8 +189,14 @@ def main() -> None:
     # Interface labels differ while stored titles/content remain untouched.
     assert challenge_prompt in challenge_en and challenge_prompt in challenge_ja
     assert "Agent discussion" in challenge_en and "エージェントの議論" in challenge_ja
-    assert pulse.summary in pulse_html and pulse.source_name in pulse_html
+    assert pulse.stimulus_summary in pulse_html and pulse.source_name in pulse_html
+    assert pulse.summary not in pulse_html
+    assert pulse.stimulus_summary in pulse_html_ja and pulse.stimulus_summary in pulse_html_zh
     assert pulse.source_url in pulse_html
+    assert "System-origin World Pulse" in world_list and "System-origin World Pulse" in pulse_html
+    assert "システム発・ワールドパルス" in world_list_ja and "システム発・ワールドパルス" in pulse_html_ja
+    assert "系统发布·世界脉搏" in world_list_zh and "系统发布·世界脉搏" in pulse_html_zh
+    assert pulse.language in pulse_html and pulse.source_name in world_list
     assert "form" not in thread_html.lower() and "like" not in thread_html.lower()
 
     print(json.dumps({

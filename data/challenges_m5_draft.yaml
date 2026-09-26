@@ -1,0 +1,422 @@
+schema_version: 1
+phase: composition_draft_human_review_pending
+draft_set_id: mas-challenges-m5-plus-32
+language: en
+social_prompting: none
+seed_corpus_sha256: 8fc9e4d023b50f9aea1467a34a265bc2d35204e8186b6caf3de408a564542438
+provenance_note: Source references ground phenomena or records; they are not answer keys, task origins, or grants to reproduce source material. Wording is original and unpublished.
+challenges:
+  - draft_id: M5-001
+    title: Proton Radius Across CODATA Adjustments
+    domain: physics
+    challenge_text: >-
+      The 2018 and 2022 CODATA adjustments treat the proton charge radius amid
+      persistent tension between measurement routes. What does that tension
+      suggest about the measurements or theory, and what could clarify it?
+    source_candidate_id: M4-PHYS-02
+    source_refs:
+      - https://physics.nist.gov/cuu/pdf/JPCRD2018CODATA.pdf
+      - https://physics.nist.gov/cuu/pdf/JPCRD2022CODATA.pdf
+    internal_rationale: Competing precision routes and correlated adjustments constrain, but do not settle, an explanation of the remaining tension.
+
+  - draft_id: M5-002
+    title: Why Is G Still Hard to Measure?
+    domain: physics
+    challenge_text: >-
+      Why has the measured Newtonian gravitational constant remained unusually
+      uncertain, and what kind of result would distinguish shared systematic
+      error from real disagreement among experiments?
+    source_candidate_id: M4-PHYS-02
+    source_refs:
+      - https://physics.nist.gov/cuu/Constants/
+      - https://physics.nist.gov/cuu/pdf/JPCRD2022CODATA.pdf
+    internal_rationale: A well-documented precision-measurement problem admits competing experimental and analytic explanations.
+
+  - draft_id: M5-003
+    title: A Marginal Gravitational-Wave Candidate
+    domain: physics
+    challenge_text: >-
+      How should the evidence for the marginal candidate GW200311_103121 be
+      interpreted, and which further checks would most change that assessment?
+    source_candidate_id: M4-PHYS-04
+    source_refs:
+      - https://gwosc.org/api/v2/catalogs/GWTC-3-marginal/events?format=api&include-default-parameters=true
+      - https://gwosc.org/GWTC-3/
+    internal_rationale: A named marginal event has public search statistics and strain context, with signal-versus-noise uncertainty left explicit.
+
+  - draft_id: M5-004
+    title: What GW190521 Reveals
+    domain: physics
+    challenge_text: >-
+      What does the short gravitational-wave signal GW190521 actually constrain
+      about the masses and origin of its source, and where might waveform
+      assumptions matter most?
+    source_candidate_id: M4-PHYS-04
+    source_refs:
+      - https://gwosc.org/eventapi/html/GWTC-2/GW190521/
+      - https://ligo.org/science-summaries/gw190521/
+    internal_rationale: A specific public event supports discussion of inference limits and astrophysical interpretation beyond a catalog-value lookup.
+
+  - draft_id: M5-005
+    title: What Can TOI-700 e's Transit Tell Us?
+    domain: astronomy
+    challenge_text: >-
+      How much can TOI-700 e's transit and stellar measurements tell us about
+      the planet's physical nature, and which uncertainty matters most for
+      interpreting it?
+    source_candidate_id: M4-ASTRO-01
+    source_refs:
+      - https://exoplanetarchive.ipac.caltech.edu/overview/TOI-700
+      - https://archive.stsci.edu/missions-and-data/tess/data-products
+    internal_rationale: A confirmed, named planet has multiple published parameter solutions, yet composition and environment remain underconstrained.
+
+  - draft_id: M5-006
+    title: Irregular Transits of TOI-1338 b
+    domain: astronomy
+    challenge_text: >-
+      What can the changing transit timing and depth of TOI-1338 b reveal
+      about its circumbinary orbit, and what alternative explanations for
+      missing or altered transits remain worth testing?
+    source_candidate_id: M4-ASTRO-02
+    source_refs:
+      - https://exoplanetarchive.ipac.caltech.edu/overview/TIC%20260128333
+      - https://science.nasa.gov/universe/exoplanets/discovery-alert-high-school-student-finds-a-world-with-two-suns/
+      - https://archive.stsci.edu/missions-and-data/tess/data-products
+    internal_rationale: The confirmed circumbinary system has nonperiodic transit behavior and time-dependent visibility that invite physical rather than one-shot interpretation.
+
+  - draft_id: M5-007
+    title: Gaia's Parallax Zero Point
+    domain: astronomy
+    challenge_text: >-
+      When might Gaia DR3 parallaxes give a misleading distance for a group
+      of stars, and how could one tell a population effect from catalog
+      systematics?
+    source_candidate_id: M4-ASTRO-03
+    source_refs:
+      - https://gea.esac.esa.int/archive/documentation/GDR3/
+      - https://gea.esac.esa.int/archive/documentation/GDR3/Catalogue_consolidation/chap_cu9val/sec_cu9val_942/ssec_cu9val_942_astrometry.html
+    internal_rationale: Documented zero-point and solution-type effects make a population-level distance inference scientifically contestable.
+
+  - draft_id: M5-008
+    title: Interpreting an Asteroid's Changing Orbit
+    domain: astronomy
+    challenge_text: >-
+      Why did estimates of 2024 YR4's orbit change so substantially as new
+      observations arrived, and what does that episode reveal about uncertainty
+      in early asteroid orbit determination?
+    source_candidate_id: M4-ASTRO-04
+    source_refs:
+      - https://docs.minorplanetcenter.net/tutorials/notebooks/mpc_tutorial_api_observations/
+      - https://science.nasa.gov/open-science/planetary-defense-asteroids/
+      - https://assets.science.nasa.gov/content/dam/science/psd/planetary-science-division/2025/2025-05%20Lessons%20Learned%202024%20YR4.pdf
+    internal_rationale: A documented observational sequence grounds discussion of orbit uncertainty and communication without asking for live hazard advice.
+
+  - draft_id: M5-009
+    title: Mars Dust Storms Seen by Opportunity
+    domain: astronomy
+    challenge_text: >-
+      Why did atmospheric opacity at Opportunity rise so differently during
+      the 2007 and 2018 Martian dust storms, and what observations would help
+      distinguish local from planet-wide drivers?
+    source_candidate_id: M4-ASTRO-05
+    source_refs:
+      - https://pds.nasa.gov/ds-view/pds/viewProfile.jsp?dsid=MER1%2FMER2-M-PANCAM-5-ATMOS-OPACITY-V1.0
+      - https://science.nasa.gov/resource/atmospheric-opacity-from-opportunitys-point-of-view/
+      - https://science.nasa.gov/photojournal/mars-climate-sounder-studies-2018-dust-storm/
+    internal_rationale: A named rover, two observed storms and orbital context support several testable atmospheric explanations.
+
+  - draft_id: M5-010
+    title: Two Kinds of Plant Drought
+    domain: biology
+    challenge_text: >-
+      Why might Arabidopsis respond differently to sustained moderate drought
+      and progressive soil drying, and how much can GSE24177's expression
+      patterns say about acclimation?
+    source_candidate_id: M4-BIO-01
+    source_refs:
+      - https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE24177
+    internal_rationale: One open accession contains contrasting drought regimes and time points, while expression alone cannot establish mechanism.
+
+  - draft_id: M5-011
+    title: Yeast Strain Differences Under Heat Shock
+    domain: biology
+    challenge_text: >-
+      In the GSE15147 yeast heat-shock time course, what might explain
+      differences among strains in their expression responses, and which
+      patterns would indicate a general stress response instead?
+    source_candidate_id: M4-BIO-01
+    source_refs:
+      - https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE15147
+    internal_rationale: A public multi-strain time course separates common and genotype-dependent hypotheses without a unique causal answer.
+
+  - draft_id: M5-012
+    title: Coral Heat Tolerance and Symbiosis
+    domain: biology
+    challenge_text: >-
+      How much of the heat-tolerance variation in Acropora tenuis could be
+      attributed to the coral host rather than its algal symbionts, given
+      the crosses and thermal treatments in GSE176051?
+    source_candidate_id: M4-BIO-01
+    source_refs:
+      - https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE176051
+    internal_rationale: A real factorial biological study supports competing host, symbiont and interaction explanations.
+
+  - draft_id: M5-013
+    title: Are Monarch Occurrences a Range Signal?
+    domain: biology
+    challenge_text: >-
+      If GBIF records of Danaus plexippus appear to shift across North
+      America between 1990 and 2020, what might that say about its range,
+      and where could observer effort create the same pattern?
+    source_candidate_id: M4-BIO-04
+    source_refs:
+      - https://www.gbif.org/taxon/6CB8P
+      - https://techdocs.gbif.org/en/data-use/occurrence-issues-and-flags
+    internal_rationale: A named taxon and public occurrences allow ecological inference while making sampling and geolocation bias central uncertainties.
+
+  # Human review: retained for the frozen 50-Challenge corpus.
+  - draft_id: M5-014
+    title: Structure and Hemoglobin Function
+    domain: biology
+    challenge_text: >-
+      How far can a comparison of deoxyhemoglobin 2HHB and oxyhemoglobin
+      1HHO explain cooperative oxygen binding, and what would the two static
+      structures leave uncertain?
+    source_candidate_id: M4-BIO-03
+    source_refs:
+      - https://www.rcsb.org/structure/2HHB
+      - https://www.rcsb.org/structure/1HHO
+      - https://www.rcsb.org/docs/general-help/assessing-the-quality-of-3d-structures
+    internal_rationale: A named validated structure supports mechanistic hypotheses, but static coordinates alone do not prove dynamics or causality.
+
+  - draft_id: M5-015
+    title: A Specimen with Several Names
+    domain: biology
+    challenge_text: >-
+      How should the several published names attached to the Smithsonian
+      Quercus stewardii isotype be interpreted, and what would most clarify
+      its taxonomic identity?
+    source_candidate_id: M41-BIO-01
+    source_refs:
+      - https://www.si.edu/object/quercus-stewardii-rehder%3Anmnhbotany_10168783
+      - https://www.si.edu/openaccess/faq
+    internal_rationale: A public specimen with an image, isotype status and multiple names is a concrete, revisable taxonomic question.
+
+  - draft_id: M5-016
+    title: The Ridgecrest Rupture Sequence
+    domain: earth_science
+    challenge_text: >-
+      What does the 2019 Ridgecrest earthquake sequence suggest about how
+      one rupture can influence a nearby fault system, and which observations
+      best separate competing rupture histories?
+    source_candidate_id: M41-GEO-01
+    source_refs:
+      - https://earthquake.usgs.gov/earthquakes/eventpage/ci38457511
+      - https://www.usgs.gov/data/regional-finite-fault-models-2019-mw71-ridgecrest-california-earthquake
+    internal_rationale: A named historical event has several published finite-fault models rather than one uncontested reconstruction.
+
+  - draft_id: M5-017
+    title: The 2021 Pacific Northwest Heat Wave
+    domain: climate_science
+    challenge_text: >-
+      How should the extreme late-June 2021 temperatures at Portland
+      International Airport be interpreted in the context of the regional heat
+      wave, and what role might local station conditions have played?
+    source_candidate_id: M41-CLIM-01
+    source_refs:
+      - https://www.ncei.noaa.gov/cdo-web/datasets/GHCND/stations/GHCND%3AUSW00024229/detail
+      - https://www.ncei.noaa.gov/monitoring-content/extremes/scec/reports/20220210-Oregon-Maximum-Temperature.pdf
+    internal_rationale: A documented station record and regional event allow physical interpretation with measurement and exposure caveats.
+
+  - draft_id: M5-018
+    title: Sandy's Water Level at The Battery
+    domain: ocean_science
+    challenge_text: >-
+      What explains the water level observed at The Battery during Hurricane
+      Sandy beyond the astronomical tide, and how confidently can the
+      separate contributions be inferred?
+    source_candidate_id: M41-COAST-01
+    source_refs:
+      - https://tidesandcurrents.noaa.gov/publications/Hurricane_Sandy_2012_Water_Level_and_Meteorological_Data_Report.pdf
+      - https://tidesandcurrents.noaa.gov/datums.html?datum=NAVD88&epoch=0&id=8518750&name=The+Battery&state=NY&units=0
+    internal_rationale: Verified historical water levels, predictions and datum information constrain more than one process explanation.
+
+  - draft_id: M5-019
+    title: Eastern Kentucky's 2022 Flood Peak
+    domain: hydrology
+    challenge_text: >-
+      How well does the July 2022 peak at the North Fork Kentucky River
+      gauge in Jackson represent flooding across eastern Kentucky, and what
+      might account for differences among nearby communities?
+    source_candidate_id: M4-DATA-08
+    source_refs:
+      - https://waterdata.usgs.gov/monitoring-location/USGS-03280000/
+      - https://www.ncei.noaa.gov/stormevents/eventdetails.jsp?id=1049189
+    internal_rationale: A named gauge and episode report ground spatially variable runoff without turning one station into a regional truth key.
+
+  - draft_id: M5-020
+    title: Charleston's Rising High-Water Extremes
+    domain: ocean_science
+    challenge_text: >-
+      What explains the changing frequency of extreme high water at
+      Charleston's long-running tide gauge, and how much can be attributed
+      to mean sea-level rise rather than weather or tides?
+    source_candidate_id: M41-COAST-01
+    source_refs:
+      - https://tidesandcurrents.noaa.gov/inventory.html?id=8665530
+      - https://tidesandcurrents.noaa.gov/inundationanalysis/analysisParams.html?station=8665530
+    internal_rationale: A long station record and explicit threshold make the interaction of baseline rise, tides and weather scientifically grounded.
+
+  - draft_id: M5-021
+    title: Voltage Fade in Lithium-Rich Cathodes
+    domain: materials_science
+    challenge_text: >-
+      Why does voltage fade persist in lithium-rich layered-oxide cathodes,
+      and how far can observed dislocation formation explain it across
+      different cycling conditions?
+    source_candidate_id: M5-CHEM-01
+    source_refs:
+      - https://www.aps.anl.gov/APS-Science-Highlight/2018-11-16/whats-causing-the-voltage-fade-in-lithium-rich-nmc-cathode
+    internal_rationale: A specific in-operando materials result motivates an open question about mechanism and generalization.
+
+  - draft_id: M5-022
+    title: Lithium Growth at a Solid Interface
+    domain: materials_science
+    challenge_text: >-
+      Under what conditions might lithium grow into a solid electrolyte such
+      as LLZO despite its mechanical barrier, and what observation would
+      distinguish the proposed routes of growth?
+    source_candidate_id: M5-CHEM-02
+    source_refs:
+      - https://www.energy.gov/cmei/vehicles/articles/investigating-stability-solidsolid-interface
+      - https://www.energy.gov/sites/default/files/2021-06/bat418_chen_2021_p_5-24_520pm_LR_FINAL_TM.pdf
+    internal_rationale: Public interface observations identify more than one plausible route and an important gap between test cells and practical batteries.
+
+  - draft_id: M5-023
+    title: Predicting Epoxy Cure and Warpage
+    domain: materials_science
+    challenge_text: >-
+      When might a cure model fitted to a highly filled epoxy underfill
+      mispredict its thermal endurance or package warpage, despite matching
+      laboratory cure measurements?
+    source_candidate_id: M5-CHEM-03
+    source_refs:
+      - https://doi.org/10.18434/mds2-4162
+      - https://pages.nist.gov/CHIPS-AWACKSM-data/web/index.html
+    internal_rationale: Versioned NIST measurements connect chemical kinetics to mechanics while leaving extrapolation and coupling uncertain.
+
+  - draft_id: M5-024
+    title: What Accelerated PET Weathering Can Predict
+    domain: chemistry
+    challenge_text: >-
+      How far can accelerated PET weathering experiments predict the
+      formation of microplastic particles outdoors, and which chemical or
+      measurement differences would most limit that transfer?
+    source_candidate_id: M5-CHEM-04
+    source_refs:
+      - https://www.nist.gov/publications/evaluating-environmental-factors-microplastic-generation-accelerated-weathering-study
+      - https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=959022
+    internal_rationale: A public UV-temperature-humidity study gives concrete evidence while field transfer and particle measurement remain unresolved.
+
+  - draft_id: M5-025
+    title: SQLite Plans Under Changing Data
+    domain: computer_science
+    challenge_text: >-
+      Why can a SQLite query's performance change substantially as the
+      underlying data evolve, even when the query itself does not?
+    source_candidate_id: M4-CS-01
+    source_refs:
+      - https://www.sqlite.org/queryplanner.html
+      - https://sqlite.org/eqp.html
+    internal_rationale: Real planner documentation grounds competing selectivity, correlation and measurement explanations without prescribing one fixture.
+
+  - draft_id: M5-026
+    title: Explaining PostgreSQL Plan Surprises
+    domain: computer_science
+    challenge_text: >-
+      Why can a PostgreSQL query perform very differently from what its
+      execution plan appears to predict, and what evidence would help explain
+      the discrepancy?
+    source_candidate_id: M4-CS-02
+    source_refs:
+      - https://www.postgresql.org/docs/18/sql-explain.html
+      - https://www.postgresql.org/docs/18/using-explain.html
+    internal_rationale: Distinct causes of plan-estimate mismatch support an empirical systems question, though it remains near a debugging exercise.
+
+  - draft_id: M5-027
+    title: What Recaman's Sequence Might Miss
+    domain: mathematics
+    challenge_text: >-
+      Is there a convincing route to deciding whether Recaman's sequence
+      eventually visits every nonnegative integer, and what can its known
+      missing values actually tell us?
+    source_candidate_id: M4-MATH-02
+    source_refs:
+      - https://oeis.org/A005132
+    internal_rationale: A named, reproducible sequence contains a genuine unresolved coverage question rather than a prefix lookup.
+
+  - draft_id: M5-028
+    title: Airy Asymptotics Near Regime Boundaries
+    domain: mathematics
+    challenge_text: >-
+      Where can standard asymptotic expansions of the Airy function become
+      misleading in finite-precision work, and what would make a numerical
+      approximation trustworthy across those regimes?
+    source_candidate_id: M4-MATH-04
+    source_refs:
+      - https://dlmf.nist.gov/9.7
+      - https://dlmf.nist.gov/9.17
+    internal_rationale: Published expansions and error bounds anchor an open methodological question about regime choice and numerical reliability.
+
+  - draft_id: M5-029
+    title: Reassessing the Champlain Towers Collapse
+    domain: structural_engineering
+    challenge_text: >-
+      How do NIST's 2026 technical findings change earlier explanations of
+      the Champlain Towers South collapse, and what remains uncertain about
+      how the initial failures propagated?
+    source_candidate_id: M4-ENG-02
+    source_refs:
+      - https://www.nist.gov/news-events/news/2023/09/nist-provides-update-investigation-collapse-champlain-towers-south
+      - https://www.nist.gov/news-events/news/2026/06/nist-releases-technical-findings-what-caused-2021-partial-collapse
+    internal_rationale: Two dated official stages ground a serious causal inquiry while the final detailed report and some propagation questions remain open.
+
+  - draft_id: M5-030
+    title: Missing Gauges in Louisiana's 2016 Flood
+    domain: environmental_data_science
+    challenge_text: >-
+      How should overtopped or damaged streamgages during the August 2016
+      Louisiana flood affect estimates of peak flow and inundation extent,
+      and what evidence can compensate for the gaps?
+    source_candidate_id: M4-ENG-04
+    source_refs:
+      - https://www.usgs.gov/data/flood-august-2016-louisiana
+      - https://www.usgs.gov/news/national-news-release/usgs-records-historic-flooding-south-louisiana
+    internal_rationale: A documented flood includes failed gauges and recovered high-water marks, making uncertainty in the reconstructed peak scientifically consequential.
+
+  # Human review: final replacement check — KEEP M5-031; no unused candidate was clearly better.
+  - draft_id: M5-031
+    title: Comparing Norway's Emissions Estimates
+    domain: environmental_data_science
+    challenge_text: >-
+      Why might OECD and World Bank estimates of Norway's per-capita
+      greenhouse-gas emissions differ even when both exclude land-use
+      change, and what could each estimate support?
+    source_candidate_id: M4-DATA-07
+    source_refs:
+      - https://www.oecd.org/en/publications/oecd-environmental-performance-reviews-norway-2022_59e71c13-en/full-report/component-3.html
+      - https://data.worldbank.org/indicator/EN.GHG.ALL.PC.CE.AR5?locations=NO
+    internal_rationale: A named country and two public indicator systems invite scrutiny of inventories, vintages and denominators without assuming either estimate is definitive.
+
+  - draft_id: M5-032
+    title: Japanese Topic Marking in Dependency Trees
+    domain: computational_linguistics
+    challenge_text: >-
+      What is gained and lost when Japanese topic-marking expressions are
+      represented with the current Universal Dependencies analysis, and
+      which linguistic evidence might favor another treatment?
+    source_candidate_id: M4-LANG-01
+    source_refs:
+      - https://universaldependencies.org/treebanks/ja_gsd/index.html
+      - https://universaldependencies.org/treebanks/ja_gsd/ja_gsd-dep-discourse.html
+    internal_rationale: A named, licensed treebank and published annotation convention ground a genuine representational choice.

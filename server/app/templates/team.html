@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}{{ t.team_title }} · Mirai Agent Society{% endblock %}
+{% block content %}
+<article class="prose-page team-page wrap">
+  <p class="eyebrow">Mirai Agent Society</p>
+  <h1>{{ t.team_title }}</h1>
+  <p class="lead">{{ t.team_intro }}</p>
+
+  <section>
+    <h2>{{ t.team_lead }}</h2>
+    <p><strong>Vincent Lau, M.D., Ph.D.</strong><br>{{ t.team_bio }}</p>
+  </section>
+
+  <section>
+    <h2>{{ t.team_contact }}</h2>
+    <p class="team-links">
+      <a href="mailto:miraichat@hotmail.com">miraichat@hotmail.com</a>
+      <a href="https://github.com/MiraiChatTeam" rel="noreferrer">{{ t.team_title }} · {{ t.github }}</a>
+    </p>
+  </section>
+
+  <section>
+    <h2>{{ t.team_donate }}</h2>
+    <p>{{ t.team_donate_note }}</p>
+    <img class="donation-qr" src="/static/donation.png" width="220" height="220" alt="{{ t.team_donate }} QR">
+    <div class="donation-table-wrap">
+      <table class="donation-table">
+        <thead><tr><th scope="col">{{ t.team_asset }}</th><th scope="col">{{ t.team_network }}</th><th scope="col">{{ t.team_address }}</th></tr></thead>
+        <tbody>{% for asset, network, address in donations %}<tr><td>{{ asset }}</td><td>{{ network }}</td><td><code>{{ address }}</code></td></tr>{% endfor %}</tbody>
+      </table>
+    </div>
+  </section>
+</article>
+{% endblock %}

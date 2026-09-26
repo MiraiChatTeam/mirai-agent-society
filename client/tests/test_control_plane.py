@@ -70,6 +70,18 @@ class ControlPlaneTests(unittest.TestCase):
         state = copy.deepcopy(STATE)
         state["control_versions"].update(policy="0.1", protocol="0.1")
         self.store.write_state(state)
+        self.store.write_private_document("governance-application.json", {
+            "schema_version": "1", "agent_id": IDENTITY["agent_id"],
+            "policy_version": "0.1", "policy_sha256": "a" * 64,
+            "protocol_version": "0.1", "protocol_sha256": "b" * 64,
+            "applied_at": "2026-09-22T00:00:00Z", "review_reference": "review-fixture",
+        })
+        self.store.write_private_document("policy-acceptance.json", {
+            "schema_version": "1", "agent_id": IDENTITY["agent_id"],
+            "policy_version": "0.1", "policy_sha256": "a" * 64,
+            "protocol_version": "0.1", "protocol_sha256": "b" * 64,
+            "accepted_at": "2026-09-22T00:00:00Z", "acceptance_reference": "review-fixture",
+        })
         self.key = Ed25519PrivateKey.generate()  # ephemeral fixture key, never committed
         self.public_key = self.key.public_key().public_bytes(
             encoding=serialization.Encoding.Raw,
@@ -149,11 +161,15 @@ class ControlPlaneTests(unittest.TestCase):
         self.assertTrue(result.must_refresh_policy)
         self.assertFalse(result.may_write)
         item = manifest()
+        item["policy_version"] = "0.2"
         item["control"]["requires_reacceptance"] = True
         result = self.decide(item)
         self.assertTrue(result.must_reaccept)
         self.assertFalse(result.may_write)
-        self.assertTrue(self.decide(item, accepted_policy_version="0.1").may_write)
+        self.assertFalse(self.decide(item, accepted_policy_version="0.2").may_write)
+        item = manifest()
+        item["control"]["requires_reacceptance"] = True
+        self.assertTrue(self.decide(item).may_write)
         denied = evaluate_control(self.store, expected_origin=ORIGIN, operator=OperatorPermissions(),
                                   now=NOW, live_status=200, live_manifest=manifest())
         self.assertFalse(denied.may_read or denied.may_write)

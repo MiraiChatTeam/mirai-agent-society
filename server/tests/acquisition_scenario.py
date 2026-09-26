@@ -32,6 +32,11 @@ class MappingFixtureClient:
         return payload.encode()
 
 
+class NoPublisherMetadata:
+    def fetch(self, source_url, *, aggregator=False):
+        return None
+
+
 class FailingCollector:
     adapter_id = "fixture-failing"
     profile = "global-en"
@@ -92,18 +97,21 @@ def main() -> None:
             dry_run=True,
             now=NOW,
             selection_date=selection_date,
-            client=fixture_client,
+            client=fixture_client, publisher_client=NoPublisherMetadata(),
         )
         after_dry = counts(db)
         assert after_dry == before
         assert dry["sources_attempted"] == 4
         assert dry["sources_succeeded"] == 3
         assert dry["duplicates_removed"] == 1
+        assert sum(source["normalized_count"] for source in dry["source_results"]) == dry["candidates"] - dry["malformed_rejected"]
+        assert sum(source["selected_count"] for source in dry["source_results"]) == dry["selected"]
+        assert all(source["published_count"] == 0 for source in dry["source_results"])
         assert len(dry["errors"]) == 1
         assert 0 < dry["selected"] <= 10
         lunar = [item for item in dry["items"] if item["title"] == "Shared lunar mission launches successfully"]
-        assert len(lunar) == 2
-        assert lunar[0]["cluster_key"] == lunar[1]["cluster_key"]
+        assert len(lunar) == 1
+        assert dry["cross_source_events_suppressed"] >= 1
 
         real = run_pipeline(
             db,
@@ -111,7 +119,7 @@ def main() -> None:
             dry_run=False,
             now=NOW,
             selection_date=selection_date,
-            client=fixture_client,
+            client=fixture_client, publisher_client=NoPublisherMetadata(),
         )
         assert real["selected"] == dry["selected"]
         assert real["ingested"] == dry["selected"]
@@ -124,6 +132,12 @@ def main() -> None:
         )
         pulse_ids = [item.pulse_id for item in stored]
         assert len(stored) == real["selected"]
+        assert all(item.summary == "Discuss this development." for item in stored)
+        assert all(item.stimulus_summary is None or len(item.stimulus_summary) <= 800 for item in stored)
+        assert any(item.summary_source == "feed_metadata" for item in stored)
+        assert all(item.summary_source != "publisher_page" for item in stored)
+        assert all("Mission controllers confirmed a successful launch." not in (item.stimulus_summary or "") for item in stored)
+        assert sum(source["published_count"] for source in real["source_results"]) == real["published"]
         threads = list(
             db.scalars(
                 select(Thread).where(Thread.world_pulse_item_id.in_(pulse_ids))
@@ -145,15 +159,37 @@ def main() -> None:
         assert all("summary" not in payload and "body" not in payload for payload in event_payloads)
         after_real = counts(db)
 
+        # Simulate a pre-0009 item and verify dry-run is read-only, then backfill.
+        missing_context = next(item for item in stored if item.summary_source == "feed_metadata")
+        missing_context.stimulus_summary = None
+        missing_context.summary_source = "unavailable"
+        db.commit()
+        preview_backfill = run_pipeline(
+            db, fixture_collectors, dry_run=True, now=NOW,
+            selection_date=selection_date, client=fixture_client, publisher_client=NoPublisherMetadata(),
+        )
+        db.refresh(missing_context)
+        assert preview_backfill["backfill_available"] == 1
+        assert missing_context.stimulus_summary is None
+        backfill = run_pipeline(
+            db, fixture_collectors, dry_run=False, now=NOW,
+            selection_date=selection_date, client=fixture_client, publisher_client=NoPublisherMetadata(),
+        )
+        db.refresh(missing_context)
+        assert backfill["backfilled"] == 1
+        assert backfill["ingested"] == backfill["published"] == 0
+        assert missing_context.summary_source == "feed_metadata"
+        assert counts(db) == after_real
+
         repeated = run_pipeline(
             db,
             fixture_collectors,
             dry_run=False,
             now=NOW,
             selection_date=selection_date,
-            client=fixture_client,
+            client=fixture_client, publisher_client=NoPublisherMetadata(),
         )
-        assert repeated["ingested"] == repeated["published"] == 0
+        assert repeated["ingested"] == repeated["published"] == repeated["backfilled"] == 0
         assert counts(db) == after_real
         assert db.scalar(
             select(func.count())
@@ -173,6 +209,7 @@ def main() -> None:
                 "status": "ok",
                 "dry_run": dry,
                 "real_run": real,
+                "backfill_run": backfill,
                 "repeat_run": repeated,
                 "feed_verified": len(pulse_ids),
             },

@@ -1,6 +1,7 @@
 """Focused M3.9B tests: applied versions and revalidation are not actions."""
 
 import copy
+import hashlib
 import tempfile
 import unittest
 from datetime import timedelta
@@ -8,6 +9,7 @@ from pathlib import Path
 
 from client.mas_client.control_plane import OperatorPermissions, evaluate_control, read_cached_manifest
 from client.mas_client.local_state import LocalStateStore
+from client.mas_client.resident_readiness import apply_reviewed_governance
 from client.tests.test_control_plane import NOW, ORIGIN, manifest
 from client.tests.test_local_state import IDENTITY, PROFILE, STATE
 
@@ -22,6 +24,18 @@ class ControlSemanticsRefinementTests(unittest.TestCase):
         state = copy.deepcopy(STATE)
         state["control_versions"].update(policy="0.1", protocol="0.1")
         self.store.write_state(state)
+        self.store.write_private_document("governance-application.json", {
+            "schema_version": "1", "agent_id": IDENTITY["agent_id"],
+            "policy_version": "0.1", "policy_sha256": "a" * 64,
+            "protocol_version": "0.1", "protocol_sha256": "b" * 64,
+            "applied_at": "2026-09-22T00:00:00Z", "review_reference": "review-fixture",
+        })
+        self.store.write_private_document("policy-acceptance.json", {
+            "schema_version": "1", "agent_id": IDENTITY["agent_id"],
+            "policy_version": "0.1", "policy_sha256": "a" * 64,
+            "protocol_version": "0.1", "protocol_sha256": "b" * 64,
+            "accepted_at": "2026-09-22T00:00:00Z", "acceptance_reference": "review-fixture",
+        })
         self.operator = OperatorPermissions(may_read=True, may_write=True, may_create_thread=True)
 
     def evaluate(self, item, *, now=NOW, status=200, cached=None):
@@ -44,9 +58,16 @@ class ControlSemanticsRefinementTests(unittest.TestCase):
         })
 
         # A separately completed policy/protocol application is required.
-        state = self.store.read_state()
-        state["control_versions"].update(policy="0.2", protocol="0.2")
-        self.store.write_state(state)
+        policy = b"Reviewed policy v0.2"
+        protocol = b"Reviewed protocol v0.2"
+        package = {"constitution": {"version": "1", "sha256": IDENTITY["constitution_sha256"]},
+                   "required_documents": [
+                       {"id": name, "version": "0.2", "sha256": hashlib.sha256(raw).hexdigest(),
+                        "url": ORIGIN + "/agent-resources/docs/" + name + ".md"}
+                       for name, raw in (("policy", policy), ("protocol", protocol))]}
+        apply_reviewed_governance(self.store, package=package, policy_bytes=policy, protocol_bytes=protocol,
+                                  accepted_at="2026-09-23T12:01:00Z", acceptance_reference="review-v0.2",
+                                  requires_reacceptance=True)
         result = self.evaluate(item)
         self.assertFalse(result.must_refresh_policy)
         self.assertTrue(result.may_write)

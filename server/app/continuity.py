@@ -17,8 +17,10 @@ from sqlalchemy.orm import Session, aliased
 from app.auth import AuthenticatedAgent, get_authenticated_agent
 from app.continuity_models import AgentOperationalNotice, PostMention
 from app.db import get_db
-from app.models import Agent, AgentDisplayName, Post, RuntimeSnapshot, Thread
+from app.models import Agent, Post, Thread
+from app.schemas import PostContext, ThreadContext
 from app.services import commit_creation
+from app.thread_context import post_context, thread_context
 
 
 def _reject_agent_target(request: Request) -> None:
@@ -27,18 +29,14 @@ def _reject_agent_target(request: Request) -> None:
 
 
 router = APIRouter(prefix="/api/v1/me", dependencies=[Depends(_reject_agent_target)])
-NOTICE_TYPES = {"moderation", "policy_reacceptance", "compatibility", "key_auth_warning", "maintenance"}
-_CURSOR_KINDS = {"reply", "mention", "notice", "post", "thread", "update"}
-
-
-class PostContext(BaseModel):
-    post_id: uuid.UUID
-    thread_id: uuid.UUID
-    parent_post_id: uuid.UUID | None
-    created_at: datetime
-    content: str
-    author_display_name: str
-    model: str
+NOTICE_MESSAGES = {
+    "moderation": "Your Agent participation status changed. Check your control status before writing.",
+    "policy_reacceptance": "Review current policy before writing.",
+    "compatibility": "Compatibility requirements changed. Refresh the control manifest before writing.",
+    "key_auth_warning": "Review your Agent authentication keys and session status.",
+    "maintenance": "Service maintenance may affect availability. Check service health and control status.",
+}
+_CURSOR_KINDS = {"inbox": {"reply", "mention"}, "notices": {"notice"}, "posts": {"post"}, "threads": {"thread"}, "thread-updates": {"update"}}
 
 
 class SelfPostPage(BaseModel):
@@ -52,6 +50,7 @@ class SelfThreadItem(BaseModel):
     origin_type: str
     created_at: datetime
     own_post_count: int
+    context: ThreadContext
 
 
 class SelfThreadPage(BaseModel):
@@ -72,12 +71,12 @@ class NoticePage(BaseModel):
 
 
 class InboxItem(BaseModel):
-    kind: Literal["reply", "mention", "notice"]
+    kind: Literal["reply", "mention"]
     created_at: datetime
     post: PostContext | None = None
     referenced_post: PostContext | None = None
     mention_name_used: str | None = None
-    notice: NoticeRead | None = None
+    thread_context: ThreadContext | None = None
 
 
 class InboxPage(BaseModel):
@@ -91,6 +90,7 @@ class ThreadUpdateItem(BaseModel):
     latest_activity_at: datetime
     latest_post_id: uuid.UUID
     new_posts_count: int
+    context: ThreadContext
 
 
 class ThreadUpdatePage(BaseModel):
@@ -119,7 +119,7 @@ def decode_cursor(value: str | None, scope: str) -> tuple[datetime, str, uuid.UU
             raise ValueError
         when = datetime.fromisoformat(payload["at"])
         kind = payload["kind"]
-        if when.tzinfo is None or kind not in _CURSOR_KINDS:
+        if when.tzinfo is None or kind not in _CURSOR_KINDS[scope]:
             raise ValueError
         return when.astimezone(UTC), kind, uuid.UUID(payload["id"])
     except (ValueError, TypeError, KeyError, binascii.Error, json.JSONDecodeError) as exc:
@@ -137,25 +137,12 @@ def _after(timestamp: Any, item_id: Any, kind: str, cursor: tuple[datetime, str,
     return or_(timestamp > when, and_(timestamp == when, item_id > prior_id))
 
 
-def _post_context(db: Session, post: Post) -> PostContext:
-    display = db.get(AgentDisplayName, post.display_name_id)
-    snapshot = db.get(RuntimeSnapshot, post.runtime_snapshot_id)
-    if display is None or snapshot is None:
-        raise RuntimeError("Post provenance is missing")
-    return PostContext(
-        post_id=post.post_id, thread_id=post.thread_id, parent_post_id=post.parent_post_id,
-        created_at=post.created_at, content=post.content,
-        author_display_name=display.display_name,
-        model=snapshot.model,
-    )
-
-
 def issue_operational_notice(
     db: Session, recipient_agent_id: uuid.UUID, notice_type: str, message: str
 ) -> AgentOperationalNotice:
     """Private server-side append; deliberately creates no public Event/Post."""
-    if notice_type not in NOTICE_TYPES or not message.strip() or len(message) > 500:
-        raise ValueError("invalid operational notice")
+    if notice_type not in NOTICE_MESSAGES or message != NOTICE_MESSAGES[notice_type]:
+        raise ValueError("operational notices must use the approved type-specific text")
     if db.get(Agent, recipient_agent_id) is None:
         raise ValueError("recipient Agent does not exist")
     notice = AgentOperationalNotice(
@@ -181,7 +168,7 @@ def own_posts(
     ))
     page = rows[:limit]
     next_cursor = encode_cursor("posts", page[-1].created_at, "post", page[-1].post_id) if page else cursor
-    return SelfPostPage(items=[_post_context(db, post) for post in page], next_cursor=next_cursor)
+    return SelfPostPage(items=[post_context(db, post) for post in page], next_cursor=next_cursor)
 
 
 @router.get("/threads", response_model=SelfThreadPage)
@@ -207,6 +194,7 @@ def own_threads(
         own_post_count=db.scalar(select(func.count()).select_from(Post).where(
             Post.thread_id == thread.thread_id, Post.author_agent_id == authenticated.agent_id
         )) or 0,
+        context=thread_context(db, thread.thread_id),
     ) for thread in page]
     next_cursor = encode_cursor("threads", page[-1].created_at, "thread", page[-1].thread_id) if page else cursor
     return SelfThreadPage(items=items, next_cursor=next_cursor)
@@ -253,32 +241,21 @@ def own_inbox(
         .where(_after(Post.created_at, Post.post_id, "mention", after))
         .order_by(Post.created_at, Post.post_id).limit(limit + 1)
     ))
-    notices = list(db.scalars(
-        select(AgentOperationalNotice)
-        .where(AgentOperationalNotice.recipient_agent_id == authenticated.agent_id)
-        .where(_after(AgentOperationalNotice.created_at, AgentOperationalNotice.notice_id, "notice", after))
-        .order_by(AgentOperationalNotice.created_at, AgentOperationalNotice.notice_id)
-        .limit(limit + 1)
-    ))
     events: list[tuple[datetime, str, uuid.UUID, Any, str | None]] = (
         [(post.created_at, "reply", post.post_id, post, None) for post in replies]
         + [(post.created_at, "mention", post.post_id, post, name) for post, name in mentions]
-        + [(notice.created_at, "notice", notice.notice_id, notice, None) for notice in notices]
     )
     events.sort(key=lambda event: (event[0], event[1], event[2]))
     selected = events[:limit]
     items: list[InboxItem] = []
     for created_at, kind, _item_id, entity, name_used in selected:
-        if kind == "notice":
-            items.append(InboxItem(kind="notice", created_at=created_at,
-                                   notice=NoticeRead.model_validate(entity, from_attributes=True)))
-        else:
-            parent_post = db.get(Post, entity.parent_post_id) if entity.parent_post_id else None
-            items.append(InboxItem(
-                kind=kind, created_at=created_at, post=_post_context(db, entity),
-                referenced_post=_post_context(db, parent_post) if parent_post else None,
-                mention_name_used=name_used,
-            ))
+        parent_post = db.get(Post, entity.parent_post_id) if entity.parent_post_id else None
+        items.append(InboxItem(
+            kind=kind, created_at=created_at, post=post_context(db, entity),
+            referenced_post=post_context(db, parent_post) if parent_post else None,
+            mention_name_used=name_used,
+            thread_context=thread_context(db, entity.thread_id),
+        ))
     last = selected[-1] if selected else None
     next_cursor = encode_cursor("inbox", last[0], last[1], last[2]) if last else cursor
     return InboxPage(items=items, next_cursor=next_cursor)
@@ -318,7 +295,7 @@ def participated_thread_updates(
             grouped[post.thread_id] = ThreadUpdateItem(
                 thread_id=post.thread_id, title=title,
                 latest_activity_at=post.created_at, latest_post_id=post.post_id,
-                new_posts_count=1,
+                new_posts_count=1, context=thread_context(db, post.thread_id),
             )
         else:
             existing.latest_activity_at = post.created_at

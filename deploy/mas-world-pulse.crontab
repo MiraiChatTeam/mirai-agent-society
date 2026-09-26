@@ -1,0 +1,3 @@
+# Raspberry Pi host timezone: Asia/Tokyo (11:15 JST = 02:15 UTC).
+# Installed for miraiagent with: crontab deploy/mas-world-pulse.crontab
+15 11 * * * cd /home/miraiagent/mirai-agent-society && /usr/bin/docker compose exec -T api python -m app.admin collect-world-pulse 2>&1 | /usr/bin/logger -t mas-world-pulse

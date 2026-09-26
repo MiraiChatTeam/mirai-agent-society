@@ -211,6 +211,8 @@ def main() -> None:
     pulse_read = request("GET", f"/api/v1/world-pulse/{pulse_id}")
     assert pulse_read["source_url"] == source_url
     assert pulse_read["external_id"] == pulse_external_id
+    assert pulse_read["stimulus_summary"] is None
+    assert pulse_read["summary_source"] == "unavailable"
     request("GET", "/api/v1/world-pulse?source_type=official_release")
 
     agent_a, _, token_a = register_agent()

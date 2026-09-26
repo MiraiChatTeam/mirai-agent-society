@@ -36,6 +36,8 @@ from app.schemas import (
     AuthVerifyCreate,
     DisplayNameChange,
     DisplayNameRead,
+    RecoveryChallengeCreate,
+    RecoveryChallengeRead,
     SessionTokenRead,
 )
 from app.services import APIError, append_event, commit_creation, not_found
@@ -100,6 +102,19 @@ def canonical_challenge_message(challenge: AuthChallenge) -> bytes:
         f"agent_key_id={challenge.agent_key_id}\n"
         f"issued_at={canonical_time(challenge.issued_at)}\n"
         f"expires_at={canonical_time(challenge.expires_at)}"
+    ).encode("utf-8")
+
+
+def canonical_recovery_message(
+    challenge_id: uuid.UUID, nonce: bytes, issued_at: datetime, expires_at: datetime
+) -> bytes:
+    nonce_b64 = base64.urlsafe_b64encode(nonce).rstrip(b"=").decode("ascii")
+    return (
+        "MAS-RECOVERY-V1\n"
+        f"challenge_id={challenge_id}\n"
+        f"nonce={nonce_b64}\n"
+        f"issued_at={canonical_time(issued_at)}\n"
+        f"expires_at={canonical_time(expires_at)}"
     ).encode("utf-8")
 
 
@@ -270,6 +285,7 @@ def create_challenge(
         nonce=secrets.token_bytes(32),
         agent_id=request.agent_id,
         agent_key_id=request.agent_key_id,
+        purpose="auth",
         issued_at=now,
         expires_at=now
         + timedelta(
@@ -304,7 +320,10 @@ def verify_challenge(
     )
     challenge = db.scalar(
         select(AuthChallenge)
-        .where(AuthChallenge.challenge_id == request.challenge_id)
+        .where(
+            AuthChallenge.challenge_id == request.challenge_id,
+            AuthChallenge.purpose == "auth",
+        )
         .with_for_update()
     )
     now = utc_now()
@@ -320,6 +339,112 @@ def verify_challenge(
         public_key = decode_base64(key.public_key, 32, "stored public key")
         Ed25519PublicKey.from_public_bytes(public_key).verify(
             signature, canonical_challenge_message(challenge)
+        )
+    except (HTTPException, InvalidSignature, ValueError) as exc:
+        db.commit()
+        raise unauthorized("signature verification failed") from exc
+
+    token = secrets.token_urlsafe(32)
+    expires_at = now + timedelta(
+        seconds=configured_ttl("AUTH_SESSION_TTL_SECONDS", 3600, 86400)
+    )
+    session = AgentSession(
+        session_id=uuid.uuid4(),
+        agent_id=challenge.agent_id,
+        agent_key_id=challenge.agent_key_id,
+        token_hash=hashlib.sha256(token.encode("utf-8")).hexdigest(),
+        expires_at=expires_at,
+    )
+    db.add(session)
+    db.commit()
+    return SessionTokenRead(
+        access_token=token,
+        token_type="Bearer",
+        expires_at=expires_at,
+        agent_id=session.agent_id,
+        agent_key_id=session.agent_key_id,
+    )
+
+
+@router.post(
+    "/auth/recovery/challenge",
+    response_model=RecoveryChallengeRead,
+    status_code=201,
+)
+def create_recovery_challenge(
+    request: RecoveryChallengeCreate,
+    http_request: Request,
+    db: Session = Depends(get_db),
+) -> RecoveryChallengeRead:
+    enforce_rate_limit(
+        db, "recovery_challenge", request_source(http_request), identity_kind="ip"
+    )
+    public_key, _, _ = normalize_public_key(request.public_key)
+    now = utc_now()
+    challenge_id = uuid.uuid4()
+    nonce = secrets.token_bytes(32)
+    expires_at = now + timedelta(
+        seconds=configured_ttl("AUTH_CHALLENGE_TTL_SECONDS", 90, 600)
+    )
+    key = db.scalar(select(AgentKey).where(AgentKey.public_key == public_key))
+    if key is not None and key_is_active(key, now):
+        db.add(AuthChallenge(
+            challenge_id=challenge_id,
+            nonce=nonce,
+            agent_id=key.agent_id,
+            agent_key_id=key.agent_key_id,
+            purpose="recovery",
+            issued_at=now,
+            expires_at=expires_at,
+        ))
+        db.commit()
+    # Unknown/inactive keys receive the same public shape, but no stored
+    # challenge. A public-key lookup alone never discloses the Agent UUID.
+    return RecoveryChallengeRead(
+        challenge_id=challenge_id,
+        nonce=base64.urlsafe_b64encode(nonce).rstrip(b"=").decode("ascii"),
+        issued_at=now,
+        expires_at=expires_at,
+        signed_message=canonical_recovery_message(
+            challenge_id, nonce, now, expires_at
+        ).decode("utf-8"),
+    )
+
+
+@router.post("/auth/recovery/verify", response_model=SessionTokenRead)
+def verify_recovery_challenge(
+    request: AuthVerifyCreate,
+    http_request: Request,
+    db: Session = Depends(get_db),
+) -> SessionTokenRead:
+    enforce_rate_limit(
+        db, "recovery_verify", request_source(http_request), identity_kind="ip"
+    )
+    challenge = db.scalar(
+        select(AuthChallenge)
+        .where(
+            AuthChallenge.challenge_id == request.challenge_id,
+            AuthChallenge.purpose == "recovery",
+        )
+        .with_for_update()
+    )
+    now = utc_now()
+    if challenge is None or challenge.consumed_at is not None or challenge.expires_at <= now:
+        raise unauthorized("invalid, expired, or consumed recovery challenge")
+    key = db.get(AgentKey, challenge.agent_key_id)
+    if key is None or not key_is_active(key, now):
+        raise unauthorized("agent key is not active")
+
+    challenge.consumed_at = now
+    try:
+        signature = decode_base64(request.signature, 64, "signature")
+        public_key = decode_base64(key.public_key, 32, "stored public key")
+        Ed25519PublicKey.from_public_bytes(public_key).verify(
+            signature,
+            canonical_recovery_message(
+                challenge.challenge_id, challenge.nonce,
+                challenge.issued_at, challenge.expires_at,
+            ),
         )
     except (HTTPException, InvalidSignature, ValueError) as exc:
         db.commit()

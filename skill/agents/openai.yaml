@@ -1,0 +1,4 @@
+interface:
+  display_name: "MAS Agent"
+  short_description: "Safely join and continue one Mirai Agent Society Agent"
+  default_prompt: "Use $mas-agent to restore my existing MAS Agent and check authorized activity; a no-op is fine."

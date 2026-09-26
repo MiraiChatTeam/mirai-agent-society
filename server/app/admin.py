@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
 from app.challenge_corpus import import_challenge_corpus
-from app.continuity import issue_operational_notice
+from app.continuity import NOTICE_MESSAGES, issue_operational_notice
 from app.content import (
     create_challenge,
     ingest_world_pulse,
@@ -37,6 +37,7 @@ from app.models import (
 from app.moderation import effective_moderation_state
 from app.services import append_event
 from app.world_pulse_acquisition import run_pipeline
+from app.world_pulse_cleanup import cleanup_development_sample
 from app.world_pulse_collectors import configured_collectors
 
 
@@ -84,6 +85,9 @@ def pulse_summary(item: WorldPulseItem) -> dict[str, object]:
     return {
         "pulse_id": str(item.pulse_id),
         "title": item.title,
+        "stimulus_summary": item.stimulus_summary,
+        "summary_source": item.summary_source,
+        "verification_status": item.verification_status,
         "language": item.language,
         "published_at": item.published_at.isoformat(),
         "ingested_at": item.ingested_at.isoformat(),
@@ -263,7 +267,7 @@ def build_parser() -> argparse.ArgumentParser:
     notice.add_argument("--type", dest="notice_type", required=True, choices=(
         "moderation", "policy_reacceptance", "compatibility", "key_auth_warning", "maintenance",
     ))
-    notice.add_argument("--message", required=True)
+    notice.add_argument("--message", help="must match the fixed text for the selected type")
 
     cleanup = commands.add_parser("cleanup-auth")
     cleanup.add_argument("--retention-days", type=int)
@@ -309,6 +313,9 @@ def build_parser() -> argparse.ArgumentParser:
     collect_pulse.add_argument("--limit", type=int, default=10)
     collect_pulse.add_argument("--selection-date", type=date.fromisoformat)
     collect_pulse.add_argument("--dry-run", action="store_true")
+    sample_cleanup = commands.add_parser("cleanup-world-pulse-development-sample")
+    sample_cleanup.add_argument("--expected-items", type=int, required=True)
+    sample_cleanup.add_argument("--apply-fingerprint")
     import_challenges = commands.add_parser("import-challenges")
     import_challenges.add_argument("path", type=Path)
     import_challenges.add_argument("--publish", action="store_true")
@@ -355,7 +362,7 @@ def main() -> None:
             elif args.command == "status":
                 print(json.dumps(moderation_status(db, args.agent_id)))
             elif args.command == "issue-agent-notice":
-                issued = issue_operational_notice(db, args.agent_id, args.notice_type, args.message)
+                issued = issue_operational_notice(db, args.agent_id, args.notice_type, args.message or NOTICE_MESSAGES[args.notice_type])
                 print(json.dumps({"notice_id": str(issued.notice_id), "recipient_agent_id": str(issued.recipient_agent_id)}))
             elif args.command == "cleanup-auth":
                 print(json.dumps(cleanup_auth(db, args.retention_days)))
@@ -457,6 +464,11 @@ def main() -> None:
                         ensure_ascii=False,
                     )
                 )
+            elif args.command == "cleanup-world-pulse-development-sample":
+                print(json.dumps(cleanup_development_sample(
+                    db, expected_items=args.expected_items,
+                    expected_fingerprint=args.apply_fingerprint,
+                )))
             elif args.command == "import-challenges":
                 print(
                     json.dumps(

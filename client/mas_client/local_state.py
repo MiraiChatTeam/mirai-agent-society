@@ -12,7 +12,7 @@ import uuid
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any, Callable, Iterator, TypeVar
 from urllib.parse import urlsplit
 
 
@@ -33,9 +33,11 @@ class StateMissingError(FileNotFoundError):
 
 
 _SCHEMAS = Path(__file__).parent / "schemas"
-_FILES = {"identity": "identity.json", "profile": "profile.json", "state": "state.json"}
+_FILES = {"identity": "identity.json", "profile": "profile.json", "state": "state.json", "notes": "agent-notes.json"}
 _SECRET_PATTERN = re.compile(r"-----BEGIN [A-Z0-9 ]*(?:PRIVATE KEY|SEED)-----")
 _MAX_JSON_BYTES = 1_000_000
+_PRIVATE_DOCUMENTS = {"operator-config.json", "operator-approval.json", "policy-acceptance.json", "governance-application.json", "agent-package-state.json"}
+T = TypeVar("T")
 
 
 def _validate_format(format_name: str, value: str, location: str) -> None:
@@ -140,13 +142,29 @@ def _reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
 
 
 class LocalStateStore:
-    """Owns ~/.mas JSON files; callers keep actual key bytes separate."""
+    """Owns a private Agent root; callers keep actual key bytes separate."""
 
-    def __init__(self, root: Path | None = None) -> None:
+    def __init__(self, root: Path | None = None, *, expected_agent_id: str | None = None) -> None:
         self.root = Path(root) if root is not None else Path.home() / ".mas"
+        self.expected_agent_id = expected_agent_id
+        if expected_agent_id is not None:
+            _validate_format("uuid", expected_agent_id, "expected_agent_id")
+
+    @classmethod
+    def for_agent(cls, agent_id: str, base: Path | None = None) -> "LocalStateStore":
+        """Bind one Agent UUID to one private directory under the chosen base."""
+        _validate_format("uuid", agent_id, "agent_id")
+        base_path = Path(base) if base is not None else Path.home() / ".mas" / "agents"
+        return cls(base_path / agent_id, expected_agent_id=agent_id)
 
     def initialize(self) -> None:
-        for path in (self.root, self.root / "keys"):
+        paths = [self.root, self.root / "keys"]
+        if self.expected_agent_id is not None:
+            paths.insert(0, self.root.parent)
+            default_parent = Path.home() / ".mas"
+            if self.root.parent == default_parent / "agents":
+                paths.insert(0, default_parent)
+        for path in paths:
             if path.is_symlink():
                 raise StateValidationError(f"refusing symlink directory: {path}")
             path.mkdir(mode=0o700, parents=True, exist_ok=True)
@@ -176,6 +194,8 @@ class LocalStateStore:
             raise StateMissingError(f"{path.name} is missing") from exc
         if not stat.S_ISREG(file_stat.st_mode):
             raise StateValidationError(f"{path.name}: expected regular file, not a symlink")
+        if kind == "notes" and stat.S_IMODE(file_stat.st_mode) & 0o077:
+            raise StateValidationError("agent-notes.json: permissions must exclude group and other")
         fd = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
         with os.fdopen(fd, "rb") as stream:
             payload = stream.read(_MAX_JSON_BYTES + 1)
@@ -185,7 +205,10 @@ class LocalStateStore:
             data = json.loads(payload.decode("utf-8"), object_pairs_hook=_reject_duplicate_keys)
         except (json.JSONDecodeError, UnicodeError) as exc:
             raise StateValidationError(f"{path.name}: invalid JSON") from exc
-        return validate_document(kind, data)
+        validate_document(kind, data)
+        if kind == "identity" and self.expected_agent_id is not None and data["agent_id"] != self.expected_agent_id:
+            raise IdentityConflictError("state root belongs to another Agent UUID")
+        return data
 
     def _atomic_replace(self, kind: str, document: dict[str, Any]) -> None:
         payload = (json.dumps(document, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
@@ -217,6 +240,8 @@ class LocalStateStore:
     def provision_identity(self, document: dict[str, Any]) -> None:
         """Explicitly store an already server-registered identity once."""
         validate_document("identity", document)
+        if self.expected_agent_id is not None and document["agent_id"] != self.expected_agent_id:
+            raise IdentityConflictError("cannot provision another Agent in this state root")
         with self._locked():
             if any((self.root / filename).exists() for filename in _FILES.values()):
                 raise IdentityConflictError("local state exists; recover it instead of creating another Agent")
@@ -251,3 +276,56 @@ class LocalStateStore:
         with self._locked():
             self._read("identity")
             self._atomic_replace("state", document)
+
+    def update_state(self, change: Callable[[dict[str, Any]], tuple[dict[str, Any], T]]) -> T:
+        """Validate and commit a state change under the per-Agent file lock."""
+        with self._locked():
+            self._read("identity")
+            current = self._read("state")
+            updated, result = change(current)
+            validate_document("state", updated)
+            self._atomic_replace("state", updated)
+            return result
+
+    def read_private_document(self, filename: str) -> dict[str, Any]:
+        if filename not in _PRIVATE_DOCUMENTS:
+            raise ValueError("unsupported private document")
+        path = self.root / filename
+        info = path.lstat()
+        if not stat.S_ISREG(info.st_mode) or stat.S_IMODE(info.st_mode) & 0o077 or info.st_size > _MAX_JSON_BYTES:
+            raise StateValidationError(f"{filename}: expected private regular file")
+        fd = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+        with os.fdopen(fd, "rb") as stream:
+            raw = stream.read(_MAX_JSON_BYTES + 1)
+        if len(raw) > _MAX_JSON_BYTES:
+            raise StateValidationError(f"{filename}: too large")
+        try:
+            value = json.loads(raw.decode("utf-8"), object_pairs_hook=_reject_duplicate_keys)
+        except (UnicodeError, json.JSONDecodeError) as exc:
+            raise StateValidationError(f"{filename}: invalid JSON") from exc
+        if not isinstance(value, dict):
+            raise StateValidationError(f"{filename}: expected object")
+        return value
+
+    def write_private_document(self, filename: str, value: dict[str, Any]) -> None:
+        if filename not in _PRIVATE_DOCUMENTS or not isinstance(value, dict):
+            raise ValueError("unsupported private document")
+        payload = (json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
+        if len(payload) > _MAX_JSON_BYTES:
+            raise StateValidationError(f"{filename}: too large")
+        with self._locked():
+            self._read("identity")
+            path = self.root / filename
+            if path.is_symlink():
+                raise StateValidationError(f"{filename}: refusing symlink")
+            fd, temporary = tempfile.mkstemp(prefix=f".{filename}.", suffix=".tmp", dir=self.root)
+            try:
+                os.fchmod(fd, 0o600)
+                with os.fdopen(fd, "wb") as stream:
+                    stream.write(payload)
+                    stream.flush()
+                    os.fsync(stream.fileno())
+                os.replace(temporary, path)
+            finally:
+                if os.path.exists(temporary):
+                    os.unlink(temporary)

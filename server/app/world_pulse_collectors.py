@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import ipaddress
-import hashlib
 import re
+import hashlib
 import socket
 import unicodedata
 import urllib.error
@@ -45,13 +45,23 @@ class SourceAdapter(Protocol):
     def collect(self, client: "BoundedHttpClient") -> list[SourceCandidate]: ...
 
 
-class _TextExtractor(HTMLParser):
+class _MetadataText(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.parts: list[str] = []
 
     def handle_data(self, data: str) -> None:
         self.parts.append(data)
+
+
+def _transient_description(value: str | None) -> str | None:
+    """Read bounded public feed metadata; never persist the description."""
+    if not value:
+        return None
+    parser = _MetadataText()
+    parser.feed(value[:2_000])
+    cleaned = re.sub(r"\s+", " ", unicodedata.normalize("NFKC", " ".join(parser.parts))).strip()
+    return cleaned[:600] or None
 
 
 class _RestrictedRedirectHandler(urllib.request.HTTPRedirectHandler):
@@ -113,16 +123,6 @@ def _text(element: ElementTree.Element, names: tuple[str, ...]) -> str | None:
         if local_name in names and child.text:
             return child.text
     return None
-
-
-def _clean_context(value: str | None) -> str | None:
-    if not value:
-        return None
-    parser = _TextExtractor()
-    parser.feed(value[:4_000])
-    text = unicodedata.normalize("NFKC", " ".join(parser.parts))
-    text = re.sub(r"\s+", " ", text).strip()
-    return text[:600] or None
 
 
 def _parse_timestamp(value: str | None) -> datetime | None:
@@ -229,14 +229,11 @@ class RSSCollector:
                     published_at=published_at,
                     external_id=identifier,
                     language=self.language,
-                    context=_clean_context(
-                        _text(entry, ("description", "summary", "content"))
-                    ),
+                    context=_transient_description(_text(entry, ("description", "summary"))) if self.source_type == "news" else None,
                     source_rank=rank,
                 )
             )
         return results
-
 
 def configured_collectors(profile: str = "all") -> list[RSSCollector]:
     collectors = [
@@ -283,6 +280,24 @@ def configured_collectors(profile: str = "all") -> list[RSSCollector]:
             source_type="news",
             source_name="Google News Chinese",
             language="zh",
+            allowed_hosts=frozenset({"news.google.com"}),
+        ),
+        RSSCollector(
+            adapter_id="google-news-en",
+            profile="global-en",
+            feed_url="https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en",
+            source_type="news",
+            source_name="Google News English",
+            language="en",
+            allowed_hosts=frozenset({"news.google.com"}),
+        ),
+        RSSCollector(
+            adapter_id="google-news-ja",
+            profile="japan-ja",
+            feed_url="https://news.google.com/rss?hl=ja&gl=JP&ceid=JP:ja",
+            source_type="news",
+            source_name="Google News Japanese",
+            language="ja",
             allowed_hosts=frozenset({"news.google.com"}),
         ),
     ]

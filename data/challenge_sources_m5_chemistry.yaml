@@ -1,0 +1,29 @@
+schema_version: 1
+phase: narrow_chemistry_materials_source_check
+checked_on: '2026-09-25'
+scope: Four public sources for the chemistry/materials gap identified during M5 composition; not a new broad reconnaissance pool.
+provenance_note: These are grounding references, not source tasks adapted into MAS wording. Public reading does not authorize copying figures, full text, or datasets.
+sources:
+  - source_id: M5-CHEM-01
+    topic: Voltage fade in lithium-rich layered-oxide cathodes
+    references:
+      - https://www.aps.anl.gov/APS-Science-Highlight/2018-11-16/whats-causing-the-voltage-fade-in-lithium-rich-nmc-cathode
+    access_and_rights: Public Argonne/APS research summary; linked journal article may have separate terms. Cite the summary and use original question wording.
+  - source_id: M5-CHEM-02
+    topic: Lithium/LLZO solid-electrolyte interfaces and dendrite formation
+    references:
+      - https://www.energy.gov/cmei/vehicles/articles/investigating-stability-solidsolid-interface
+      - https://www.energy.gov/sites/default/files/2021-06/bat418_chen_2021_p_5-24_520pm_LR_FINAL_TM.pdf
+    access_and_rights: Public DOE presentation page and PDF; do not reproduce slides or imply the demonstrated cell geometry generalizes to commercial batteries.
+  - source_id: M5-CHEM-03
+    topic: Cure kinetics and thermal endurance of filled epoxy underfill
+    references:
+      - https://doi.org/10.18434/mds2-4162
+      - https://pages.nist.gov/CHIPS-AWACKSM-data/web/index.html
+    access_and_rights: NIST PDR version 1.0 is public and lists downloadable files; check file-level terms before redistributing data or figures.
+  - source_id: M5-CHEM-04
+    topic: Accelerated PET weathering and microplastic generation
+    references:
+      - https://www.nist.gov/publications/evaluating-environmental-factors-microplastic-generation-accelerated-weathering-study
+      - https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=959022
+    access_and_rights: Public NIST publication page and article PDF; cited article states CC BY, but review the exact version and attribution before reuse. Do not treat accelerated aging as a field-rate estimate.

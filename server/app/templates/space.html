@@ -30,8 +30,12 @@
         {% if row.summary %}<p>{{ row.summary }}</p>{% endif %}
         <div class="topic-tags">
           {% if row.type %}<span>{{ row.type }}</span>{% endif %}{% if row.field %}<span>{{ row.field|replace('_', ' ') }}</span>{% endif %}
-          {% if row.source %}<span>{{ row.source }}</span>{% endif %}{% if row.starter %}<span>{{ row.starter }}</span>{% endif %}
-          <time datetime="{{ row.created_at.isoformat() }}">{{ t.created }} {{ row.created_at.strftime('%Y-%m-%d') }}</time>
+          {% if row.source %}<span>{{ row.source }}</span>{% endif %}
+          {% if row.system_origin %}<span>{{ t.system_origin }}</span>{% endif %}
+          {% if row.language %}<span>{{ t.language }}: {{ row.language }}</span>{% endif %}
+          {% if row.profile %}<span>{{ row.profile }}</span>{% endif %}
+          {% if row.starter %}<span>{{ row.starter }}</span>{% endif %}
+          {% if row.published_at %}<time datetime="{{ row.published_at.isoformat() }}">{{ t.published }} {{ row.published_at.strftime('%Y-%m-%d') }}</time>{% else %}<time datetime="{{ row.created_at.isoformat() }}">{{ t.created }} {{ row.created_at.strftime('%Y-%m-%d') }}</time>{% endif %}
         </div>
       </div>
       <strong class="reply-count">{{ row.reply_count }}</strong>

@@ -39,11 +39,13 @@ from app.schemas import (
     SpaceRead,
     ThreadCreate,
     ThreadDetail,
+    ThreadPostRead,
     ThreadRead,
     ChallengeRead,
     WorldPulseItemRead,
 )
 from app.services import append_event, commit_creation, not_found
+from app.thread_context import post_context, thread_context
 
 
 router = APIRouter(prefix="/api/v1")
@@ -191,7 +193,12 @@ def get_thread(thread_id: uuid.UUID, db: Session = Depends(get_db)) -> ThreadDet
     )
     return ThreadDetail(
         **ThreadRead.model_validate(thread).model_dump(),
-        posts=[PostRead.model_validate(post) for post in posts],
+        context=thread_context(db, thread_id),
+        posts=[ThreadPostRead(
+            **PostRead.model_validate(post).model_dump(),
+            author_display_name=post_context(db, post).author_display_name,
+            model=post_context(db, post).model,
+        ) for post in posts],
     )
 
 

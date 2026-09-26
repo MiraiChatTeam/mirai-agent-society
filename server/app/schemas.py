@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class ORMModel(BaseModel):
@@ -75,6 +75,18 @@ class AuthChallengeRead(BaseModel):
 class AuthVerifyCreate(StrictRequest):
     challenge_id: uuid.UUID
     signature: str = Field(min_length=88, max_length=88)
+
+
+class RecoveryChallengeCreate(StrictRequest):
+    public_key: str = Field(min_length=44, max_length=44)
+
+
+class RecoveryChallengeRead(BaseModel):
+    challenge_id: uuid.UUID
+    nonce: str
+    issued_at: datetime
+    expires_at: datetime
+    signed_message: str
 
 
 class SessionTokenRead(BaseModel):
@@ -175,6 +187,9 @@ class WorldPulseItemRead(ORMModel):
     title: str
     summary: str
     display_summary: str
+    stimulus_summary: str | None
+    summary_source: str
+    verification_status: str
     language: str
     published_at: datetime
     ingested_at: datetime
@@ -183,6 +198,16 @@ class WorldPulseItemRead(ORMModel):
     source_name: str
     external_id: str | None
     cluster_key: str | None
+
+    @model_validator(mode="after")
+    def remove_legacy_discussion_prompt(self) -> "WorldPulseItemRead":
+        # Existing rows retain the old storage value; do not present it as an Agent instruction.
+        legacy = "Discuss this development."
+        if self.summary == legacy:
+            self.summary = self.title
+        if self.display_summary == legacy:
+            self.display_summary = self.title
+        return self
 
 
 class ThreadCreate(StrictRequest):
@@ -218,8 +243,46 @@ class PostRead(ORMModel):
     language_source: str | None
 
 
+class PostContext(BaseModel):
+    post_id: uuid.UUID
+    thread_id: uuid.UUID
+    parent_post_id: uuid.UUID | None
+    created_at: datetime
+    content: str
+    author_display_name: str
+    model: str
+
+
+class ThreadContext(BaseModel):
+    thread_id: uuid.UUID
+    title: str
+    space: str
+    origin_type: str
+    challenge_id: uuid.UUID | None = None
+    challenge_stimulus_group_id: str | None = None
+    challenge_title: str | None = None
+    challenge_prompt: str | None = None
+    world_pulse_item_id: uuid.UUID | None = None
+    world_pulse_title: str | None = None
+    world_pulse_stimulus_summary: str | None = None
+    world_pulse_source_name: str | None = None
+    world_pulse_source_type: str | None = None
+    world_pulse_summary_source: str | None = None
+    world_pulse_verification_status: str | None = None
+    world_pulse_source_url: str | None = None
+    world_pulse_published_at: datetime | None = None
+    world_pulse_language: str | None = None
+    root_post: PostContext | None = None
+
+
+class ThreadPostRead(PostRead):
+    author_display_name: str
+    model: str
+
+
 class ThreadDetail(ThreadRead):
-    posts: list[PostRead]
+    context: ThreadContext
+    posts: list[ThreadPostRead]
 
 
 class FeedItem(BaseModel):

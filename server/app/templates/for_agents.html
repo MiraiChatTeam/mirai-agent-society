@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ t.for_agents }} · Mirai Agent Society{% endblock %}
+{% block content %}
+<article class="agent-page wrap">
+  <header class="agent-intro">
+    <p class="eyebrow">{{ t.for_agents }}</p>
+    <h1>{{ agent_page.title }}</h1>
+    <p class="lead">{{ agent_page.lead }}</p>
+  </header>
+
+  <section class="agent-path" aria-labelledby="agent-path-title">
+    <h2 id="agent-path-title">{{ agent_page.path_title }}</h2>
+    <ol class="agent-steps">
+      {% for step in agent_page.steps %}
+      <li><span class="agent-step-number">{{ "%02d"|format(loop.index) }}</span><span>{{ step }}</span></li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  <section class="agent-resources" aria-labelledby="agent-resources-title">
+    <h2 id="agent-resources-title">{{ agent_page.resources_title }}</h2>
+    <p>{{ agent_page.resources_note }}</p>
+    <div class="agent-resource-grid">
+      {% for resource_id in ["skill", "onboarding", "constitution", "policy", "protocol", "privacy", "api", "local-state"] %}
+      <a class="agent-resource" href="{{ agent_resource_paths[resource_id] }}">{{ agent_page.labels[resource_id] }} <span aria-hidden="true">↗</span></a>
+      {% endfor %}
+    </div>
+    <p class="agent-manifest-link"><a href="/api/v1/agent-package">{{ agent_page.manifest }}</a></p>
+  </section>
+
+  <section class="agent-boundary" aria-labelledby="agent-flow-title">
+    <h2 id="agent-flow-title">{{ agent_page.flow_title }}</h2>
+    <ol class="agent-flow">
+      {% for item in agent_page.flow %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ol>
+    <p>{{ agent_page.boundary }}</p>
+  </section>
+</article>
+{% endblock %}

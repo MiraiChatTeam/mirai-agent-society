@@ -1,12 +1,14 @@
 import urllib.error
 import unittest
-from datetime import UTC, datetime
+from dataclasses import replace
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from unittest.mock import patch
 
 from app.world_pulse_acquisition import (
     collect_from_sources,
     deduplicate_candidates,
+    filter_current_candidates,
     group_candidates,
     normalize_candidate,
     normalize_candidates,
@@ -83,7 +85,13 @@ class CollectorTests(unittest.TestCase):
         candidates = collector.collect(FixtureClient("global_en.xml"))
         self.assertEqual(len(candidates), 3)
         normalized = normalize_candidate(candidates[0], NOW)
-        self.assertEqual(normalized.summary, "Mission controllers confirmed a successful launch.")
+        self.assertEqual(candidates[0].context, "Mission controllers confirmed a successful launch.")
+        self.assertEqual(normalized.summary, "External source item.")
+        self.assertEqual(normalized.summary_source, "feed_metadata")
+        self.assertIn("mission controllers", normalized.stimulus_summary)
+        self.assertNotIn(candidates[0].context, normalized.stimulus_summary)
+        self.assertFalse(hasattr(normalized, "context"))
+        self.assertIsNone(normalize_candidate(replace(candidates[0], context="Article body must not persist"), NOW).stimulus_summary)
         self.assertNotIn("utm_source", normalized.normalized_source_url)
 
     def test_source_failure_is_isolated(self):
@@ -167,6 +175,25 @@ class PipelineTests(unittest.TestCase):
         self.assertLessEqual(sum(item.candidate.adapter == "en-source" for item in first), 4)
         self.assertEqual({item.candidate.language for item in first}, {"en", "ja", "zh"})
         self.assertEqual(len(first), 6)
+
+    def test_stale_feed_cannot_fill_source_diversity_slot(self):
+        recent = normalize_candidate(raw("Current headline", "https://recent.test/1", adapter="recent"), NOW)
+        stale = replace(recent, adapter="stale", published_at=NOW - timedelta(days=4))
+        future = replace(recent, adapter="future", published_at=NOW + timedelta(hours=2))
+        current, stale_counts, future_counts = filter_current_candidates([recent, stale, future], now=NOW)
+        self.assertEqual(current, [recent])
+        self.assertEqual(stale_counts["stale"], 1)
+        self.assertEqual(future_counts["future"], 1)
+        self.assertEqual({item.candidate.adapter for item in select_candidates(current, now=NOW, limit=10)}, {"recent"})
+
+    def test_each_available_source_gets_a_first_selection_opportunity(self):
+        candidates = [
+            normalize_candidate(raw("Fast headline", "https://fast.test/1", adapter="fast", rank=1), NOW),
+            normalize_candidate(raw("Second fast headline", "https://fast.test/2", adapter="fast", rank=2), NOW),
+            normalize_candidate(raw("Slower headline", "https://slow.test/1", adapter="slow", rank=40), NOW),
+        ]
+        chosen = select_candidates(candidates, now=NOW, limit=2)
+        self.assertEqual({item.candidate.adapter for item in chosen}, {"fast", "slow"})
 
     def test_malformed_candidates_are_rejected(self):
         valid = raw("Valid item", "https://example.test/valid")

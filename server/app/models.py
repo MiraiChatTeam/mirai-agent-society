@@ -189,11 +189,13 @@ class AuthChallenge(Timestamped, Base):
             ["agent_keys.agent_key_id", "agent_keys.agent_id"],
         ),
         CheckConstraint("expires_at > issued_at", name="ck_auth_challenge_expiry"),
+        CheckConstraint("purpose IN ('auth', 'recovery')", name="ck_auth_challenge_purpose"),
         Index("ix_auth_challenges_expires", "expires_at"),
     )
 
     challenge_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
     nonce: Mapped[bytes] = mapped_column(LargeBinary(32), nullable=False)
+    purpose: Mapped[str] = mapped_column(String(16), nullable=False, default="auth", server_default=text("'auth'"))
     agent_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("agents.agent_id"), nullable=False
     )
@@ -318,7 +320,10 @@ class Challenge(Timestamped, Base):
         CheckConstraint("version > 0", name="ck_challenge_version"),
         CheckConstraint(
             "field IN ('mathematics', 'physics', 'astronomy', 'biology', "
-            "'computer_science', 'logic', 'other')",
+            "'computer_science', 'logic', 'other', 'chemistry', "
+            "'climate_science', 'computational_linguistics', 'earth_science', "
+            "'environmental_data_science', 'hydrology', 'materials_science', "
+            "'ocean_science', 'structural_engineering')",
             name="ck_challenge_field",
         ),
         CheckConstraint(
@@ -390,6 +395,16 @@ class WorldPulseItem(Base):
             "language IN ('en', 'ja', 'zh', 'mixed', 'unknown')",
             name="ck_world_pulse_language",
         ),
+        CheckConstraint(
+            "summary_source IN ('feed_metadata', 'publisher_page', 'trend_context', 'unavailable')",
+            name="ck_world_pulse_summary_source",
+        ),
+        CheckConstraint(
+            "(stimulus_summary IS NULL AND summary_source = 'unavailable') OR "
+            "(stimulus_summary IS NOT NULL AND length(stimulus_summary) BETWEEN 1 AND 800 "
+            "AND summary_source <> 'unavailable')",
+            name="ck_world_pulse_stimulus_summary",
+        ),
         Index(
             "uq_world_pulse_external_id",
             "source_type",
@@ -399,12 +414,21 @@ class WorldPulseItem(Base):
         ),
         Index("ix_world_pulse_published", "published_at", "pulse_id"),
         Index("ix_world_pulse_cluster", "cluster_key"),
+        CheckConstraint(
+            "verification_status IN ('source_report_unverified', 'attention_signal')",
+            name="ck_world_pulse_verification_status",
+        ),
     )
 
     pulse_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
     title: Mapped[str] = mapped_column(String(300), nullable=False)
     summary: Mapped[str] = mapped_column(Text, nullable=False)
     display_summary: Mapped[str] = mapped_column(String(300), nullable=False)
+    stimulus_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    summary_source: Mapped[str] = mapped_column(
+        String(32), server_default=text("'unavailable'"), nullable=False
+    )
+
     language: Mapped[str] = mapped_column(String(16), nullable=False)
     published_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False
@@ -417,6 +441,36 @@ class WorldPulseItem(Base):
     source_name: Mapped[str] = mapped_column(String(200), nullable=False)
     external_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     cluster_key: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    verification_status: Mapped[str] = mapped_column(
+        String(32), server_default=text("'source_report_unverified'"), nullable=False
+    )
+
+
+class WorldPulseEventRelation(Base):
+    """Pairwise, non-destructive relation between distinct source items."""
+
+    __tablename__ = "world_pulse_event_relations"
+    __table_args__ = (
+        CheckConstraint("left_pulse_id < right_pulse_id", name="ck_wp_relation_order"),
+        CheckConstraint(
+            "relation_type IN ('same_event', 'follow_up', 'same_topic')",
+            name="ck_wp_relation_type",
+        ),
+        Index("ix_wp_relation_right", "right_pulse_id"),
+    )
+
+    left_pulse_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("world_pulse_items.pulse_id",
+                                      name="fk_wp_relation_left", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    right_pulse_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("world_pulse_items.pulse_id",
+                                      name="fk_wp_relation_right", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    relation_type: Mapped[str] = mapped_column(String(16), nullable=False)
+    evidence_code: Mapped[str] = mapped_column(String(32), nullable=False)
 
 
 class WorldPulseAcquisition(Base):

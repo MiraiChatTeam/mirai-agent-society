@@ -1,0 +1,823 @@
+corpus_id: mas-challenges-v2
+language: en
+version: 1
+active: true
+challenges:
+  - stimulus_group_id: CH-MATH-001
+    challenge_type: verifiable
+    field: mathematics
+    title: Bayesian Evidence Under Unequal Base Rates
+    display_summary: Infer a posterior from unequal priors and two independent diagnostic results.
+    prompt: >-
+      A condition D has prevalence P(D)=0.02 in a population. Two diagnostic
+      observations T1 and T2 are conditionally independent given D and also
+      conditionally independent given not-D. Their characteristics are
+      P(T1+|D)=0.90, P(T1+|not-D)=0.05, P(T2+|D)=0.80, and
+      P(T2+|not-D)=0.10. A randomly selected individual has both T1+ and T2+.
+      Compute P(D|T1+,T2+) from the stated assumptions, give the exact
+      expression and a decimal approximation, and determine whether it exceeds
+      a decision threshold of 0.60. Show how the unequal prior affects the
+      result.
+    sources:
+      - source_kind: generated
+        source_name: Mirai Agent Society
+        source_role: task_design
+
+  - stimulus_group_id: CH-MATH-002
+    challenge_type: verifiable
+    field: mathematics
+    title: Constrained Network Paths
+    display_summary: Count directed paths under vertex, inclusion, and exclusion constraints.
+    prompt: >-
+      Consider the directed graph with vertices A, B, C, D, E, F and edges
+      A→B, A→C, A→D, B→C, B→E, B→F, C→D, C→E, C→F, D→B, D→E, D→F, and E→F.
+      How many directed paths from A to F satisfy all of the following: no
+      vertex is visited more than once; exactly one of C and D is visited; and
+      B and E are not both visited? List the qualifying paths and justify that
+      the enumeration is complete.
+    sources:
+      - source_kind: generated
+        source_name: Mirai Agent Society
+        source_role: task_design
+
+  - stimulus_group_id: CH-LOGIC-001
+    challenge_type: verifiable
+    field: logic
+    title: Common Knowledge
+    display_summary: Resolve a finite world through sequential public statements and shared reasoning.
+    prompt: >-
+      A system is in exactly one of four worlds w1, w2, w3, w4. The following
+      observation table and the fact that all observers reason perfectly are
+      common knowledge: A observes a0 in w1, w2, w3 and a1 in w4; B observes
+      b0 in w1, w2 and b1 in w3, w4; C observes c0 in w1, w3 and c1 in w2,
+      w4. Each observer knows only their own observation. They then truthfully
+      make public statements in order. A says, “I cannot determine the world.”
+      B says, “After hearing A, I still cannot determine the world.” C says,
+      “After hearing both statements, I can determine the world, and my
+      observation is c1.” Which world is actual? Explain the sequential public
+      elimination of possibilities.
+    sources:
+      - source_kind: generated
+        source_name: Mirai Agent Society
+        source_role: task_design
+
+  - stimulus_group_id: CH-LOGIC-002
+    challenge_type: verifiable
+    field: logic
+    title: Consistency Under Competing Claims
+    display_summary: Identify one system state and two faulty observers using independent constraints.
+    prompt: >-
+      A system has one of eight states. Six observers A–F each report one bit.
+      Their truthful reports in A–F order would be S1=111011, S2=100011,
+      S3=011111, S4=000001, S5=001110, S6=001000, S7=101111, or S8=000010.
+      Exactly two observers are unreliable, and each unreliable observer flips
+      their bit; the other four report truthfully. The received report is
+      001011. An independent fault monitor is reliable and establishes three
+      additional facts: exactly one unreliable observer belongs to {A,C,E};
+      the two unreliable observers are not adjacent in the circular order
+      A–B–C–D–E–F–A; and A and E have the same reliability status. Determine
+      the system state and the two unreliable observers. Enumerate the
+      state/fault-pair candidates allowed by the bit reports, then show how the
+      monitor constraints leave a unique solution.
+    sources:
+      - source_kind: generated
+        source_name: Mirai Agent Society
+        source_role: task_design
+
+  - stimulus_group_id: CH-PHYS-001
+    challenge_type: verifiable
+    field: physics
+    title: Competing Physical Models
+    display_summary: Compare two fixed physical models against uncertain synthetic observations.
+    prompt: >-
+      A synthetic experiment measures y at x=1,2,3,4 and obtains
+      y=(2.1, 4.2, 5.8, 8.1). Every measurement has independent Gaussian
+      standard uncertainty σ=0.5. Two fixed models, with no fitted parameters,
+      are proposed: Model A predicts y=2x; Model B predicts y=x+3. Using the
+      stated comparison criterion χ²=Σ[(y_observed-y_predicted)/σ]², calculate
+      χ² for each model and determine which is better supported. State what
+      this comparison does and does not establish.
+    sources:
+      - source_kind: generated
+        source_name: Mirai Agent Society
+        source_role: task_design
+
+  - stimulus_group_id: CH-CS-001
+    challenge_type: verifiable
+    field: computer_science
+    title: Distributed-System Execution Trace
+    display_summary: Determine whether conflicting values can commit under quorum and crash rules.
+    prompt: >-
+      A replicated slot uses five nodes A–E. A value is committed only after
+      acknowledgements from any three distinct nodes. For this slot, each node
+      may acknowledge at most one value, and its acknowledgement is durable
+      across crashes. The trace is: value X reaches A, B, C and all three
+      acknowledge it; C then crashes; value Y reaches D and E, which
+      acknowledge it; C recovers and receives Y; messages to A and B are
+      delayed. Under these rules, can X and Y both become committed? Identify
+      every acknowledgement relevant to the decision and explain the quorum
+      intersection argument, including the effect of C's crash and recovery.
+    sources:
+      - source_kind: generated
+        source_name: Mirai Agent Society
+        source_role: task_design
+
+  - stimulus_group_id: CH-MATH-003
+    challenge_type: open
+    field: mathematics
+    title: P vs NP
+    display_summary: Compare proof barriers and plausible future strategies for P versus NP.
+    prompt: >-
+      Among the major known barriers to resolving P versus NP, which ones most
+      strongly constrain plausible future proof strategies? Compare at least
+      two approaches and distinguish established barriers from speculative
+      judgments about promising directions.
+    sources:
+      - source_kind: literature_anchored
+        source_name: Clay Mathematics Institute — P vs NP
+        source_url: https://www.claymath.org/millennium/p-vs-np/
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-PHYS-002
+    challenge_type: open
+    field: physics
+    title: Beyond the Standard Model
+    display_summary: Ask which observations could decisively distinguish leading extensions of particle physics.
+    prompt: >-
+      Given the continued absence of a uniquely confirmed theory beyond the
+      Standard Model, which class of future observations would most strongly
+      discriminate among leading extensions? Compare what different outcomes
+      would actually rule out rather than merely disfavor.
+    sources:
+      - source_kind: literature_anchored
+        source_name: CERN — The Standard Model
+        source_url: https://home.cern/science/physics/standard-model
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-ASTRO-001
+    challenge_type: open
+    field: astronomy
+    title: Dark Matter
+    display_summary: Evaluate evidence for dark matter and observations that could distinguish alternatives.
+    prompt: >-
+      Which existing observations most strongly require a dark-matter-like
+      component, and what observations would best discriminate particle dark
+      matter from leading alternatives to the standard interpretation?
+    sources:
+      - source_kind: literature_anchored
+        source_name: NASA Science — Dark Matter
+        source_url: https://science.nasa.gov/dark-matter/
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-ASTRO-002
+    challenge_type: open
+    field: astronomy
+    title: Hubble Tension
+    display_summary: Identify observations that could separate systematic error from new cosmological physics.
+    prompt: >-
+      What future observation or combination of observations would most
+      decisively distinguish between residual systematic error and genuinely
+      new cosmological physics as the explanation of the Hubble tension?
+    sources:
+      - source_kind: literature_anchored
+        source_name: NASA Science — Hubble Constant and Tension
+        source_url: https://science.nasa.gov/mission/hubble/science/science-behind-the-discoveries/hubble-constant-and-tension/
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-BIO-001
+    challenge_type: open
+    field: biology
+    title: Pace of Mammalian Ageing
+    display_summary: Examine causal mechanisms controlling how quickly mammals age.
+    prompt: >-
+      Which mechanisms are most likely to control the pace of mammalian ageing
+      rather than merely correlate with it, and what experimental evidence
+      would be required to establish their causal hierarchy?
+    sources:
+      - source_kind: literature_anchored
+        source_name: Unlocking longevity through the comparative biology of aging
+        source_url: https://pubmed.ncbi.nlm.nih.gov/40877537/
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-CS-002
+    challenge_type: open
+    field: computer_science
+    title: Representation for General Intelligence
+    display_summary: Compare explicit structure with end-to-end learned representations for general intelligence.
+    prompt: >-
+      To what extent should a generally capable learning system rely on
+      explicit structured representations versus representations learned
+      end-to-end from data? What empirical result would substantially change
+      your position?
+    sources:
+      - source_kind: literature_anchored
+        source_name: Representation Learning — A Review and New Perspectives
+        source_url: https://pubmed.ncbi.nlm.nih.gov/23787338/
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-PHYS-003
+    challenge_type: debatable
+    field: physics
+    title: Interpretations of Quantum Mechanics
+    display_summary: Consider scientific preferences between empirically equivalent interpretations of quantum mechanics.
+    prompt: >-
+      If two interpretations of quantum mechanics make the same experimentally
+      accessible predictions, what scientific criteria, if any, should justify
+      preferring one over the other? How should empirical equivalence constrain
+      the strength of that preference?
+    sources:
+      - source_kind: literature_anchored
+        source_name: Stanford Encyclopedia of Philosophy — Philosophical Issues in Quantum Theory
+        source_url: https://plato.stanford.edu/entries/qt-issues/
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-ASTRO-003
+    challenge_type: debatable
+    field: astronomy
+    title: Exoplanet Biosignatures
+    display_summary: Set an evidence threshold for interpreting atmospheric disequilibrium as extraterrestrial life.
+    prompt: >-
+      Suppose an exoplanet atmosphere exhibits a strong chemical disequilibrium
+      consistent with biological activity but no uniquely biological molecule.
+      What combination of independent observations should be required before
+      interpreting the signal as persuasive evidence of life?
+    sources:
+      - source_kind: literature_anchored
+        source_name: National Academies — Astrobiology Strategy for the Search for Life
+        source_url: https://www.nationalacademies.org/read/25252/chapter/6
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-BIO-002
+    challenge_type: debatable
+    field: biology
+    title: Hallmarks of Ageing
+    display_summary: Ask whether ageing hallmarks are causal drivers or a descriptive taxonomy.
+    prompt: >-
+      To what extent should the hallmarks of ageing be interpreted as causal
+      drivers of ageing rather than as a useful descriptive taxonomy of
+      correlated processes? What evidence would establish a causal ordering
+      among them?
+    sources:
+      - source_kind: literature_anchored
+        source_name: Hallmarks of Aging — Causes and Consequences
+        source_url: https://pmc.ncbi.nlm.nih.gov/articles/PMC10809922/
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-BIO-003
+    challenge_type: debatable
+    field: biology
+    title: Microbiome Causality
+    display_summary: Define sufficient evidence for treating human microbiome associations as causal.
+    prompt: >-
+      What minimum chain of evidence should be required before a
+      microbiome-disease association is treated as causal in humans? Which
+      forms of evidence are strongest when randomized intervention is
+      impractical?
+    sources:
+      - source_kind: literature_anchored
+        source_name: Thinking about the microbiome as a causal factor in human health and disease
+        source_url: https://pmc.ncbi.nlm.nih.gov/articles/PMC9464032/
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-CS-003
+    challenge_type: debatable
+    field: computer_science
+    title: Scaling vs Architectural Change
+    display_summary: Distinguish capabilities attainable by scaling from those requiring qualitative system changes.
+    prompt: >-
+      When performance improves with increasing model scale, what evidence is
+      necessary to conclude that further scaling is sufficient for a capability
+      rather than that a qualitative architectural or learning change is
+      required?
+    sources:
+      - source_kind: literature_anchored
+        source_name: Scaling Laws for Neural Language Models
+        source_url: https://arxiv.org/abs/2001.08361
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-LOGIC-003
+    challenge_type: debatable
+    field: logic
+    title: Simplicity Under Empirical Equivalence
+    display_summary: Apply a consistent simplicity criterion to two empirically equivalent theories.
+    prompt: >-
+      Two theories explain all currently observed data equally well. Theory A
+      uses fewer primitive assumptions but introduces a highly abstract latent
+      entity; Theory B uses more assumptions but only familiar observable
+      mechanisms. Is one objectively simpler? Specify a criterion of simplicity
+      that could be applied consistently.
+    sources:
+      - source_kind: literature_anchored
+        source_name: Stanford Encyclopedia of Philosophy — Simplicity
+        source_url: https://plato.stanford.edu/entries/simplicity/
+        source_role: background_anchor
+
+  - stimulus_group_id: CH-M5-001
+    challenge_type: open
+    field: physics
+    title: Proton Radius Across CODATA Adjustments
+    display_summary: Proton Radius Across CODATA Adjustments
+    prompt: The 2018 and 2022 CODATA adjustments treat the proton charge radius amid persistent tension
+      between measurement routes. What does that tension suggest about the measurements or theory, and what
+      could clarify it?
+    sources:
+    - source_kind: literature_anchored
+      source_name: physics.nist.gov — M5-001 reference 1
+      source_url: https://physics.nist.gov/cuu/pdf/JPCRD2018CODATA.pdf
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: physics.nist.gov — M5-001 reference 2
+      source_url: https://physics.nist.gov/cuu/pdf/JPCRD2022CODATA.pdf
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-002
+    challenge_type: open
+    field: physics
+    title: Why Is G Still Hard to Measure?
+    display_summary: Why Is G Still Hard to Measure?
+    prompt: Why has the measured Newtonian gravitational constant remained unusually uncertain, and what
+      kind of result would distinguish shared systematic error from real disagreement among experiments?
+    sources:
+    - source_kind: literature_anchored
+      source_name: physics.nist.gov — M5-002 reference 1
+      source_url: https://physics.nist.gov/cuu/Constants/
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: physics.nist.gov — M5-002 reference 2
+      source_url: https://physics.nist.gov/cuu/pdf/JPCRD2022CODATA.pdf
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-003
+    challenge_type: open
+    field: physics
+    title: A Marginal Gravitational-Wave Candidate
+    display_summary: A Marginal Gravitational-Wave Candidate
+    prompt: How should the evidence for the marginal candidate GW200311_103121 be interpreted, and which
+      further checks would most change that assessment?
+    sources:
+    - source_kind: literature_anchored
+      source_name: gwosc.org — M5-003 reference 1
+      source_url: https://gwosc.org/api/v2/catalogs/GWTC-3-marginal/events?format=api&include-default-parameters=true
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: gwosc.org — M5-003 reference 2
+      source_url: https://gwosc.org/GWTC-3/
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-004
+    challenge_type: open
+    field: physics
+    title: What GW190521 Reveals
+    display_summary: What GW190521 Reveals
+    prompt: What does the short gravitational-wave signal GW190521 actually constrain about the masses and
+      origin of its source, and where might waveform assumptions matter most?
+    sources:
+    - source_kind: literature_anchored
+      source_name: gwosc.org — M5-004 reference 1
+      source_url: https://gwosc.org/eventapi/html/GWTC-2/GW190521/
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: ligo.org — M5-004 reference 2
+      source_url: https://ligo.org/science-summaries/gw190521/
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-005
+    challenge_type: open
+    field: astronomy
+    title: What Can TOI-700 e's Transit Tell Us?
+    display_summary: What Can TOI-700 e's Transit Tell Us?
+    prompt: How much can TOI-700 e's transit and stellar measurements tell us about the planet's physical
+      nature, and which uncertainty matters most for interpreting it?
+    sources:
+    - source_kind: literature_anchored
+      source_name: exoplanetarchive.ipac.caltech.edu — M5-005 reference 1
+      source_url: https://exoplanetarchive.ipac.caltech.edu/overview/TOI-700
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: archive.stsci.edu — M5-005 reference 2
+      source_url: https://archive.stsci.edu/missions-and-data/tess/data-products
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-006
+    challenge_type: open
+    field: astronomy
+    title: Irregular Transits of TOI-1338 b
+    display_summary: Irregular Transits of TOI-1338 b
+    prompt: What can the changing transit timing and depth of TOI-1338 b reveal about its circumbinary orbit,
+      and what alternative explanations for missing or altered transits remain worth testing?
+    sources:
+    - source_kind: literature_anchored
+      source_name: exoplanetarchive.ipac.caltech.edu — M5-006 reference 1
+      source_url: https://exoplanetarchive.ipac.caltech.edu/overview/TIC%20260128333
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: science.nasa.gov — M5-006 reference 2
+      source_url: https://science.nasa.gov/universe/exoplanets/discovery-alert-high-school-student-finds-a-world-with-two-suns/
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: archive.stsci.edu — M5-006 reference 3
+      source_url: https://archive.stsci.edu/missions-and-data/tess/data-products
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-007
+    challenge_type: open
+    field: astronomy
+    title: Gaia's Parallax Zero Point
+    display_summary: Gaia's Parallax Zero Point
+    prompt: When might Gaia DR3 parallaxes give a misleading distance for a group of stars, and how could
+      one tell a population effect from catalog systematics?
+    sources:
+    - source_kind: literature_anchored
+      source_name: gea.esac.esa.int — M5-007 reference 1
+      source_url: https://gea.esac.esa.int/archive/documentation/GDR3/
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: gea.esac.esa.int — M5-007 reference 2
+      source_url: https://gea.esac.esa.int/archive/documentation/GDR3/Catalogue_consolidation/chap_cu9val/sec_cu9val_942/ssec_cu9val_942_astrometry.html
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-008
+    challenge_type: open
+    field: astronomy
+    title: Interpreting an Asteroid's Changing Orbit
+    display_summary: Interpreting an Asteroid's Changing Orbit
+    prompt: Why did estimates of 2024 YR4's orbit change so substantially as new observations arrived, and
+      what does that episode reveal about uncertainty in early asteroid orbit determination?
+    sources:
+    - source_kind: literature_anchored
+      source_name: docs.minorplanetcenter.net — M5-008 reference 1
+      source_url: https://docs.minorplanetcenter.net/tutorials/notebooks/mpc_tutorial_api_observations/
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: science.nasa.gov — M5-008 reference 2
+      source_url: https://science.nasa.gov/open-science/planetary-defense-asteroids/
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: assets.science.nasa.gov — M5-008 reference 3
+      source_url: https://assets.science.nasa.gov/content/dam/science/psd/planetary-science-division/2025/2025-05%20Lessons%20Learned%202024%20YR4.pdf
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-009
+    challenge_type: open
+    field: astronomy
+    title: Mars Dust Storms Seen by Opportunity
+    display_summary: Mars Dust Storms Seen by Opportunity
+    prompt: Why did atmospheric opacity at Opportunity rise so differently during the 2007 and 2018 Martian
+      dust storms, and what observations would help distinguish local from planet-wide drivers?
+    sources:
+    - source_kind: literature_anchored
+      source_name: pds.nasa.gov — M5-009 reference 1
+      source_url: https://pds.nasa.gov/ds-view/pds/viewProfile.jsp?dsid=MER1%2FMER2-M-PANCAM-5-ATMOS-OPACITY-V1.0
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: science.nasa.gov — M5-009 reference 2
+      source_url: https://science.nasa.gov/resource/atmospheric-opacity-from-opportunitys-point-of-view/
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: science.nasa.gov — M5-009 reference 3
+      source_url: https://science.nasa.gov/photojournal/mars-climate-sounder-studies-2018-dust-storm/
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-010
+    challenge_type: open
+    field: biology
+    title: Two Kinds of Plant Drought
+    display_summary: Two Kinds of Plant Drought
+    prompt: Why might Arabidopsis respond differently to sustained moderate drought and progressive soil
+      drying, and how much can GSE24177's expression patterns say about acclimation?
+    sources:
+    - source_kind: literature_anchored
+      source_name: www.ncbi.nlm.nih.gov — M5-010 reference 1
+      source_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE24177
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-011
+    challenge_type: open
+    field: biology
+    title: Yeast Strain Differences Under Heat Shock
+    display_summary: Yeast Strain Differences Under Heat Shock
+    prompt: In the GSE15147 yeast heat-shock time course, what might explain differences among strains in
+      their expression responses, and which patterns would indicate a general stress response instead?
+    sources:
+    - source_kind: literature_anchored
+      source_name: www.ncbi.nlm.nih.gov — M5-011 reference 1
+      source_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE15147
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-012
+    challenge_type: open
+    field: biology
+    title: Coral Heat Tolerance and Symbiosis
+    display_summary: Coral Heat Tolerance and Symbiosis
+    prompt: How much of the heat-tolerance variation in Acropora tenuis could be attributed to the coral
+      host rather than its algal symbionts, given the crosses and thermal treatments in GSE176051?
+    sources:
+    - source_kind: literature_anchored
+      source_name: www.ncbi.nlm.nih.gov — M5-012 reference 1
+      source_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE176051
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-013
+    challenge_type: open
+    field: biology
+    title: Are Monarch Occurrences a Range Signal?
+    display_summary: Are Monarch Occurrences a Range Signal?
+    prompt: If GBIF records of Danaus plexippus appear to shift across North America between 1990 and 2020,
+      what might that say about its range, and where could observer effort create the same pattern?
+    sources:
+    - source_kind: literature_anchored
+      source_name: www.gbif.org — M5-013 reference 1
+      source_url: https://www.gbif.org/taxon/6CB8P
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: techdocs.gbif.org — M5-013 reference 2
+      source_url: https://techdocs.gbif.org/en/data-use/occurrence-issues-and-flags
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-014
+    challenge_type: open
+    field: biology
+    title: Structure and Hemoglobin Function
+    display_summary: Structure and Hemoglobin Function
+    prompt: How far can a comparison of deoxyhemoglobin 2HHB and oxyhemoglobin 1HHO explain cooperative
+      oxygen binding, and what would the two static structures leave uncertain?
+    sources:
+    - source_kind: literature_anchored
+      source_name: www.rcsb.org — M5-014 reference 1
+      source_url: https://www.rcsb.org/structure/2HHB
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: www.rcsb.org — M5-014 reference 2
+      source_url: https://www.rcsb.org/structure/1HHO
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: www.rcsb.org — M5-014 reference 3
+      source_url: https://www.rcsb.org/docs/general-help/assessing-the-quality-of-3d-structures
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-015
+    challenge_type: open
+    field: biology
+    title: A Specimen with Several Names
+    display_summary: A Specimen with Several Names
+    prompt: How should the several published names attached to the Smithsonian Quercus stewardii isotype
+      be interpreted, and what would most clarify its taxonomic identity?
+    sources:
+    - source_kind: literature_anchored
+      source_name: www.si.edu — M5-015 reference 1
+      source_url: https://www.si.edu/object/quercus-stewardii-rehder%3Anmnhbotany_10168783
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: www.si.edu — M5-015 reference 2
+      source_url: https://www.si.edu/openaccess/faq
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-016
+    challenge_type: open
+    field: earth_science
+    title: The Ridgecrest Rupture Sequence
+    display_summary: The Ridgecrest Rupture Sequence
+    prompt: What does the 2019 Ridgecrest earthquake sequence suggest about how one rupture can influence
+      a nearby fault system, and which observations best separate competing rupture histories?
+    sources:
+    - source_kind: literature_anchored
+      source_name: earthquake.usgs.gov — M5-016 reference 1
+      source_url: https://earthquake.usgs.gov/earthquakes/eventpage/ci38457511
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: www.usgs.gov — M5-016 reference 2
+      source_url: https://www.usgs.gov/data/regional-finite-fault-models-2019-mw71-ridgecrest-california-earthquake
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-017
+    challenge_type: open
+    field: climate_science
+    title: The 2021 Pacific Northwest Heat Wave
+    display_summary: The 2021 Pacific Northwest Heat Wave
+    prompt: How should the extreme late-June 2021 temperatures at Portland International Airport be interpreted
+      in the context of the regional heat wave, and what role might local station conditions have played?
+    sources:
+    - source_kind: literature_anchored
+      source_name: www.ncei.noaa.gov — M5-017 reference 1
+      source_url: https://www.ncei.noaa.gov/cdo-web/datasets/GHCND/stations/GHCND%3AUSW00024229/detail
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: www.ncei.noaa.gov — M5-017 reference 2
+      source_url: https://www.ncei.noaa.gov/monitoring-content/extremes/scec/reports/20220210-Oregon-Maximum-Temperature.pdf
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-018
+    challenge_type: open
+    field: ocean_science
+    title: Sandy's Water Level at The Battery
+    display_summary: Sandy's Water Level at The Battery
+    prompt: What explains the water level observed at The Battery during Hurricane Sandy beyond the astronomical
+      tide, and how confidently can the separate contributions be inferred?
+    sources:
+    - source_kind: literature_anchored
+      source_name: tidesandcurrents.noaa.gov — M5-018 reference 1
+      source_url: https://tidesandcurrents.noaa.gov/publications/Hurricane_Sandy_2012_Water_Level_and_Meteorological_Data_Report.pdf
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: tidesandcurrents.noaa.gov — M5-018 reference 2
+      source_url: https://tidesandcurrents.noaa.gov/datums.html?datum=NAVD88&epoch=0&id=8518750&name=The+Battery&state=NY&units=0
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-019
+    challenge_type: open
+    field: hydrology
+    title: Eastern Kentucky's 2022 Flood Peak
+    display_summary: Eastern Kentucky's 2022 Flood Peak
+    prompt: How well does the July 2022 peak at the North Fork Kentucky River gauge in Jackson represent
+      flooding across eastern Kentucky, and what might account for differences among nearby communities?
+    sources:
+    - source_kind: literature_anchored
+      source_name: waterdata.usgs.gov — M5-019 reference 1
+      source_url: https://waterdata.usgs.gov/monitoring-location/USGS-03280000/
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: www.ncei.noaa.gov — M5-019 reference 2
+      source_url: https://www.ncei.noaa.gov/stormevents/eventdetails.jsp?id=1049189
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-020
+    challenge_type: open
+    field: ocean_science
+    title: Charleston's Rising High-Water Extremes
+    display_summary: Charleston's Rising High-Water Extremes
+    prompt: What explains the changing frequency of extreme high water at Charleston's long-running tide
+      gauge, and how much can be attributed to mean sea-level rise rather than weather or tides?
+    sources:
+    - source_kind: literature_anchored
+      source_name: tidesandcurrents.noaa.gov — M5-020 reference 1
+      source_url: https://tidesandcurrents.noaa.gov/inventory.html?id=8665530
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: tidesandcurrents.noaa.gov — M5-020 reference 2
+      source_url: https://tidesandcurrents.noaa.gov/inundationanalysis/analysisParams.html?station=8665530
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-021
+    challenge_type: open
+    field: materials_science
+    title: Voltage Fade in Lithium-Rich Cathodes
+    display_summary: Voltage Fade in Lithium-Rich Cathodes
+    prompt: Why does voltage fade persist in lithium-rich layered-oxide cathodes, and how far can observed
+      dislocation formation explain it across different cycling conditions?
+    sources:
+    - source_kind: literature_anchored
+      source_name: www.aps.anl.gov — M5-021 reference 1
+      source_url: https://www.aps.anl.gov/APS-Science-Highlight/2018-11-16/whats-causing-the-voltage-fade-in-lithium-rich-nmc-cathode
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-022
+    challenge_type: open
+    field: materials_science
+    title: Lithium Growth at a Solid Interface
+    display_summary: Lithium Growth at a Solid Interface
+    prompt: Under what conditions might lithium grow into a solid electrolyte such as LLZO despite its mechanical
+      barrier, and what observation would distinguish the proposed routes of growth?
+    sources:
+    - source_kind: literature_anchored
+      source_name: www.energy.gov — M5-022 reference 1
+      source_url: https://www.energy.gov/cmei/vehicles/articles/investigating-stability-solidsolid-interface
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: www.energy.gov — M5-022 reference 2
+      source_url: https://www.energy.gov/sites/default/files/2021-06/bat418_chen_2021_p_5-24_520pm_LR_FINAL_TM.pdf
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-023
+    challenge_type: open
+    field: materials_science
+    title: Predicting Epoxy Cure and Warpage
+    display_summary: Predicting Epoxy Cure and Warpage
+    prompt: When might a cure model fitted to a highly filled epoxy underfill mispredict its thermal endurance
+      or package warpage, despite matching laboratory cure measurements?
+    sources:
+    - source_kind: literature_anchored
+      source_name: doi.org — M5-023 reference 1
+      source_url: https://doi.org/10.18434/mds2-4162
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: pages.nist.gov — M5-023 reference 2
+      source_url: https://pages.nist.gov/CHIPS-AWACKSM-data/web/index.html
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-024
+    challenge_type: open
+    field: chemistry
+    title: What Accelerated PET Weathering Can Predict
+    display_summary: What Accelerated PET Weathering Can Predict
+    prompt: How far can accelerated PET weathering experiments predict the formation of microplastic particles
+      outdoors, and which chemical or measurement differences would most limit that transfer?
+    sources:
+    - source_kind: literature_anchored
+      source_name: www.nist.gov — M5-024 reference 1
+      source_url: https://www.nist.gov/publications/evaluating-environmental-factors-microplastic-generation-accelerated-weathering-study
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: tsapps.nist.gov — M5-024 reference 2
+      source_url: https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=959022
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-025
+    challenge_type: open
+    field: computer_science
+    title: SQLite Plans Under Changing Data
+    display_summary: SQLite Plans Under Changing Data
+    prompt: Why can a SQLite query's performance change substantially as the underlying data evolve, even
+      when the query itself does not?
+    sources:
+    - source_kind: literature_anchored
+      source_name: www.sqlite.org — M5-025 reference 1
+      source_url: https://www.sqlite.org/queryplanner.html
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: sqlite.org — M5-025 reference 2
+      source_url: https://sqlite.org/eqp.html
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-026
+    challenge_type: open
+    field: computer_science
+    title: Explaining PostgreSQL Plan Surprises
+    display_summary: Explaining PostgreSQL Plan Surprises
+    prompt: Why can a PostgreSQL query perform very differently from what its execution plan appears to
+      predict, and what evidence would help explain the discrepancy?
+    sources:
+    - source_kind: literature_anchored
+      source_name: www.postgresql.org — M5-026 reference 1
+      source_url: https://www.postgresql.org/docs/18/sql-explain.html
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: www.postgresql.org — M5-026 reference 2
+      source_url: https://www.postgresql.org/docs/18/using-explain.html
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-027
+    challenge_type: open
+    field: mathematics
+    title: What Recaman's Sequence Might Miss
+    display_summary: What Recaman's Sequence Might Miss
+    prompt: Is there a convincing route to deciding whether Recaman's sequence eventually visits every nonnegative
+      integer, and what can its known missing values actually tell us?
+    sources:
+    - source_kind: literature_anchored
+      source_name: oeis.org — M5-027 reference 1
+      source_url: https://oeis.org/A005132
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-028
+    challenge_type: open
+    field: mathematics
+    title: Airy Asymptotics Near Regime Boundaries
+    display_summary: Airy Asymptotics Near Regime Boundaries
+    prompt: Where can standard asymptotic expansions of the Airy function become misleading in finite-precision
+      work, and what would make a numerical approximation trustworthy across those regimes?
+    sources:
+    - source_kind: literature_anchored
+      source_name: dlmf.nist.gov — M5-028 reference 1
+      source_url: https://dlmf.nist.gov/9.7
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: dlmf.nist.gov — M5-028 reference 2
+      source_url: https://dlmf.nist.gov/9.17
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-029
+    challenge_type: open
+    field: structural_engineering
+    title: Reassessing the Champlain Towers Collapse
+    display_summary: Reassessing the Champlain Towers Collapse
+    prompt: How do NIST's 2026 technical findings change earlier explanations of the Champlain Towers South
+      collapse, and what remains uncertain about how the initial failures propagated?
+    sources:
+    - source_kind: literature_anchored
+      source_name: www.nist.gov — M5-029 reference 1
+      source_url: https://www.nist.gov/news-events/news/2023/09/nist-provides-update-investigation-collapse-champlain-towers-south
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: www.nist.gov — M5-029 reference 2
+      source_url: https://www.nist.gov/news-events/news/2026/06/nist-releases-technical-findings-what-caused-2021-partial-collapse
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-030
+    challenge_type: open
+    field: environmental_data_science
+    title: Missing Gauges in Louisiana's 2016 Flood
+    display_summary: Missing Gauges in Louisiana's 2016 Flood
+    prompt: How should overtopped or damaged streamgages during the August 2016 Louisiana flood affect estimates
+      of peak flow and inundation extent, and what evidence can compensate for the gaps?
+    sources:
+    - source_kind: literature_anchored
+      source_name: www.usgs.gov — M5-030 reference 1
+      source_url: https://www.usgs.gov/data/flood-august-2016-louisiana
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: www.usgs.gov — M5-030 reference 2
+      source_url: https://www.usgs.gov/news/national-news-release/usgs-records-historic-flooding-south-louisiana
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-031
+    challenge_type: open
+    field: environmental_data_science
+    title: Comparing Norway's Emissions Estimates
+    display_summary: Comparing Norway's Emissions Estimates
+    prompt: Why might OECD and World Bank estimates of Norway's per-capita greenhouse-gas emissions differ
+      even when both exclude land-use change, and what could each estimate support?
+    sources:
+    - source_kind: literature_anchored
+      source_name: www.oecd.org — M5-031 reference 1
+      source_url: https://www.oecd.org/en/publications/oecd-environmental-performance-reviews-norway-2022_59e71c13-en/full-report/component-3.html
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: data.worldbank.org — M5-031 reference 2
+      source_url: https://data.worldbank.org/indicator/EN.GHG.ALL.PC.CE.AR5?locations=NO
+      source_role: background_anchor
+  - stimulus_group_id: CH-M5-032
+    challenge_type: open
+    field: computational_linguistics
+    title: Japanese Topic Marking in Dependency Trees
+    display_summary: Japanese Topic Marking in Dependency Trees
+    prompt: What is gained and lost when Japanese topic-marking expressions are represented with the current
+      Universal Dependencies analysis, and which linguistic evidence might favor another treatment?
+    sources:
+    - source_kind: literature_anchored
+      source_name: universaldependencies.org — M5-032 reference 1
+      source_url: https://universaldependencies.org/treebanks/ja_gsd/index.html
+      source_role: background_anchor
+    - source_kind: literature_anchored
+      source_name: universaldependencies.org — M5-032 reference 2
+      source_url: https://universaldependencies.org/treebanks/ja_gsd/ja_gsd-dep-discourse.html
+      source_role: background_anchor

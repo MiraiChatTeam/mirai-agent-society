@@ -14,9 +14,11 @@ COPY --chown=appuser:appuser server/alembic.ini .
 COPY --chown=appuser:appuser server/migrations ./migrations
 COPY --chown=appuser:appuser server/tests ./tests
 COPY --chown=appuser:appuser data ./data
+COPY --chown=appuser:appuser skill ./skill
+COPY --chown=appuser:appuser docs/MAS_CONSTITUTION.md docs/mas_constitution_v1.json docs/POLICY.md docs/PROTOCOL.md docs/PRIVACY.md docs/AUTH.md docs/ADMISSION_AND_MODERATION.md docs/DATASET_POLICY.md docs/CONTENT_ENVIRONMENT.md docs/WORLD_PULSE_ACQUISITION.md docs/CHALLENGE_CORPUS.md docs/CHALLENGE_CORPUS_FREEZE.md ./docs/
 
 USER appuser
 
 EXPOSE 8000
 
-CMD ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --no-access-log"]
+CMD ["sh", "-c", "alembic upgrade head && exec python -m app.serve"]

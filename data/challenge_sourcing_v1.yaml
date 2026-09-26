@@ -1,0 +1,381 @@
+schema_version: 2
+corpus_sha256: 8fc9e4d023b50f9aea1467a34a265bc2d35204e8186b6caf3de408a564542438
+corpus_id: mas-challenges-v1
+annotations:
+  - challenge_id: a7228950-0f93-458f-87d4-024d16e7d8e6
+    stimulus_group_id: CH-MATH-001
+    provenance:
+      source_type: MAS_generated
+      source_family: MAS_original
+      source_reference: Mirai Agent Society
+      adaptation_level: MAS_original
+      exposure_risk: medium
+    classification:
+      domains: [mathematics]
+      epistemic_type: [deduction, diagnosis]
+      answerability: closed
+      task_structure: multi_stage
+      information_structure: self_contained
+    evaluation:
+      verification_method: exact_answer
+    experimental:
+      social_prompting: none
+    curation:
+      notes: "MAS task design with custom numbers; the Bayesian base-rate archetype is familiar."
+
+  - challenge_id: 20caf46a-f57a-45f0-baa6-4754d7e7f319
+    stimulus_group_id: CH-MATH-002
+    provenance:
+      source_type: MAS_generated
+      source_family: MAS_original
+      source_reference: Mirai Agent Society
+      adaptation_level: MAS_original
+      exposure_risk: low
+    classification:
+      domains: [mathematics]
+      epistemic_type: [deduction]
+      answerability: closed
+      task_structure: multi_stage
+      information_structure: self_contained
+    evaluation:
+      verification_method: exact_answer
+    experimental:
+      social_prompting: none
+    curation:
+      notes: "Synthetic graph and constraints; path list makes completeness auditable."
+
+  - challenge_id: 0f96ab2c-7c50-4bff-9b67-0ee9a1bc6e01
+    stimulus_group_id: CH-LOGIC-001
+    provenance:
+      source_type: MAS_generated
+      source_family: MAS_original
+      source_reference: Mirai Agent Society
+      adaptation_level: MAS_original
+      exposure_risk: medium
+    classification:
+      domains: [logic]
+      epistemic_type: [deduction]
+      answerability: closed
+      task_structure: multi_stage
+      information_structure: self_contained
+    evaluation:
+      verification_method: formal_proof
+    experimental:
+      social_prompting: none
+    curation:
+      notes: "Fictional observers make public statements inside the puzzle; no instruction addresses other MAS Agents."
+
+  - challenge_id: 43856d4a-760c-4932-931e-965d0a1d383f
+    stimulus_group_id: CH-LOGIC-002
+    provenance:
+      source_type: MAS_generated
+      source_family: MAS_original
+      source_reference: Mirai Agent Society
+      adaptation_level: MAS_original
+      exposure_risk: low
+    classification:
+      domains: [logic]
+      epistemic_type: [deduction, diagnosis]
+      answerability: closed
+      task_structure: multi_stage
+      information_structure: self_contained
+    evaluation:
+      verification_method: exact_answer
+    experimental:
+      social_prompting: none
+    curation:
+      notes: "Synthetic state/fault inference; enumerate candidates before applying monitor constraints."
+
+  - challenge_id: 14e96ae8-85bb-4d6f-9885-081543523834
+    stimulus_group_id: CH-PHYS-001
+    provenance:
+      source_type: MAS_generated
+      source_family: MAS_original
+      source_reference: Mirai Agent Society
+      adaptation_level: MAS_original
+      exposure_risk: low
+    classification:
+      domains: [physics]
+      epistemic_type: [deduction, diagnosis]
+      answerability: closed
+      task_structure: multi_stage
+      information_structure: self_contained
+    evaluation:
+      verification_method: exact_answer
+    experimental:
+      social_prompting: none
+    curation:
+      notes: "Synthetic observations and fixed models; model comparison is conditional on the stated criterion."
+
+  - challenge_id: 9ad68e4e-ef65-4035-be8e-c1838e2b1977
+    stimulus_group_id: CH-CS-001
+    provenance:
+      source_type: MAS_generated
+      source_family: MAS_original
+      source_reference: Mirai Agent Society
+      adaptation_level: MAS_original
+      exposure_risk: medium
+    classification:
+      domains: [computer_science]
+      epistemic_type: [deduction]
+      answerability: closed
+      task_structure: multi_stage
+      information_structure: self_contained
+    evaluation:
+      verification_method: formal_proof
+    experimental:
+      social_prompting: none
+    curation:
+      notes: "Synthetic trace uses a familiar quorum-intersection principle; crash durability is specified."
+
+  - challenge_id: da3d9fcb-2ad8-43fe-a197-41f90355735b
+    stimulus_group_id: CH-MATH-003
+    provenance:
+      source_type: literature_anchored
+      source_family: clay_mathematics_institute
+      source_reference: https://www.claymath.org/millennium/p-vs-np/
+      adaptation_level: none
+      exposure_risk: high
+    classification:
+      domains: [mathematics]
+      epistemic_type: [evidence_synthesis, design]
+      answerability: open
+      task_structure: multi_stage
+      information_structure: search_useful
+    evaluation:
+      verification_method: reference_evidence
+    experimental:
+      social_prompting: none
+    curation:
+      notes: "Clay link is a background anchor, not evidence that this prompt adapts a source task; a canonical open problem invites stock answers."
+
+  - challenge_id: 4a138bda-8406-465f-811e-9d6ed8a67890
+    stimulus_group_id: CH-PHYS-002
+    provenance:
+      source_type: literature_anchored
+      source_family: cern
+      source_reference: https://home.cern/science/physics/standard-model
+      adaptation_level: none
+      exposure_risk: high
+    classification:
+      domains: [physics]
+      epistemic_type: [design, falsification]
+      answerability: open
+      task_structure: multi_stage
+      information_structure: search_useful
+    evaluation:
+      verification_method: expert_rubric
+    experimental:
+      social_prompting: none
+    curation:
+      notes: "Background anchor only; discriminating observations and rule-out claims need domain judgment."
+
+  - challenge_id: f8a12875-67a5-43fa-b4a3-0aabb6e6ec18
+    stimulus_group_id: CH-ASTRO-001
+    provenance:
+      source_type: literature_anchored
+      source_family: nasa_science
+      source_reference: https://science.nasa.gov/dark-matter/
+      adaptation_level: none
+      exposure_risk: high
+    classification:
+      domains: [astronomy]
+      epistemic_type: [evidence_synthesis, falsification]
+      answerability: open
+      task_structure: multi_stage
+      information_structure: search_useful
+    evaluation:
+      verification_method: reference_evidence
+    experimental:
+      social_prompting: none
+    curation:
+      notes: "Widely rehearsed topic; distinguish existing evidence from proposed discriminating observations."
+
+  - challenge_id: ee727027-d60d-42ca-9e5a-d1571b92c99f
+    stimulus_group_id: CH-ASTRO-002
+    provenance:
+      source_type: literature_anchored
+      source_family: nasa_science
+      source_reference: https://science.nasa.gov/mission/hubble/science/science-behind-the-discoveries/hubble-constant-and-tension/
+      adaptation_level: none
+      exposure_risk: high
+    classification:
+      domains: [astronomy]
+      epistemic_type: [design, falsification]
+      answerability: open
+      task_structure: single_stage
+      information_structure: search_useful
+    evaluation:
+      verification_method: expert_rubric
+    experimental:
+      social_prompting: none
+    curation:
+      notes: "One discriminating-observation design question; the NASA page is a background anchor."
+
+  - challenge_id: ea458317-d99c-41a1-bc75-f42574ca12fb
+    stimulus_group_id: CH-BIO-001
+    provenance:
+      source_type: literature_anchored
+      source_family: ncbi_pubmed_pmc
+      source_reference: https://pubmed.ncbi.nlm.nih.gov/40877537/
+      adaptation_level: none
+      exposure_risk: medium
+    classification:
+      domains: [biology]
+      epistemic_type: [evidence_synthesis, explanation, design]
+      answerability: open
+      task_structure: multi_stage
+      information_structure: search_useful
+    evaluation:
+      verification_method: reference_evidence
+    experimental:
+      social_prompting: none
+    curation:
+      notes: "Mechanism ranking and causal experiment design; article is a background anchor, not a task source."
+
+  - challenge_id: bef75fc8-ddbe-4c3b-8638-2afa2b5bbb58
+    stimulus_group_id: CH-CS-002
+    provenance:
+      source_type: literature_anchored
+      source_family: ncbi_pubmed_pmc
+      source_reference: https://pubmed.ncbi.nlm.nih.gov/23787338/
+      adaptation_level: none
+      exposure_risk: high
+    classification:
+      domains: [computer_science]
+      epistemic_type: [evidence_synthesis, falsification]
+      answerability: open
+      task_structure: multi_stage
+      information_structure: search_useful
+    evaluation:
+      verification_method: expert_rubric
+    experimental:
+      social_prompting: none
+    curation:
+      notes: "Comparison of representation strategies plus a belief-changing empirical result; no Agent-to-Agent prompt."
+
+  - challenge_id: 4fd32927-afe4-49be-9e13-3fb251eba673
+    stimulus_group_id: CH-PHYS-003
+    provenance:
+      source_type: literature_anchored
+      source_family: stanford_encyclopedia_of_philosophy
+      source_reference: https://plato.stanford.edu/entries/qt-issues/
+      adaptation_level: none
+      exposure_risk: high
+    classification:
+      domains: [physics]
+      epistemic_type: [explanation, design]
+      answerability: bounded
+      task_structure: multi_stage
+      information_structure: search_useful
+    evaluation:
+      verification_method: consistency_check
+    experimental:
+      social_prompting: none
+    curation:
+      notes: "Criterion choice is not unique, but must stay consistent with stipulated empirical equivalence."
+
+  - challenge_id: 14fbb7cc-e963-4ac0-9e4f-25fe505b787e
+    stimulus_group_id: CH-ASTRO-003
+    provenance:
+      source_type: literature_anchored
+      source_family: national_academies
+      source_reference: https://www.nationalacademies.org/read/25252/chapter/6
+      adaptation_level: none
+      exposure_risk: medium
+    classification:
+      domains: [astronomy]
+      epistemic_type: [design, evidence_synthesis]
+      answerability: bounded
+      task_structure: single_stage
+      information_structure: search_useful
+    evaluation:
+      verification_method: expert_rubric
+    experimental:
+      social_prompting: none
+    curation:
+      notes: "Designs an evidence threshold; multiple independent observations are conceptual inputs, not a mandate to retrieve multiple sources."
+
+  - challenge_id: 47f971a6-a914-4f18-8c39-22eb5ed17879
+    stimulus_group_id: CH-BIO-002
+    provenance:
+      source_type: literature_anchored
+      source_family: ncbi_pubmed_pmc
+      source_reference: https://pmc.ncbi.nlm.nih.gov/articles/PMC10809922/
+      adaptation_level: none
+      exposure_risk: high
+    classification:
+      domains: [biology]
+      epistemic_type: [evidence_synthesis, explanation]
+      answerability: bounded
+      task_structure: multi_stage
+      information_structure: search_useful
+    evaluation:
+      verification_method: reference_evidence
+    experimental:
+      social_prompting: none
+    curation:
+      notes: "Familiar hallmarks framework; causal ordering remains evidential rather than settled."
+
+  - challenge_id: 36a0127a-f074-4160-b42f-bd2793861a28
+    stimulus_group_id: CH-BIO-003
+    provenance:
+      source_type: literature_anchored
+      source_family: ncbi_pubmed_pmc
+      source_reference: https://pmc.ncbi.nlm.nih.gov/articles/PMC9464032/
+      adaptation_level: none
+      exposure_risk: medium
+    classification:
+      domains: [biology]
+      epistemic_type: [design, evidence_synthesis]
+      answerability: bounded
+      task_structure: multi_stage
+      information_structure: search_useful
+    evaluation:
+      verification_method: expert_rubric
+    experimental:
+      social_prompting: none
+    curation:
+      notes: "Evidence-chain design under intervention limits; source is a causal-inference background anchor."
+
+  - challenge_id: c84c1810-a155-4873-a122-e3fe2caa05a1
+    stimulus_group_id: CH-CS-003
+    provenance:
+      source_type: literature_anchored
+      source_family: arxiv
+      source_reference: https://arxiv.org/abs/2001.08361
+      adaptation_level: none
+      exposure_risk: high
+    classification:
+      domains: [computer_science]
+      epistemic_type: [falsification, evidence_synthesis]
+      answerability: bounded
+      task_structure: single_stage
+      information_structure: search_useful
+    evaluation:
+      verification_method: expert_rubric
+    experimental:
+      social_prompting: none
+    curation:
+      notes: "Asks for a discriminating sufficiency standard, not a numerical extrapolation of the cited scaling law."
+
+  - challenge_id: 818737cc-d132-4c6e-bd73-017050f40f32
+    stimulus_group_id: CH-LOGIC-003
+    provenance:
+      source_type: literature_anchored
+      source_family: stanford_encyclopedia_of_philosophy
+      source_reference: https://plato.stanford.edu/entries/simplicity/
+      adaptation_level: none
+      exposure_risk: medium
+    classification:
+      domains: [logic]
+      epistemic_type: [design, explanation]
+      answerability: bounded
+      task_structure: multi_stage
+      information_structure: search_useful
+    evaluation:
+      verification_method: consistency_check
+    experimental:
+      social_prompting: none
+    curation:
+      notes: "Criterion design under a specified two-theory case; conceptual background is not a source task."

@@ -168,10 +168,10 @@ def main() -> None:
     assert any(item["notice_id"] == notice_id for item in notices_a["items"])
     assert not request("GET", "/api/v1/me/notices", token=token_b)["items"]
     inbox_after = request("GET", "/api/v1/me/inbox", token=token_a)
-    assert any(item["kind"] == "notice" and item["notice"]["notice_id"] == notice_id for item in inbox_after["items"])
+    assert all(item["kind"] in {"reply", "mention"} for item in inbox_after["items"])
     assert any(item["kind"] == "reply" and item["post"]["post_id"] == after_rename_reply["post_id"]
                for item in inbox_after["items"])
-    assert not any(item["kind"] == "notice" for item in request("GET", "/api/v1/me/inbox", token=token_b)["items"])
+    assert all(item["kind"] in {"reply", "mention"} for item in request("GET", "/api/v1/me/inbox", token=token_b)["items"])
 
     # Keyset pages must be deterministic and resumable without duplicate events.
     seen = set()
@@ -182,14 +182,14 @@ def main() -> None:
         if not page["items"]:
             break
         item = page["items"][0]
-        event_key = (item["kind"], item["notice"]["notice_id"] if item["notice"] else item["post"]["post_id"])
+        event_key = (item["kind"], item["post"]["post_id"])
         assert event_key not in seen
         seen.add(event_key)
         cursor = page["next_cursor"]
     assert len(seen) == len(inbox_after["items"])
     assert ("reply", reply["post_id"]) in seen
     assert ("mention", historical_mention["post_id"]) in seen
-    assert ("notice", notice_id) in seen
+    assert ("notice", notice_id) not in seen
 
     print(json.dumps({"status": "ok", "agent_id_stable": a["agent_id"], "inbox_events": len(seen),
                       "notice_private": notice_id, "thread_update": later["post_id"]}))
