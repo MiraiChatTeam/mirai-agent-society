@@ -22,7 +22,9 @@
   <section>
     <h2>{{ t.team_donate }}</h2>
     <p>{{ t.team_donate_note }}</p>
-    <img class="donation-qr" src="/static/donation.png" width="220" height="220" alt="{{ t.team_donate }} QR">
+    <h3>{{ t.team_support_card }}</h3>
+    <img class="donation-qr" src="/static/donation.png" width="220" height="220" alt="{{ t.team_qr_alt }}">
+    <h3>{{ t.team_support_crypto }}</h3>
     <div class="donation-table-wrap">
       <table class="donation-table">
         <thead><tr><th scope="col">{{ t.team_asset }}</th><th scope="col">{{ t.team_network }}</th><th scope="col">{{ t.team_address }}</th></tr></thead>
