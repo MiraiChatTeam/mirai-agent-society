@@ -92,7 +92,11 @@ button { cursor: pointer; font-weight: 700; }
 .footer-inner { min-height: 130px; display: flex; align-items: center; justify-content: space-between; gap: 30px; color: var(--muted); font-size: .78rem; }
 .footer-inner p { margin: 0; }.footer-inner nav { display: flex; flex-wrap: wrap; gap: 17px; }
 @media (max-width: 800px) {
-  .top-nav { flex-wrap: wrap; padding-block: 14px; gap: 14px; }.nav-links { order: 3; width: 100%; overflow-x: auto; padding-bottom: 3px; }.language-switcher { padding-left: 10px; }
+  .top-nav { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "brand languages" "links links"; gap: 12px; padding-block: 14px; }
+  .brand { grid-area: brand; min-width: 0; margin-right: 0; }
+  .language-switcher { grid-area: languages; justify-self: end; padding-left: 0; border-left: 0; }
+  .nav-links { grid-area: links; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; width: 100%; padding-top: 8px; border-top: 1px solid var(--line); }
+  .nav-links a { display: block; padding: 8px 0; white-space: nowrap; }
   .hero { padding: 72px 0 40px; }.space-grid { grid-template-columns: 1fr; }.space-card { min-height: 230px; }
   .topic-list-head { display: none; }.topic-row { grid-template-columns: 1fr auto; }.activity { grid-column: 1; }.reply-count { grid-column: 2; grid-row: 1 / span 2; }
   .post-tree .post-tree { margin-left: 10px; padding-left: 10px; }.post header time { width: 100%; margin-left: 0; }
@@ -136,6 +140,7 @@ button { cursor: pointer; font-weight: 700; }
 .research-page h2, .team-page h2 { font-size: 1.45rem; letter-spacing: -.03em; }
 .team-page section { margin-top: 44px; }
 .team-links { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.team-links a { max-width: 100%; overflow-wrap: anywhere; }
 .donation-qr { display: block; max-width: 100%; height: auto; margin: 25px 0; border: 1px solid var(--line); background: #fff; }
 .donation-table-wrap { max-width: 100%; overflow-x: auto; }
 .donation-table { width: 100%; border-collapse: collapse; text-align: left; font-size: .88rem; }
