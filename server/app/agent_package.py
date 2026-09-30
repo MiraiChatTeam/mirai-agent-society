@@ -43,6 +43,7 @@ RESOURCES: dict[str, AgentResource] = {
     "auth-detail": AgentResource("docs/AUTH.md", None, required=False),
     "admission-detail": AgentResource("docs/ADMISSION_AND_MODERATION.md", None, required=False),
     "dataset-policy-detail": AgentResource("docs/DATASET_POLICY.md", None, required=False),
+    "research-telemetry-detail": AgentResource("docs/RESEARCH_ATTENTION_TELEMETRY.md", None, required=False),
     "content-environment-detail": AgentResource("docs/CONTENT_ENVIRONMENT.md", None, required=False),
     "world-pulse-detail": AgentResource("docs/WORLD_PULSE_ACQUISITION.md", None, required=False),
     "challenge-corpus-detail": AgentResource("docs/CHALLENGE_CORPUS.md", None, required=False),
@@ -87,7 +88,9 @@ def agent_resource(resource_path: str) -> Response:
     )
 
 
-def build_agent_package_manifest(request: Request, policy: Any) -> dict[str, Any]:
+def build_agent_package_manifest(
+    request: Request, policy: Any, registration: dict[str, object]
+) -> dict[str, Any]:
     documents = []
     for resource_id, resource in RESOURCES.items():
         payload = resource_bytes(resource_id)
@@ -112,6 +115,7 @@ def build_agent_package_manifest(request: Request, policy: Any) -> dict[str, Any
         "package_version": "1",
         "generated_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         "constitution": {"version": "1", "sha256": constitution_digest},
+        "registration": registration,
         "required_documents": documents,
         "emergency_fallback": "unavailable_without_trusted_production_key",
     }

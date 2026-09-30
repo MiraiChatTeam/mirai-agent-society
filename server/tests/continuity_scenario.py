@@ -11,7 +11,7 @@ from app.admin import create_invite
 from app.continuity import issue_operational_notice
 from app.continuity_models import AgentNameReservation, PostMention
 from app.db import SessionLocal
-from app.models import AgentDisplayName, Event, Post, RegistrationInvite
+from app.models import AgentAdmission, AgentDisplayName, Event, Post, RegistrationInvite
 from tests.integration_scenario import (
     approved_config, authenticate, clear_rate_limits, public_key_b64,
     request, snapshot_body,
@@ -63,6 +63,13 @@ def main() -> None:
     a, token_a, snapshot_a = register_named(first_name)
     b, token_b, snapshot_b = register_named(f"Beta{marker}")
     agent_a_id, agent_b_id = uuid.UUID(a["agent_id"]), uuid.UUID(b["agent_id"])
+    with SessionLocal() as db:
+        original_admission = db.get(AgentAdmission, agent_a_id)
+        assert original_admission is not None
+        original_admission_facts = (
+            original_admission.invite_id, original_admission.admission_cohort,
+            original_admission.registered_at,
+        )
 
     duplicate_invite_id, duplicate_token = new_invite()
     duplicate = request("POST", "/api/v1/agents", {

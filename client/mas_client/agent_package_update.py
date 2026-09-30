@@ -86,9 +86,66 @@ def _checked_response(response: PackageResponse, expected_url: str, *, binary: b
     return response.body
 
 
+def validate_registration_discovery(value: Any) -> dict[str, Any]:
+    fields = {
+        "mode", "available", "cohort", "code_required",
+        "request_field", "public_code",
+    }
+    if not isinstance(value, dict) or set(value) != fields:
+        raise StateValidationError("malformed registration discovery")
+    mode = value["mode"]
+    if mode not in {"private_invite", "public_cohort", "open"}:
+        raise StateValidationError("unsupported registration mode")
+    if type(value["available"]) is not bool or type(value["code_required"]) is not bool:
+        raise StateValidationError("malformed registration discovery")
+    for field in ("cohort", "public_code"):
+        item = value[field]
+        if item is not None and (
+            not isinstance(item, str)
+            or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,99}", item)
+        ):
+            raise StateValidationError("invalid registration discovery value")
+    if mode == "private_invite":
+        valid = (
+            value["available"] is True
+            and value["cohort"] is None
+            and value["code_required"] is True
+            and value["request_field"] == "invite_token"
+            and value["public_code"] is None
+        )
+    elif mode == "public_cohort":
+        valid = (
+            value["code_required"] is True
+            and value["request_field"] == "admission_code"
+            and (
+                (
+                    value["available"] is True
+                    and value["cohort"] is not None
+                    and value["public_code"] is not None
+                )
+                or (
+                    value["available"] is False
+                    and value["cohort"] is None
+                    and value["public_code"] is None
+                )
+            )
+        )
+    else:
+        valid = (
+            value["available"] is True
+            and value["cohort"] is not None
+            and value["code_required"] is False
+            and value["request_field"] is None
+            and value["public_code"] is None
+        )
+    if not valid:
+        raise StateValidationError("inconsistent registration discovery")
+    return dict(value)
+
+
 def _manifest(manifest: dict[str, Any], identity: dict[str, Any], now: datetime) -> tuple[list[dict[str, Any]], str]:
     import json
-    if set(manifest) != {"package_version", "generated_at", "constitution", "required_documents", "emergency_fallback"}:
+    if set(manifest) != {"package_version", "generated_at", "constitution", "registration", "required_documents", "emergency_fallback"}:
         raise StateValidationError("malformed agent-package manifest")
     if (manifest["package_version"] != "1" or not isinstance(manifest["required_documents"], list)
             or not isinstance(manifest["emergency_fallback"], str)):
@@ -102,6 +159,7 @@ def _manifest(manifest: dict[str, Any], identity: dict[str, Any], now: datetime)
     if manifest["constitution"] != {"version": identity["constitution_version"],
                                     "sha256": identity["constitution_sha256"]}:
         raise StateValidationError("package Constitution binding mismatch")
+    registration = validate_registration_discovery(manifest["registration"])
     entries = manifest["required_documents"]
     if not 1 <= len(entries) <= MAX_RESOURCES:
         raise StateValidationError("invalid package resource count")
@@ -139,6 +197,7 @@ def _manifest(manifest: dict[str, Any], identity: dict[str, Any], now: datetime)
         raise StateValidationError("machine Constitution hash mismatch")
     fingerprint_data = {"package_version": manifest["package_version"],
                         "constitution": manifest["constitution"],
+                        "registration": registration,
                         "emergency_fallback": manifest["emergency_fallback"],
                         "documents": sorted(normalized, key=lambda item: item["id"])}
     fingerprint = hashlib.sha256(json.dumps(fingerprint_data, sort_keys=True, separators=(",", ":")).encode()).hexdigest()

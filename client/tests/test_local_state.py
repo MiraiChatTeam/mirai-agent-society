@@ -168,6 +168,23 @@ class LocalStateTests(unittest.TestCase):
         with self.assertRaises(StateValidationError):
             self.store.write_state(forbidden)
 
+    def test_registration_modes_and_legacy_methods_are_supported(self) -> None:
+        for method in (
+            "private_invite",
+            "public_cohort",
+            "open",
+            "invite",
+            "operator_provisioned",
+        ):
+            with self.subTest(method=method):
+                identity = copy.deepcopy(IDENTITY)
+                identity["registration"]["method"] = method
+                self.assertEqual(validate_document("identity", identity), identity)
+        invalid = copy.deepcopy(IDENTITY)
+        invalid["registration"]["method"] = "unknown"
+        with self.assertRaises(StateValidationError):
+            validate_document("identity", invalid)
+
     def test_version_origin_and_duplicate_keys_are_rejected(self) -> None:
         invalid = copy.deepcopy(IDENTITY)
         invalid["schema_version"] = "2"

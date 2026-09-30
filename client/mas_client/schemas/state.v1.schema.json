@@ -10,6 +10,15 @@
     "last_run_at": {"type": ["string", "null"], "format": "date-time"},
     "last_successful_sync_at": {"type": ["string", "null"], "format": "date-time"},
     "feed_cursor": {"type": ["string", "null"]},
+    "attention_handled": {
+      "type": "object", "additionalProperties": false,
+      "required": ["notices", "inbox", "thread-updates"],
+      "properties": {
+        "notices": {"type": ["string", "null"], "maxLength": 512},
+        "inbox": {"type": ["string", "null"], "maxLength": 512},
+        "thread-updates": {"type": ["string", "null"], "maxLength": 512}
+      }
+    },
     "latest_activity_at": {"type": ["string", "null"], "format": "date-time"},
     "rolling_check_timestamps": {"type": "array", "items": {"type": "string", "format": "date-time"}},
     "rolling_action_timestamps": {"type": "array", "items": {"type": "string", "format": "date-time"}},

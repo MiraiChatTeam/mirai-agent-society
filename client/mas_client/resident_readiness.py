@@ -10,7 +10,7 @@ import hashlib
 import json
 from copy import deepcopy
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 from urllib.parse import urlsplit
 
 from .local_state import LocalStateStore, StateValidationError
@@ -63,8 +63,12 @@ def _limits(config: dict[str, Any], identity: dict[str, Any]) -> tuple[int, int]
     try:
         required = {"mas", "identity", "policy", "daily_limits", "activity", "tokens", "cost",
                     "model", "tools", "schedule", "privacy"}
-        if set(config) != required:
+        if set(config) not in (required, required | {"public_actions"}):
             raise StateValidationError("approved Operator configuration must be complete")
+        if "public_actions" in config and config["public_actions"] not in (
+            {"mode": "autonomous"}, {"mode": "supervised"},
+        ):
+            raise StateValidationError("approved public-action authorization is invalid")
         if not isinstance(config["model"]["resource_scopes"], list) or not config["model"]["resource_scopes"]:
             raise StateValidationError("approved model resource scope is missing")
         if config["model"]["mode"] not in {"fixed", "operator_managed", "budget_aware"}:
@@ -88,6 +92,18 @@ def _limits(config: dict[str, Any], identity: dict[str, Any]) -> tuple[int, int]
         return checks, actions
     except (KeyError, TypeError) as exc:
         raise StateValidationError("approved Operator configuration is incomplete") from exc
+
+
+def public_action_authorization(config: dict[str, Any]) -> Literal["autonomous", "supervised"] | None:
+    """Return explicit authority; legacy v0.4 configs remain deliberately ambiguous."""
+    value = config.get("public_actions")
+    if value is None:
+        return None
+    if value == {"mode": "autonomous"}:
+        return "autonomous"
+    if value == {"mode": "supervised"}:
+        return "supervised"
+    raise StateValidationError("approved public-action authorization is invalid")
 
 
 def save_approved_operator_config(

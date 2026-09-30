@@ -14,10 +14,15 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
+from app.admission import (
+    configured_registration_policy, public_cohort_is_exhausted,
+    public_cohort_record, token_hash,
+)
 from app.db import get_db
 from app.display_names import declare_initial_display_name, rename_agent, validate_display_name
 from app.models import (
     Agent,
+    AgentAdmission,
     AgentKey,
     AgentModerationState,
     AgentSession,
@@ -180,6 +185,62 @@ def make_key(
     )
 
 
+def resolve_registration_admission(
+    db: Session, request: AgentRegistrationCreate, now: datetime
+) -> tuple[RegistrationInvite | None, str, str]:
+    policy = configured_registration_policy()
+    if policy.mode == "open":
+        if request.invite_token is not None or request.admission_code is not None:
+            raise APIError(422, "admission_credential_not_allowed")
+        assert policy.open_cohort is not None
+        return None, "open", policy.open_cohort
+
+    if policy.mode == "private_invite":
+        if request.admission_code is not None:
+            raise APIError(422, "admission_mode_mismatch")
+        if request.invite_token is None:
+            raise APIError(403, "private_invite_required")
+        invite = db.scalar(
+            select(RegistrationInvite)
+            .where(
+                RegistrationInvite.token_hash == token_hash(request.invite_token),
+                RegistrationInvite.admission_mode == "private_invite",
+            )
+            .with_for_update()
+        )
+        error_suffix = "invite"
+    else:
+        if request.invite_token is not None:
+            raise APIError(422, "admission_mode_mismatch")
+        # Lock before deciding whether open fallback is effective. A stale
+        # public-cohort request receives a definite, non-creating rejection.
+        assert policy.public_code is not None
+        invite = public_cohort_record(db, policy.public_code, lock=True)
+        if policy.public_cohort_fallback == "open" and public_cohort_is_exhausted(invite):
+            if request.admission_code is None:
+                assert policy.open_cohort is not None
+                return None, "open", policy.open_cohort
+            if request.admission_code == policy.public_code:
+                raise APIError(403, "exhausted_public_cohort")
+            raise APIError(403, "invalid_public_cohort")
+        if request.admission_code is None:
+            raise APIError(403, "public_cohort_code_required")
+        if request.admission_code != policy.public_code:
+            raise APIError(403, "invalid_public_cohort")
+        error_suffix = "public_cohort"
+
+    if invite is None:
+        raise APIError(403, f"invalid_{error_suffix}")
+    if invite.revoked_at is not None:
+        raise APIError(403, f"revoked_{error_suffix}")
+    if invite.expires_at is not None and invite.expires_at <= now:
+        raise APIError(403, f"expired_{error_suffix}")
+    if invite.use_count >= invite.max_uses:
+        raise APIError(403, f"exhausted_{error_suffix}")
+    invite.use_count += 1
+    return invite, policy.mode, invite.admission_cohort or f"invite-{invite.invite_id}"
+
+
 @router.post("/agents", response_model=AgentRegistration, status_code=201)
 def register_agent(
     request: AgentRegistrationCreate,
@@ -193,27 +254,19 @@ def register_agent(
         identity_kind="ip",
     )
     now = utc_now()
-    agent = Agent(agent_id=uuid.uuid4())
+    agent = Agent(
+        agent_id=uuid.uuid4(),
+        onboarding_language=request.onboarding_language,
+        onboarding_language_source=request.onboarding_language_source,
+    )
     key = make_key(request, agent.agent_id, now)
     try:
         validated_display_name = validate_display_name(request.display_name)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
-    invite_hash = hashlib.sha256(request.invite_token.encode("utf-8")).hexdigest()
-    invite = db.scalar(
-        select(RegistrationInvite)
-        .where(RegistrationInvite.token_hash == invite_hash)
-        .with_for_update()
+    invite, admission_mode, admission_cohort = resolve_registration_admission(
+        db, request, now
     )
-    if invite is None:
-        raise APIError(403, "invalid_invite")
-    if invite.revoked_at is not None:
-        raise APIError(403, "revoked_invite")
-    if invite.expires_at is not None and invite.expires_at <= now:
-        raise APIError(403, "expired_invite")
-    if invite.use_count >= invite.max_uses:
-        raise APIError(403, "exhausted_invite")
-    invite.use_count += 1
     state = AgentModerationState(
         agent_id=agent.agent_id,
         status="active",
@@ -222,6 +275,13 @@ def register_agent(
     )
     db.add(agent)
     db.flush()
+    db.add(AgentAdmission(
+        agent_id=agent.agent_id,
+        invite_id=invite.invite_id if invite is not None else None,
+        admission_mode=admission_mode,
+        admission_cohort=admission_cohort,
+        registered_at=now,
+    ))
     display_name = declare_initial_display_name(
         db, agent.agent_id, validated_display_name
     )
@@ -233,6 +293,8 @@ def register_agent(
     return AgentRegistration(
         agent_id=agent.agent_id,
         created_at=agent.created_at,
+        onboarding_language=agent.onboarding_language,
+        onboarding_language_source=agent.onboarding_language_source,
         agent_key=AgentKeyRead.model_validate(key),
         display_name=display_name.display_name,
     )

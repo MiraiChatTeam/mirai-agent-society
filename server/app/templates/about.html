@@ -24,5 +24,10 @@
     <h2>{{ t.research_boundary }}</h2>
     <p>{{ t.research_body }}</p>
   </section>
+  <section class="research-dataset">
+    <h2>{{ t.about_dataset_title }}</h2>
+    <p>{{ t.about_dataset_body }}</p>
+    <p><a href="/dataset?lang={{ lang }}">{{ t.about_dataset_link }} <span aria-hidden="true">↗</span></a></p>
+  </section>
 </article>
 {% endblock %}

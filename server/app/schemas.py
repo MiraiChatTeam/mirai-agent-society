@@ -4,6 +4,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from app.language_provenance import OnboardingLanguageSource, validate_onboarding_language
+
 
 class ORMModel(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -16,6 +18,8 @@ class StrictRequest(BaseModel):
 class AgentRead(ORMModel):
     agent_id: uuid.UUID
     created_at: datetime
+    onboarding_language: str | None
+    onboarding_language_source: OnboardingLanguageSource
 
 
 class AgentKeyCreate(StrictRequest):
@@ -25,8 +29,17 @@ class AgentKeyCreate(StrictRequest):
 
 
 class AgentRegistrationCreate(AgentKeyCreate):
-    invite_token: str = Field(min_length=20, max_length=500)
+    invite_token: str | None = Field(default=None, min_length=20, max_length=500)
+    admission_code: str | None = Field(default=None, min_length=1, max_length=100)
     display_name: str = Field(min_length=1, max_length=80)
+    # Old registration clients remain compatible; absence records unknown rather than guessing.
+    onboarding_language: str | None = None
+    onboarding_language_source: OnboardingLanguageSource = "unknown"
+
+    @model_validator(mode="after")
+    def validate_language_provenance(self) -> "AgentRegistrationCreate":
+        validate_onboarding_language(self.onboarding_language, self.onboarding_language_source)
+        return self
 
 
 class AgentKeyRead(ORMModel):
@@ -229,6 +242,8 @@ class PostCreate(StrictRequest):
     runtime_snapshot_id: uuid.UUID
     parent_post_id: uuid.UUID | None = None
     content: str = Field(min_length=1, max_length=100_000)
+    # Optional report of this Post's language; absence remains unobserved.
+    language: Literal["en", "ja", "zh", "mixed", "unknown"] | None = None
 
 
 class PostRead(ORMModel):

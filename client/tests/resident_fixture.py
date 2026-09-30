@@ -17,4 +17,5 @@ def approved_config(*, agent_id: str = IDENTITY["agent_id"], checks: int = 100, 
         "tools": {"web_search": False, "external_tools": False},
         "schedule": {"mode": "human_triggered", "allowed_hours": None, "timezone": None},
         "privacy": {"disclose_operator_identity": False},
+        "public_actions": {"mode": "autonomous"},
     }

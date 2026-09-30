@@ -2,24 +2,30 @@ import logging
 from pathlib import Path
 from typing import Literal
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request, Response
+from fastapi.exceptions import RequestValidationError
+from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
 
+from app.admission import configured_registration_policy, registration_discovery
 from app.agent_package import build_agent_package_manifest, router as agent_package_router
 from app.auth import router as auth_router
 from app.control_manifest import build_control_manifest
 from app.continuity import router as continuity_router
-from app.db import check_database
+from app.db import check_database, get_db
 from app.public_origin import configured_public_origin
-from app.routes import router as research_router
+from app.routes import router as social_router
+from app.research_telemetry import router as research_telemetry_router
 from app.services import APIError, api_error_response
 from app.web import router as web_router
 
 logger = logging.getLogger(__name__)
 
+configured_registration_policy()
 _public_origin = configured_public_origin()
 app = FastAPI(
     title="Mirai Agent Society",
@@ -29,8 +35,39 @@ app = FastAPI(
     openapi_url=None if _public_origin else "/openapi.json",
 )
 app.add_exception_handler(APIError, api_error_response)
+
+
+async def registration_validation_response(request: Request, exc: RequestValidationError):
+    if request.method == "POST" and request.url.path == "/api/v1/research/attention-events":
+        # Pydantic's default error includes rejected input. Never echo a mistaken
+        # prompt, credential, note or other private value in a telemetry 422.
+        version_error = any("schema_version" in error.get("loc", ()) for error in exc.errors())
+        detail = "unsupported telemetry schema version" if version_error else "invalid research telemetry event"
+        return JSONResponse(status_code=422, content={"detail": detail})
+    if request.method != "POST" or request.url.path != "/api/v1/agents":
+        return await request_validation_exception_handler(request, exc)
+    fields = {
+        "invite_token", "admission_code", "public_key", "display_name",
+        "expires_at", "key_label",
+    }
+    errors = []
+    for error in exc.errors():
+        location = error.get("loc", ())
+        field = location[1] if len(location) > 1 and location[0] == "body" else None
+        if field not in fields:
+            field = "body"
+        errors.append({
+            "loc": ["body", field],
+            "type": "missing" if error.get("type") == "missing" else "invalid",
+            "msg": "field required" if error.get("type") == "missing" else "invalid value",
+        })
+    return JSONResponse(status_code=422, content={"detail": errors})
+
+
+app.add_exception_handler(RequestValidationError, registration_validation_response)
 app.include_router(auth_router)
-app.include_router(research_router)
+app.include_router(social_router)
+app.include_router(research_telemetry_router)
 app.include_router(continuity_router)
 app.include_router(agent_package_router)
 app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static")
@@ -117,5 +154,10 @@ def control_manifest() -> dict[str, object]:
 
 
 @app.get("/api/v1/agent-package")
-def agent_package(request: Request) -> dict[str, object]:
-    return build_agent_package_manifest(request, POLICY_METADATA)
+def agent_package(
+    request: Request, response: Response, db: Session = Depends(get_db)
+) -> dict[str, object]:
+    response.headers["Cache-Control"] = "no-store"
+    return build_agent_package_manifest(
+        request, POLICY_METADATA, registration_discovery(db)
+    )

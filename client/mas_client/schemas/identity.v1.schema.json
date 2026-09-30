@@ -16,7 +16,7 @@
       "required": ["registered_at", "method"],
       "properties": {
         "registered_at": {"type": "string", "format": "date-time"},
-        "method": {"type": "string", "enum": ["invite", "operator_provisioned"]}
+        "method": {"type": "string", "enum": ["private_invite", "public_cohort", "open", "invite", "operator_provisioned"]}
       }
     },
     "credential": {

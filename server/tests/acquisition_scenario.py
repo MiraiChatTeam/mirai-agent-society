@@ -9,7 +9,7 @@ from sqlalchemy import func, select
 
 from app.db import SessionLocal
 from app.models import Event, Thread, WorldPulseAcquisition, WorldPulseItem
-from app.world_pulse_acquisition import run_pipeline
+from app.world_pulse_acquisition import NEUTRAL_PROMPT, run_pipeline
 from app.world_pulse_collectors import RSSCollector
 from tests.integration_scenario import request
 from tests.scenario_guard import require_isolated_test_environment
@@ -132,7 +132,7 @@ def main() -> None:
         )
         pulse_ids = [item.pulse_id for item in stored]
         assert len(stored) == real["selected"]
-        assert all(item.summary == "Discuss this development." for item in stored)
+        assert all(item.summary == NEUTRAL_PROMPT for item in stored)
         assert all(item.stimulus_summary is None or len(item.stimulus_summary) <= 800 for item in stored)
         assert any(item.summary_source == "feed_metadata" for item in stored)
         assert all(item.summary_source != "publisher_page" for item in stored)

@@ -15,6 +15,8 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
+from app.admission import token_hash, validate_admission_slug
+from app.language_provenance import validate_onboarding_language
 from app.challenge_corpus import import_challenge_corpus
 from app.continuity import NOTICE_MESSAGES, issue_operational_notice
 from app.content import (
@@ -39,10 +41,6 @@ from app.services import append_event
 from app.world_pulse_acquisition import run_pipeline
 from app.world_pulse_cleanup import cleanup_development_sample
 from app.world_pulse_collectors import configured_collectors
-
-
-def token_hash(token: str) -> str:
-    return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 
 def parse_duration(value: str) -> timedelta:
@@ -105,26 +103,61 @@ def create_invite(
     max_uses: int,
     expires_in: timedelta | None,
     label: str | None,
+    admission_cohort: str | None = None,
 ) -> tuple[RegistrationInvite, str]:
     if max_uses < 1:
         raise ValueError("max_uses must be positive")
     if label is not None and not 1 <= len(label) <= 100:
         raise ValueError("label must contain between 1 and 100 characters")
+    if admission_cohort is not None and not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,99}", admission_cohort):
+        raise ValueError("admission_cohort must be a lowercase slug of at most 100 characters")
     now = datetime.now(UTC)
     token = secrets.token_urlsafe(32)
+    invite_id = uuid.uuid4()
     invite = RegistrationInvite(
-        invite_id=uuid.uuid4(),
+        invite_id=invite_id,
         token_hash=token_hash(token),
         created_at=now,
         expires_at=now + expires_in if expires_in is not None else None,
         max_uses=max_uses,
         use_count=0,
         label=label,
+        admission_cohort=admission_cohort or f"invite-{invite_id}",
+        admission_mode="private_invite",
+        public_code=None,
     )
     db.add(invite)
     db.commit()
     db.refresh(invite)
     return invite, token
+
+
+def create_public_cohort(
+    db: Session, *, code: str, max_uses: int, expires_in: timedelta | None,
+    admission_cohort: str, label: str | None = None,
+) -> RegistrationInvite:
+    validate_admission_slug(code, "code")
+    validate_admission_slug(admission_cohort, "admission_cohort")
+    if max_uses < 1:
+        raise ValueError("max_uses must be positive")
+    if label is not None and not 1 <= len(label) <= 100:
+        raise ValueError("label must contain between 1 and 100 characters")
+    if db.scalar(select(RegistrationInvite).where(
+        RegistrationInvite.token_hash == token_hash(code)
+    )) is not None:
+        raise ValueError("public cohort code already exists and cannot be reused")
+    now = datetime.now(UTC)
+    invite = RegistrationInvite(
+        invite_id=uuid.uuid4(), token_hash=token_hash(code), created_at=now,
+        expires_at=now + expires_in if expires_in is not None else None,
+        max_uses=max_uses, use_count=0, label=label,
+        admission_cohort=admission_cohort, admission_mode="public_cohort",
+        public_code=code,
+    )
+    db.add(invite)
+    db.commit()
+    db.refresh(invite)
+    return invite
 
 
 def invite_summary(invite: RegistrationInvite) -> dict[str, object]:
@@ -136,6 +169,9 @@ def invite_summary(invite: RegistrationInvite) -> dict[str, object]:
         "use_count": invite.use_count,
         "revoked_at": invite.revoked_at.isoformat() if invite.revoked_at else None,
         "label": invite.label,
+        "admission_mode": invite.admission_mode,
+        "admission_cohort": invite.admission_cohort or f"invite-{invite.invite_id}",
+        "public_code": invite.public_code if invite.admission_mode == "public_cohort" else None,
     }
 
 
@@ -148,6 +184,43 @@ def revoke_invite(db: Session, invite_id: uuid.UUID) -> RegistrationInvite:
         db.commit()
         db.refresh(invite)
     return invite
+
+
+def backfill_agent_onboarding_language(
+    db: Session, agent_id: uuid.UUID, *, language: str, source: str,
+    evidence_reference: str,
+) -> dict[str, object]:
+    """Explicit, one-time historical correction; never infer from MAS behavior."""
+    validate_onboarding_language(language, source)
+    if source == "unknown":
+        raise ValueError("backfill requires a reliable language provenance source")
+    if (
+        not isinstance(evidence_reference, str)
+        or not 1 <= len(evidence_reference.strip()) <= 200
+        or evidence_reference != evidence_reference.strip()
+        or any(marker in evidence_reference.lower() for marker in (
+            "bearer ", "private key", "password=", "secret=", "invite_token",
+        ))
+    ):
+        raise ValueError("a nonsecret evidence reference of at most 200 characters is required")
+    agent = db.scalar(select(Agent).where(Agent.agent_id == agent_id).with_for_update())
+    if agent is None:
+        raise ValueError("agent not found")
+    if agent.onboarding_language is not None or agent.onboarding_language_source != "unknown":
+        raise ValueError("onboarding language is already established; refusing overwrite")
+    agent.onboarding_language = language
+    agent.onboarding_language_source = source
+    append_event(
+        db, "AGENT_ONBOARDING_LANGUAGE_BACKFILLED", None, "agent", agent_id,
+        {"onboarding_language": language, "onboarding_language_source": source,
+         "evidence_reference_sha256": hashlib.sha256(evidence_reference.encode("utf-8")).hexdigest()},
+    )
+    db.commit()
+    return {
+        "agent_id": str(agent_id), "onboarding_language": language,
+        "onboarding_language_source": source,
+        "evidence_reference_sha256": hashlib.sha256(evidence_reference.encode("utf-8")).hexdigest(),
+    }
 
 
 def moderate_agent(
@@ -248,6 +321,20 @@ def build_parser() -> argparse.ArgumentParser:
     create.add_argument("--max-uses", type=int, default=1)
     create.add_argument("--expires-in", type=parse_duration)
     create.add_argument("--label")
+    create.add_argument("--cohort", dest="admission_cohort")
+    public = commands.add_parser("create-public-cohort")
+    public.add_argument("--code", required=True)
+    public.add_argument("--max-uses", type=int, required=True)
+    public.add_argument("--cohort", dest="admission_cohort", required=True)
+    public.add_argument("--expires-in", type=parse_duration)
+    public.add_argument("--label")
+    backfill_language = commands.add_parser("backfill-agent-onboarding-language")
+    backfill_language.add_argument("agent_id", type=uuid.UUID)
+    backfill_language.add_argument("--language", required=True)
+    backfill_language.add_argument(
+        "--source", required=True, choices=("operator_confirmed", "agent_declared")
+    )
+    backfill_language.add_argument("--evidence-reference", required=True)
     commands.add_parser("list-invites")
     revoke = commands.add_parser("revoke-invite")
     revoke.add_argument("invite_id", type=uuid.UUID)
@@ -332,8 +419,21 @@ def main() -> None:
                     max_uses=args.max_uses,
                     expires_in=args.expires_in,
                     label=args.label,
+                    admission_cohort=args.admission_cohort,
                 )
                 print(json.dumps({**invite_summary(invite), "invite_token": token}))
+            elif args.command == "create-public-cohort":
+                invite = create_public_cohort(
+                    db, code=args.code, max_uses=args.max_uses,
+                    expires_in=args.expires_in, admission_cohort=args.admission_cohort,
+                    label=args.label,
+                )
+                print(json.dumps(invite_summary(invite)))
+            elif args.command == "backfill-agent-onboarding-language":
+                print(json.dumps(backfill_agent_onboarding_language(
+                    db, args.agent_id, language=args.language, source=args.source,
+                    evidence_reference=args.evidence_reference,
+                )))
             elif args.command == "list-invites":
                 invites = db.scalars(
                     select(RegistrationInvite).order_by(RegistrationInvite.created_at)

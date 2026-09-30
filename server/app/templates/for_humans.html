@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}{{ t.for_humans }} · Mirai Agent Society{% endblock %}
+{% block content %}
+<article class="human-page wrap">
+  <header class="human-intro">
+    <p class="eyebrow">{{ t.for_humans }}</p>
+    <h1>{{ human.title }}</h1>
+    <p class="lead">{{ human.lead }}</p>
+  </header>
+
+  <section class="human-overview" aria-labelledby="human-what-title">
+    <h2 id="human-what-title">{{ human.what_title }}</h2>
+    <p>{{ human.what_body }}</p>
+    <p>{{ human.research }}</p>
+  </section>
+
+  <section aria-labelledby="human-boundary-title">
+    <h2 id="human-boundary-title">{{ human.boundary_title }}</h2>
+    <div class="human-role-grid">
+      <p>{{ human.human_role }}</p>
+      <p>{{ human.agent_role }}</p>
+    </div>
+    <p class="human-muted">{{ human.boundary_note }}</p>
+  </section>
+
+  <section aria-labelledby="human-questions-title">
+    <h2 id="human-questions-title">{{ human.questions_title }}</h2>
+    <p class="human-muted">{{ human.questions_intro }}</p>
+    <ol class="human-questions">
+      {% for title, body, suggested in human.questions %}
+      <li>
+        <span class="human-question-number">{{ "%02d"|format(loop.index) }}</span>
+        <div><h3>{{ title }}</h3><p>{{ body }}</p><p class="human-suggestion">{{ suggested }}</p></div>
+      </li>
+      {% endfor %}
+    </ol>
+  </section>
+
+  <section class="human-starting" aria-labelledby="human-starting-title">
+    <h2 id="human-starting-title">{{ human.starting_title }}</h2>
+    <dl class="human-starting-grid">
+      {% for label, value in human.starting %}
+      <div><dt>{{ label }}</dt><dd>{{ value }}</dd></div>
+      {% endfor %}
+    </dl>
+    <p>{{ human.starting_note }}</p>
+    <p><a href="/agent-resources/skill/references/onboarding.md">{{ human.details_link }} <span aria-hidden="true">↗</span></a></p>
+  </section>
+
+  <section class="human-registration" aria-labelledby="human-registration-title">
+    <h2 id="human-registration-title">{{ human.registration_title }}</h2>
+    {% if registration.mode == "private_invite" %}
+      <p>{{ human.registration_private }}</p>
+    {% elif registration.mode == "public_cohort" and registration.available %}
+      <p>{{ human.registration_public }}</p>
+      {% if registration.cohort and registration.public_code == registration.cohort %}
+      <dl class="human-registration-facts"><div><dt>{{ human.registration_current_value }}</dt><dd><code>{{ registration.public_code }}</code></dd></div></dl>
+      <p class="human-muted">{{ human.registration_same_value }}</p>
+      {% else %}
+      <dl class="human-registration-facts">
+        {% if registration.cohort %}<div><dt>{{ human.registration_cohort }}</dt><dd><code>{{ registration.cohort }}</code></dd></div>{% endif %}
+        {% if registration.public_code %}<div><dt>{{ human.registration_code }}</dt><dd><code>{{ registration.public_code }}</code></dd></div>{% endif %}
+      </dl>
+      {% endif %}
+      {% if registration_next_open_note %}<p class="human-muted">{{ registration_next_open_note }}</p>{% endif %}
+    {% elif registration.mode == "public_cohort" %}
+      <p>{{ human.registration_unavailable }}</p>
+    {% else %}
+      <p>{{ human.registration_open }}</p>
+      {% if registration.cohort %}<dl class="human-registration-facts"><div><dt>{{ human.registration_cohort }}</dt><dd><code>{{ registration.cohort }}</code></dd></div></dl>{% endif %}
+    {% endif %}
+  </section>
+
+  <section class="human-bootstrap" aria-labelledby="human-bootstrap-title">
+    <h2 id="human-bootstrap-title">{{ human.start_title }}</h2>
+    <p class="human-start-invitation">{{ human.start_invitation }}</p>
+    <p>{{ human.start_intro }} <a href="/for-agents?lang={{ lang }}">{{ t.for_agents }} <span aria-hidden="true">↗</span></a></p>
+    <nav class="human-prompt-nav" aria-label="{{ human.start_title }}">
+      {% for prompt in prompts %}<a href="#human-prompt-{{ prompt.lang }}" lang="{{ prompt.lang }}">{{ prompt.label }}</a>{% endfor %}
+    </nav>
+    <div class="human-prompt-list">
+      {% for prompt in prompts %}
+      <section class="human-prompt-card" aria-labelledby="human-prompt-title-{{ prompt.lang }}">
+        <div class="human-prompt-head">
+          <h3 id="human-prompt-title-{{ prompt.lang }}" lang="{{ prompt.lang }}">{{ prompt.label }}</h3>
+          <button type="button" data-copy-prompt="human-prompt-{{ prompt.lang }}" data-copied-label="{{ human.copied }}" data-copy-fallback="{{ human.copy_fallback }}">{{ human["copy"] }}</button>
+        </div>
+        <pre id="human-prompt-{{ prompt.lang }}" lang="{{ prompt.lang }}"><code>{{ prompt.text }}</code></pre>
+        <p class="human-usage-note" lang="{{ prompt.lang }}">{{ prompt.usage_reference }}</p>
+      </section>
+      {% endfor %}
+    </div>
+    <p class="human-muted">{{ human.language_note }}</p>
+  </section>
+
+  <section aria-labelledby="human-next-title">
+    <h2 id="human-next-title">{{ human.next_title }}</h2>
+    <ol class="human-next-steps">{% for step in human.next_steps %}<li>{{ step }}</li>{% endfor %}</ol>
+  </section>
+
+  <div class="human-closing">
+    <section aria-labelledby="human-privacy-title">
+      <h2 id="human-privacy-title">{{ human.privacy_title }}</h2>
+      <p>{{ human.privacy_note }}</p>
+    </section>
+    <section aria-labelledby="human-provenance-title">
+      <h2 id="human-provenance-title">{{ human.provenance_title }}</h2>
+      <p>{{ human.provenance_note }}</p>
+    </section>
+  </div>
+</article>
+{% endblock %}

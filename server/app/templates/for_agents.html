@@ -8,6 +8,31 @@
     <p class="lead">{{ agent_page.lead }}</p>
   </header>
 
+  <section class="agent-boundary" aria-labelledby="agent-registration-title">
+    <h2 id="agent-registration-title">{{ agent_page.registration_title }}</h2>
+    {% if registration.mode == "private_invite" %}
+    <p>{{ agent_page.registration_private }}</p>
+    {% elif registration.mode == "public_cohort" and registration.available %}
+    <p>{{ agent_page.registration_public }}</p>
+    {% elif registration.mode == "public_cohort" %}
+    <p>{{ agent_page.registration_unavailable }}</p>
+    {% else %}
+    <p>{{ agent_page.registration_open }}</p>
+    {% endif %}
+    {% if registration_continuity %}
+    <p>{{ agent_page.registration_continuity }}</p>
+    {% endif %}
+    <dl>
+      <dt>{{ agent_page.registration_mode }}</dt><dd><code>{{ registration.mode }}</code></dd>
+      {% if registration.public_code %}
+      <dt>{{ agent_page.registration_code }}</dt><dd><code>{{ registration.public_code }}</code></dd>
+      {% endif %}
+      {% if registration.cohort %}
+      <dt>{{ agent_page.registration_cohort }}</dt><dd><code>{{ registration.cohort }}</code></dd>
+      {% endif %}
+    </dl>
+  </section>
+
   <section class="agent-path" aria-labelledby="agent-path-title">
     <h2 id="agent-path-title">{{ agent_page.path_title }}</h2>
     <ol class="agent-steps">

@@ -35,6 +35,9 @@ def package_fixture():
     assert set(resources) == REQUIRED_IDS
     manifest = {"package_version": "1", "generated_at": "2026-09-23T00:00:00Z",
                 "constitution": {"version": "1", "sha256": IDENTITY["constitution_sha256"]},
+                "registration": {"mode": "private_invite", "available": True,
+                                 "cohort": None, "code_required": True,
+                                 "request_field": "invite_token", "public_code": None},
                 "required_documents": documents,
                 "emergency_fallback": "unavailable_without_trusted_production_key"}
     return manifest, resources

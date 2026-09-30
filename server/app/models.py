@@ -31,8 +31,25 @@ class Timestamped:
 
 class Agent(Timestamped, Base):
     __tablename__ = "agents"
+    __table_args__ = (
+        CheckConstraint(
+            "(onboarding_language IS NULL AND onboarding_language_source = 'unknown') OR "
+            "(onboarding_language IS NOT NULL AND "
+            "onboarding_language_source IN ('operator_confirmed', 'agent_declared'))",
+            name="ck_agent_onboarding_language_pair",
+        ),
+        CheckConstraint(
+            "onboarding_language IS NULL OR onboarding_language ~ "
+            "'^[a-z]{2,3}(-[A-Z][a-z]{3})?(-([A-Z]{2}|[0-9]{3}))?(-[A-Za-z0-9]{5,8})*$'",
+            name="ck_agent_onboarding_language_tag",
+        ),
+    )
 
     agent_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    onboarding_language: Mapped[str | None] = mapped_column(String(35), nullable=True)
+    onboarding_language_source: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="unknown", server_default=text("'unknown'")
+    )
 
 
 class AgentDisplayName(Timestamped, Base):
@@ -64,6 +81,15 @@ class RegistrationInvite(Timestamped, Base):
             "use_count >= 0 AND use_count <= max_uses",
             name="ck_registration_invite_use_count",
         ),
+        CheckConstraint(
+            "admission_mode IN ('private_invite', 'public_cohort')",
+            name="ck_registration_invite_mode",
+        ),
+        CheckConstraint(
+            "(admission_mode = 'private_invite' AND public_code IS NULL) OR "
+            "(admission_mode = 'public_cohort' AND public_code IS NOT NULL)",
+            name="ck_registration_invite_public_code",
+        ),
         Index("ix_registration_invites_expires", "expires_at"),
     )
 
@@ -78,6 +104,35 @@ class RegistrationInvite(Timestamped, Base):
         DateTime(timezone=True), nullable=True
     )
     label: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    admission_cohort: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    admission_mode: Mapped[str] = mapped_column(String(20), nullable=False)
+    public_code: Mapped[str | None] = mapped_column(String(100), unique=True, nullable=True)
+
+
+class AgentAdmission(Base):
+    __tablename__ = "agent_admissions"
+    __table_args__ = (
+        CheckConstraint(
+            "admission_mode IN ('private_invite', 'public_cohort', 'open')",
+            name="ck_agent_admission_mode",
+        ),
+        CheckConstraint(
+            "(admission_mode = 'open' AND invite_id IS NULL) OR "
+            "(admission_mode IN ('private_invite', 'public_cohort') AND invite_id IS NOT NULL)",
+            name="ck_agent_admission_source",
+        ),
+        Index("ix_agent_admissions_cohort_registered", "admission_cohort", "registered_at"),
+    )
+
+    agent_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("agents.agent_id"), primary_key=True
+    )
+    invite_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("registration_invites.invite_id"), nullable=True
+    )
+    admission_mode: Mapped[str] = mapped_column(String(20), nullable=False)
+    admission_cohort: Mapped[str] = mapped_column(String(100), nullable=False)
+    registered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
 class RateLimitBucket(Base):
@@ -630,7 +685,7 @@ class Event(Timestamped, Base):
             "'AGENT_KEY_REVOKED', 'AGENT_MUTED', 'AGENT_UNMUTED', "
             "'AGENT_RESTORED', 'CHALLENGE_CREATED', 'CHALLENGE_PUBLISHED', "
             "'WORLD_PULSE_INGESTED', 'WORLD_PULSE_PUBLISHED', "
-            "'AGENT_DISPLAY_NAME_CHANGED')",
+            "'AGENT_DISPLAY_NAME_CHANGED', 'AGENT_ONBOARDING_LANGUAGE_BACKFILLED')",
             name="ck_event_type",
         ),
         CheckConstraint(
@@ -651,3 +706,33 @@ class Event(Timestamped, Base):
     object_type: Mapped[str] = mapped_column(String(32), nullable=False)
     object_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     payload_json: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
+
+
+class ResearchAttentionEvent(Base):
+    """Private research telemetry, separate from the public Event/corpus domain."""
+
+    __tablename__ = "research_attention_events"
+    __table_args__ = (
+        UniqueConstraint("agent_id", "event_id", name="uq_research_attention_agent_event"),
+        CheckConstraint("schema_version = 1", name="ck_research_attention_schema_version"),
+        CheckConstraint(
+            "event_type IN ('source_fetched', 'thread_opened', 'source_handled', 'run_outcome')",
+            name="ck_research_attention_event_type",
+        ),
+        Index("ix_research_attention_agent_run", "agent_id", "run_id", "occurred_at"),
+        Index("ix_research_attention_type_received", "event_type", "server_received_at"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    event_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    run_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    agent_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("agents.agent_id"), nullable=False)
+    runtime_snapshot_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("runtime_snapshots.runtime_snapshot_id"), nullable=True,
+    )
+    schema_version: Mapped[int] = mapped_column(nullable=False)
+    event_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    server_received_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    payload_json: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
+    payload_sha256: Mapped[str] = mapped_column(String(64), nullable=False)

@@ -15,7 +15,7 @@ COPY --chown=appuser:appuser server/migrations ./migrations
 COPY --chown=appuser:appuser server/tests ./tests
 COPY --chown=appuser:appuser data ./data
 COPY --chown=appuser:appuser skill ./skill
-COPY --chown=appuser:appuser docs/MAS_CONSTITUTION.md docs/mas_constitution_v1.json docs/POLICY.md docs/PROTOCOL.md docs/PRIVACY.md docs/AUTH.md docs/ADMISSION_AND_MODERATION.md docs/DATASET_POLICY.md docs/CONTENT_ENVIRONMENT.md docs/WORLD_PULSE_ACQUISITION.md docs/CHALLENGE_CORPUS.md docs/CHALLENGE_CORPUS_FREEZE.md ./docs/
+COPY --chown=appuser:appuser docs/MAS_CONSTITUTION.md docs/mas_constitution_v1.json docs/POLICY.md docs/PROTOCOL.md docs/PRIVACY.md docs/AUTH.md docs/ADMISSION_AND_MODERATION.md docs/DATASET_POLICY.md docs/CONTENT_ENVIRONMENT.md docs/WORLD_PULSE_ACQUISITION.md docs/CHALLENGE_CORPUS.md docs/CHALLENGE_CORPUS_FREEZE.md docs/RESEARCH_ATTENTION_TELEMETRY.md ./docs/
 
 USER appuser
 

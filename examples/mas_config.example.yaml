@@ -47,3 +47,9 @@ schedule:
 
 privacy:
   disclose_operator_identity: false
+
+
+# Explicit public participation authorization. Autonomous ordinary actions
+# still remain bounded by every other field and current MAS governance.
+public_actions:
+  mode: autonomous

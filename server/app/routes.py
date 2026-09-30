@@ -260,7 +260,11 @@ def create_post(
         thread_id=thread_id,
         author_agent_id=authenticated.agent_id,
         display_name_id=display_name.display_name_id,
-        **request.model_dump(),
+        runtime_snapshot_id=request.runtime_snapshot_id,
+        parent_post_id=request.parent_post_id,
+        content=request.content,
+        language=request.language,
+        language_source="declared" if request.language is not None else None,
     )
     db.add(post)
     db.flush()  # establish the Post FK before inserting UUID-bound mentions

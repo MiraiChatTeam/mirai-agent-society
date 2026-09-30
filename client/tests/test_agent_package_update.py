@@ -74,6 +74,19 @@ class PackageUpdateTests(unittest.TestCase):
         self.assertEqual(initial["manifest_fingerprint"], read_package_state(self.store)["manifest_fingerprint"])
         self.assertEqual(len(self.transport.package_calls), 2)
 
+    def test_current_resident_guidance_is_verified_and_loaded_on_bootstrap(self):
+        changed = check_agent_package(self.store, self.transport, now=NOW)
+        self.assertTrue({"skill", "onboarding", "api"}.issubset(changed))
+        loaded = self.transport.reload_calls[-1]
+        self.assertIn(b"public_actions.mode: autonomous", loaded["skill"])
+        self.assertIn(b"Verify resident runtime readiness", loaded["onboarding"])
+        self.assertIn(b"legacy config", loaded["api"])
+        state = read_package_state(self.store)
+        for resource_id in ("skill", "onboarding", "api"):
+            self.assertEqual(state["resources"][resource_id]["sha256"],
+                             hashlib.sha256(self.transport.resources[resource_id]).hexdigest())
+        self.assertEqual(state["pending_guidance"], [])
+
     def test_changed_skill_downloads_only_skill_and_reloads_before_decision(self):
         check_agent_package(self.store, self.transport, now=NOW)
         self.transport.resource_calls.clear()
@@ -84,6 +97,24 @@ class PackageUpdateTests(unittest.TestCase):
         self.assertEqual(self.transport.resource_calls,
                          [next(item["url"] for item in self.transport.manifest["required_documents"] if item["id"] == "skill")])
         self.assertEqual(self.transport.reload_calls, [{"skill": b"Updated MAS skill guidance"}])
+        self.assertEqual(read_package_state(self.store)["pending_guidance"], [])
+
+    def test_receipt_guidance_hot_update_preserves_resident_identity(self):
+        original_identity = self.store.read_identity()
+        original_profile = self.store.read_profile()
+        check_agent_package(self.store, self.transport, now=NOW)
+        self.assertIn(b"semantic selected/fetched", self.transport.resources["skill"])
+        self.assertIn(b"Run receipt attention contract", self.transport.resources["local-state"])
+        self.transport.resource_calls.clear()
+        self.transport.reload_calls.clear()
+        self._change("skill", self.transport.resources["skill"] + b"\nReceipt clarification.\n")
+        self._change("local-state", self.transport.resources["local-state"] + b"\nAdapter clarification.\n")
+        changed = check_agent_package(self.store, self.transport, now=NOW)
+        self.assertEqual(set(changed), {"skill", "local-state"})
+        self.assertEqual(set(self.transport.reload_calls[-1]), {"skill", "local-state"})
+        self.assertEqual(len(self.transport.resource_calls), 2)
+        self.assertEqual(self.store.read_identity(), original_identity)
+        self.assertEqual(self.store.read_profile(), original_profile)
         self.assertEqual(read_package_state(self.store)["pending_guidance"], [])
 
     def test_hash_mismatch_wrong_origin_redirect_and_missing_required_fail_closed(self):
@@ -115,6 +146,57 @@ class PackageUpdateTests(unittest.TestCase):
         with self.assertRaises(StateValidationError):
             check_agent_package(self.store, self.transport, now=NOW)
         self.assertEqual(self.store.read_identity(), IDENTITY)
+
+    def test_registration_discovery_is_validated_and_fingerprinted(self):
+        check_agent_package(self.store, self.transport, now=NOW)
+        before = read_package_state(self.store)["manifest_fingerprint"]
+        self.transport.resource_calls.clear()
+        self.transport.reload_calls.clear()
+        self.transport.manifest["registration"] = {
+            "mode": "open",
+            "available": True,
+            "cohort": "open-2026",
+            "code_required": False,
+            "request_field": None,
+            "public_code": None,
+        }
+        self.assertEqual(check_agent_package(self.store, self.transport, now=NOW), {})
+        self.assertNotEqual(
+            before, read_package_state(self.store)["manifest_fingerprint"]
+        )
+        self.assertEqual(self.transport.resource_calls, [])
+        self.assertEqual(self.transport.reload_calls, [])
+
+        valid = copy.deepcopy(self.transport.manifest["registration"])
+        malformed = [
+            {**valid, "mode": "unexpected"},
+            {**valid, "code_required": True},
+            {**valid, "public_code": "secret"},
+            {key: value for key, value in valid.items() if key != "cohort"},
+        ]
+        for registration in malformed:
+            with self.subTest(registration=registration):
+                self.transport.manifest["registration"] = registration
+                with self.assertRaises(StateValidationError):
+                    check_agent_package(self.store, self.transport, now=NOW)
+
+    def test_public_cohort_to_open_changes_fingerprint_without_resource_download(self):
+        self.transport.manifest["registration"] = {
+            "mode": "public_cohort", "available": True, "cohort": "genesis-50",
+            "code_required": True, "request_field": "admission_code", "public_code": "genesis-50",
+        }
+        check_agent_package(self.store, self.transport, now=NOW)
+        before = read_package_state(self.store)["manifest_fingerprint"]
+        self.transport.resource_calls.clear()
+        self.transport.reload_calls.clear()
+        self.transport.manifest["registration"] = {
+            "mode": "open", "available": True, "cohort": "after-genesis",
+            "code_required": False, "request_field": None, "public_code": None,
+        }
+        self.assertEqual(check_agent_package(self.store, self.transport, now=NOW), {})
+        self.assertNotEqual(before, read_package_state(self.store)["manifest_fingerprint"])
+        self.assertEqual(self.transport.resource_calls, [])
+        self.assertEqual(self.transport.reload_calls, [])
 
     def test_malformed_manifest_fails_without_replacing_verified_state(self):
         check_agent_package(self.store, self.transport, now=NOW)

@@ -16,3 +16,19 @@ document.addEventListener("change", (event) => {
   if (!select) return;
   select.form?.requestSubmit();
 });
+
+document.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-copy-prompt]");
+  if (!button) return;
+  const prompt = document.getElementById(button.dataset.copyPrompt);
+  if (!prompt) return;
+  const value = prompt.textContent.trim();
+  try {
+    await navigator.clipboard.writeText(value);
+    const original = button.textContent;
+    button.textContent = button.dataset.copiedLabel;
+    window.setTimeout(() => { button.textContent = original; }, 1600);
+  } catch (_error) {
+    window.prompt(button.dataset.copyFallback, value);
+  }
+});

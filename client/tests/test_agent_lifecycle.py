@@ -8,13 +8,16 @@ import tempfile
 import unittest
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from unittest.mock import patch
 
 from client.mas_client.agent_package_update import check_agent_package
 from client.mas_client.agent_lifecycle import (
-    PublicAction, WakeChoice, persist_registration, resolve_pending_public_action, run_wake,
+    PublicAction, WakeChoice, attention_page_path, persist_confirmed_rename, persist_registration, resolve_pending_public_action, run_wake,
 )
 from client.mas_client.control_plane import ControlDecision
 from client.mas_client.resident_readiness import governance_ready_for_write, read_approved_operator_config, save_approved_operator_config
+from client.mas_client.run_journal import read_recent_runs, write_run_summary
+from client.mas_client.research_telemetry import pending_events
 from client.mas_client.local_state import (
     IdentityConflictError, LocalStateStore, StateValidationError,
 )
@@ -66,7 +69,7 @@ class AgentLifecycleTests(unittest.TestCase):
         initial_state["observed_versions"] = {"policy": "0.1", "protocol": "0.1", "manifest": "1"}
         initial_state["control_versions"] = {"policy": "0.1", "protocol": "0.1", "manifest": "1"}
         self.initial_state = initial_state
-        persist_registration(
+        self.registration_receipt = persist_registration(
             self.store, identity=copy.deepcopy(IDENTITY),
             profile=copy.deepcopy(PROFILE), state=copy.deepcopy(initial_state),
         )
@@ -89,14 +92,42 @@ class AgentLifecycleTests(unittest.TestCase):
         })
         self.transport = FakeTransport()
 
-    def wake(self, *, choose=lambda _: WakeChoice(), control=None, allow_check=None, allow_action=None, now=NOW):
+    def wake(self, *, choose=lambda _: WakeChoice(), control=None, allow_check=None, allow_action=None,
+             approve_public_action=None, now=NOW, invocation_mode="unknown",
+             attention=("inbox", "thread-updates", "feed")):
         return run_wake(
             self.store, transport=self.transport, expected_agent_id=IDENTITY["agent_id"],
             control=control or (lambda: ControlDecision(True, True, True, source="live")),
             allow_check=allow_check or (lambda _: True),
             allow_action=allow_action or (lambda _action, _state: True),
-            choose=choose, now=now,
+            approve_public_action=approve_public_action,
+            choose=choose, choose_attention=lambda _context: attention,
+            now=now, invocation_mode=invocation_mode,
         )
+
+    def test_telemetry_is_best_effort_and_never_changes_no_op_or_public_action(self) -> None:
+        self.transport.pages["feed"] = {"items": [{"thread_id": THREAD_ID, "title": "not telemetry"}], "next_cursor": None,
+                                        "requested_limit": 5}
+        def choose(context):
+            context.mark_handled("feed")
+            return WakeChoice()
+        first = self.wake(choose=choose, attention=("feed",))
+        self.assertEqual(first.status, "no_op")
+        events = pending_events(self.store)
+        kinds = [item["payload"]["event_type"] for item in events]
+        self.assertEqual(kinds, ["source_fetched", "source_fetched", "source_handled", "run_outcome"])
+        self.assertEqual({item["run_id"] for item in events}, {read_recent_runs(self.store)[0]["run_id"]})
+        self.assertEqual(events[1]["payload"]["returned_thread_ids"], [THREAD_ID])
+        self.assertTrue(events[-1]["payload"]["exposure_complete"])
+        self.assertFalse(events[-1]["payload"]["stopped_early"])
+        self.assertNotIn("title", str(events))
+        class FailingTransport(FakeTransport):
+            def submit_telemetry_batch(self, _body):
+                raise TimeoutError("telemetry offline")
+        failing = FailingTransport()
+        self.transport = failing
+        self.assertEqual(self.wake(attention=(), now=NOW + timedelta(hours=1)).status, "no_op")
+        self.assertTrue(pending_events(self.store))
 
     def test_first_registration_persists_one_identity_and_second_restores_it(self) -> None:
         self.assertEqual(self.store.read_identity(), IDENTITY)
@@ -109,6 +140,33 @@ class AgentLifecycleTests(unittest.TestCase):
                 profile=copy.deepcopy(PROFILE), state=copy.deepcopy(STATE),
             )
         self.assertEqual(self.wake().agent_id, IDENTITY["agent_id"])
+
+    def test_first_registration_receipt_is_private_and_nonsecret(self) -> None:
+        receipt = self.registration_receipt
+        self.assertEqual(receipt.kind, "registration")
+        self.assertEqual(receipt.agent_id, IDENTITY["agent_id"])
+        self.assertEqual(receipt.display_name, PROFILE["display_name"])
+        self.assertEqual(receipt.society_origin, IDENTITY["society_origin"])
+        self.assertEqual(receipt.state_root, str(self.store.root))
+        message = receipt.message()
+        for expected in (PROFILE["display_name"], IDENTITY["agent_id"],
+                         IDENTITY["society_origin"], str(self.store.root)):
+            self.assertIn(expected, message)
+        for secret in ("offline-key-fixture", "invite_token", "Bearer", "agent-notes"):
+            self.assertNotIn(secret, message)
+
+    def test_confirmed_rename_receipt_preserves_uuid_and_is_not_repeated(self) -> None:
+        receipt = persist_confirmed_rename(self.store, confirmed_display_name="Gamma")
+        self.assertIsNotNone(receipt)
+        self.assertEqual(receipt.old_display_name, PROFILE["display_name"])
+        self.assertEqual(receipt.display_name, "Gamma")
+        self.assertEqual(receipt.agent_id, IDENTITY["agent_id"])
+        self.assertIn(f"{PROFILE['display_name']} -> Gamma", receipt.message())
+        self.assertIn(IDENTITY["agent_id"], receipt.message())
+        self.assertNotIn("offline-key-fixture", receipt.message())
+        self.assertEqual(self.store.read_identity()["agent_id"], IDENTITY["agent_id"])
+        self.assertEqual(self.store.read_profile()["display_name"], "Gamma")
+        self.assertIsNone(persist_confirmed_rename(self.store, confirmed_display_name="Gamma"))
 
     def test_missing_working_memory_and_notes_do_not_change_identity(self) -> None:
         state = self.store.read_state()
@@ -123,20 +181,25 @@ class AgentLifecycleTests(unittest.TestCase):
         self.assertEqual(self.store.read_identity()["agent_id"], IDENTITY["agent_id"])
         self.assertTrue((self.store.root / "agent-notes.json").exists())
 
-    def test_noop_consumes_handled_pages_in_attention_order(self) -> None:
+    def test_noop_only_commits_explicitly_handled_pages(self) -> None:
         self.transport.pages["notices"] = {"items": [{"notice_type": "maintenance"}], "next_cursor": "n1"}
         self.transport.pages["inbox"] = {"items": [{"kind": "reply"}], "next_cursor": "i1"}
         self.transport.pages["thread-updates"] = {"items": [{"thread_id": THREAD_ID}], "next_cursor": "u1"}
         self.transport.pages["feed"] = {"items": [{"thread_id": THREAD_ID}], "next_cursor": "f1"}
-        outcome = self.wake()
+        def choose(context):
+            context.mark_handled("notices")
+            context.mark_handled("inbox")
+            context.mark_handled("thread-updates")
+            context.mark_handled("feed")
+            return WakeChoice()
+        outcome = self.wake(choose=choose)
         self.assertEqual(outcome.status, "no_op")
         self.assertEqual([call[1] for call in self.transport.calls if call[0] == "fetch"],
                          ["notices", "inbox", "thread-updates", "feed"])
         state = self.store.read_state()
-        self.assertEqual(state["social"]["notice_cursor"], "n1")
-        self.assertEqual(state["social"]["inbox_cursor"], "i1")
-        self.assertEqual(state["social"]["participated_threads_cursor"], "u1")
-        self.assertEqual(state["feed_cursor"], "f1")
+        self.assertEqual(state["attention_handled"], {"notices": "n1", "inbox": "i1", "thread-updates": "u1"})
+        self.assertIsNone(state["social"]["inbox_cursor"])
+        self.assertIsNone(state["feed_cursor"])
         self.assertEqual(len(state["rolling_check_timestamps"]), 1)
         self.assertEqual(state["rolling_action_timestamps"], [])
 
@@ -230,11 +293,14 @@ class AgentLifecycleTests(unittest.TestCase):
     def test_successful_reply_counts_action_and_commits_cursor(self) -> None:
         self.transport.pages["inbox"] = {"items": [{"kind": "reply"}], "next_cursor": "i1"}
         action = PublicAction("reply", THREAD_ID, POST_ID, "A careful reply", SNAPSHOT_ID)
-        outcome = self.wake(choose=lambda _: WakeChoice(action=action))
+        def choose(context):
+            context.mark_handled("inbox")
+            return WakeChoice(action=action)
+        outcome = self.wake(choose=choose)
         self.assertEqual(outcome.status, "acted")
         self.assertEqual(len([call for call in self.transport.calls if call[0] == "submit"]), 1)
         state = self.store.read_state()
-        self.assertEqual(state["social"]["inbox_cursor"], "i1")
+        self.assertEqual(state["attention_handled"]["inbox"], "i1")
         self.assertEqual(len(state["rolling_action_timestamps"]), 1)
 
     def test_operator_denial_and_corrupt_state_stop_before_public_write(self) -> None:
@@ -358,6 +424,256 @@ class AgentLifecycleTests(unittest.TestCase):
             self.wake()
         self.assertEqual(self.transport.calls, [])
 
+    def test_noop_run_summary_is_private_bounded_metadata(self) -> None:
+        self.transport.pages["inbox"] = {"items": [{"kind": "mention"}], "next_cursor": "i1"}
+        def choose(context):
+            context.notes.remember("private note body must stay private")
+            return WakeChoice()
+        result = self.wake(choose=choose)
+        self.assertEqual(result.status, "no_op")
+        summary = read_recent_runs(self.store)[0]
+        self.assertEqual(summary["agent_id"], IDENTITY["agent_id"])
+        self.assertEqual(summary["terminal_status"], "success")
+        self.assertEqual(summary["observed_counts"]["mentions"], 1)
+        self.assertEqual(summary["check_budget_before"], 0)
+        self.assertEqual(summary["check_budget_after"], 1)
+        self.assertEqual(summary["action_budget_after"], 0)
+        self.assertEqual(summary["confirmed_public_actions"], [])
+        self.assertEqual(summary["notes_changed"], {"created": 1, "revised": 0, "forgotten": 0})
+        run_dir = self.store.root / "runs"
+        self.assertEqual(stat.S_IMODE(run_dir.stat().st_mode), 0o700)
+        self.assertEqual(stat.S_IMODE(next(run_dir.glob("*.json")).stat().st_mode), 0o600)
+        raw = next(run_dir.glob("*.json")).read_text()
+        for private in ("private note body", "offline-key-fixture", "invite_token", "Bearer"):
+            self.assertNotIn(private, raw)
+
+    def test_attention_receipt_records_actual_sources_limits_and_thread_lookup(self) -> None:
+        self.transport.pages["feed"] = {
+            "items": [{"thread_id": THREAD_ID, "content": "public text must stay out"}],
+            "next_cursor": None, "requested_limit": 5,
+        }
+        self.transport.pages["challenges"] = {
+            "items": [{"thread_id": THREAD_ID}] * 2,
+            "next_cursor": None, "requested_limit": 10,
+        }
+        self.transport.pages["agent-commons"] = {
+            "items": [{"thread_id": THREAD_ID}] * 3,
+            "next_cursor": None, "requested_limit": 10,
+        }
+        before_identity = self.store.read_identity()
+        before_notes = (self.store.root / "agent-notes.json").read_bytes()
+        before_config = (self.store.root / "operator-config.json").read_bytes()
+        before_approval = (self.store.root / "operator-approval.json").read_bytes()
+        def choose(context):
+            self.assertEqual(len(context.canonical_thread(THREAD_ID)["posts"]), 1)
+            return WakeChoice()  # fetched pages remain unhandled; silence is valid
+        outcome = self.wake(
+            attention=("feed", "challenges", "agent-commons"), choose=choose,
+        )
+        self.assertEqual(outcome.status, "no_op")
+        summary = read_recent_runs(self.store)[0]
+        self.assertEqual(summary["schema_version"], "2")
+        self.assertEqual(summary["wake_outcome"], "no_op")
+        attention = summary["attention"]
+        self.assertEqual(attention["selected_sources"],
+                         ["combined_feed", "challenges", "agent_commons", "known_thread"])
+        self.assertEqual(attention["fetched_sources"],
+                         ["operational_notices", "combined_feed", "challenges", "agent_commons", "known_thread"])
+        self.assertEqual(attention["handled_sources"], [])
+        self.assertEqual([item["source"] for item in attention["fetches"]],
+                         ["operational_notices", "combined_feed", "challenges", "agent_commons"])
+        observed = {item["source"]: item for item in attention["fetches"]}
+        self.assertEqual((observed["combined_feed"]["view"], observed["combined_feed"]["requested_limit"],
+                          observed["combined_feed"]["items_returned"]), ("/api/v1/feed", 5, 1))
+        self.assertEqual((observed["challenges"]["view"], observed["challenges"]["requested_limit"],
+                          observed["challenges"]["items_returned"]), ("/api/v1/feed?space=challenges", 10, 2))
+        self.assertEqual((observed["agent_commons"]["requested_limit"],
+                          observed["agent_commons"]["items_returned"]), (10, 3))
+        self.assertIsNone(observed["operational_notices"]["requested_limit"])
+        self.assertEqual(attention["thread_lookups"][0]["thread_id"], THREAD_ID)
+        self.assertEqual(attention["thread_lookups"][0]["posts_returned"], 1)
+        self.assertEqual(summary["confirmed_public_actions"], [])
+        self.assertEqual(self.store.read_identity(), before_identity)
+        self.assertEqual((self.store.root / "agent-notes.json").read_bytes(), before_notes)
+        self.assertEqual((self.store.root / "operator-config.json").read_bytes(), before_config)
+        self.assertEqual((self.store.root / "operator-approval.json").read_bytes(), before_approval)
+        self.assertNotIn("attention", self.store.read_state())
+        raw = next((self.store.root / "runs").glob("*.json")).read_text()
+        for private in ("public text must stay out", "Canonical text", "private note body",
+                        "Bearer", "invite_token", "genesis-50", "offline-key-fixture"):
+            self.assertNotIn(private, raw)
+        self.assertEqual([call[1] for call in self.transport.calls if call[0] == "fetch"],
+                         ["notices", "feed", "challenges", "agent-commons"])
+
+    def test_confirmed_rename_inside_wake_has_receipt_and_journal_event(self) -> None:
+        receipts = []
+        def choose(context):
+            receipts.append(context.persist_confirmed_rename("Gamma"))
+            return WakeChoice()
+        self.assertEqual(self.wake(choose=choose).status, "no_op")
+        self.assertEqual(receipts[0].agent_id, IDENTITY["agent_id"])
+        self.assertEqual(self.store.read_profile()["display_name"], "Gamma")
+        summary = read_recent_runs(self.store)[0]
+        self.assertEqual(summary["confirmed_public_actions"], [
+            {"kind": "rename", "thread_id": None, "record_id": None, "parent_post_id": None},
+        ])
+        self.assertEqual(summary["action_budget_after"], 0)
+
+    def test_run_journal_rejects_unstructured_sensitive_metadata(self) -> None:
+        self.assertEqual(self.wake().status, "no_op")
+        summary = read_recent_runs(self.store)[0]
+        summary["run_id"] = "99999999-9999-4999-8999-999999999999"
+        summary["next_attention"] = "Bearer synthetic-secret"
+        with self.assertRaises(StateValidationError):
+            write_run_summary(self.store, summary)
+        self.assertEqual(len(read_recent_runs(self.store)), 1)
+
+    def test_confirmed_post_and_reply_run_summaries(self) -> None:
+        self.transport.submit = lambda _action: {"post_id": "88888888-8888-4888-8888-888888888888"}
+        post = PublicAction("post", thread_id=THREAD_ID, content="private action draft", runtime_snapshot_id=SNAPSHOT_ID)
+        reply = PublicAction("reply", THREAD_ID, POST_ID, "another private draft", SNAPSHOT_ID)
+        self.assertEqual(self.wake(choose=lambda _: WakeChoice(action=post)).status, "acted")
+        self.assertEqual(self.wake(choose=lambda _: WakeChoice(action=reply), now=NOW + timedelta(seconds=1)).status, "acted")
+        summaries = read_recent_runs(self.store)
+        self.assertEqual(len(summaries), 2)
+        self.assertEqual([item["confirmed_public_actions"][0]["kind"] for item in summaries], ["reply", "post"])
+        self.assertTrue(all(item["confirmed_public_actions"][0]["thread_id"] == THREAD_ID for item in summaries))
+        self.assertEqual(summaries[0]["action_budget_after"], 2)
+        self.assertEqual(summaries[0]["confirmed_public_actions"][0]["parent_post_id"], POST_ID)
+        self.assertIsNone(summaries[1]["confirmed_public_actions"][0]["parent_post_id"])
+        self.assertNotIn("private action draft", str(summaries))
+        self.assertNotIn("another private draft", str(summaries))
+        outcomes = [item for item in pending_events(self.store) if item["payload"]["event_type"] == "run_outcome"]
+        self.assertEqual({item["runtime_snapshot_id"] for item in outcomes}, {SNAPSHOT_ID})
+        self.assertEqual([item["payload"]["outcome"] for item in outcomes], ["post_created", "reply_created"])
+        self.assertEqual(outcomes[-1]["payload"]["parent_post_id"], POST_ID)
+        self.assertNotIn("private draft", str(outcomes))
+
+    def test_safe_stop_and_ambiguous_write_are_distinct_in_journal(self) -> None:
+        self.assertEqual(self.wake(allow_check=lambda _: False).status, "stopped")
+        self.assertEqual(read_recent_runs(self.store)[0]["terminal_status"], "safe-stop")
+        self.transport.submit_error = TimeoutError("do not store this exception text")
+        with self.assertRaises(TimeoutError):
+            self.wake(choose=lambda _: WakeChoice(action=PublicAction("reply", THREAD_ID, POST_ID, "draft", SNAPSHOT_ID)))
+        summary = read_recent_runs(self.store)[0]
+        self.assertEqual(summary["terminal_status"], "pending-reconciliation")
+        self.assertTrue(summary["pending_public_write"])
+        self.assertEqual(summary["next_attention"], "reconcile_pending_write")
+        self.assertEqual(summary["confirmed_public_actions"], [])
+        self.assertNotIn("do not store this exception text", str(summary))
+
+    def test_journal_survives_restart_and_failure_does_not_change_identity(self) -> None:
+        self.assertEqual(self.wake().status, "no_op")
+        restarted = LocalStateStore(self.store.root, expected_agent_id=IDENTITY["agent_id"])
+        self.assertEqual(len(read_recent_runs(restarted)), 1)
+        with patch("client.mas_client.agent_lifecycle.write_run_summary", side_effect=OSError("disk failure")):
+            outcome = self.wake(now=NOW + timedelta(seconds=1))
+        self.assertEqual(outcome.status, "no_op")
+        self.assertEqual(outcome.journal_error, "OSError")
+        self.assertEqual(restarted.read_identity()["agent_id"], IDENTITY["agent_id"])
+        self.assertEqual(len(read_recent_runs(restarted)), 1)
+
+    def test_autonomous_thread_post_reply_never_request_per_action_approval(self) -> None:
+        requested = []
+        actions = (
+            PublicAction("thread", title="Autonomous question"),
+            PublicAction("post", thread_id=THREAD_ID, content="Autonomous Post", runtime_snapshot_id=SNAPSHOT_ID),
+            PublicAction("reply", THREAD_ID, POST_ID, "Autonomous Reply", SNAPSHOT_ID),
+        )
+        for offset, action in enumerate(actions):
+            result = self.wake(
+                choose=lambda _context, selected=action: WakeChoice(action=selected),
+                approve_public_action=lambda selected: requested.append(selected) or False,
+                now=NOW + timedelta(seconds=offset),
+            )
+            self.assertEqual(result.status, "acted")
+        self.assertEqual(requested, [])
+        self.assertEqual([call[1].kind for call in self.transport.calls if call[0] == "submit"],
+                         ["thread", "post", "reply"])
+
+    def test_supervised_action_requires_explicit_per_action_approval(self) -> None:
+        config = approved_config()
+        config["public_actions"] = {"mode": "supervised"}
+        save_approved_operator_config(self.store, config, approved_at="2026-09-24T00:00:00Z",
+                                      approval_reference="supervised-public-action-mode")
+        action = PublicAction("post", thread_id=THREAD_ID, content="Supervised Post", runtime_snapshot_id=SNAPSHOT_ID)
+        stopped = self.wake(choose=lambda _: WakeChoice(action=action))
+        self.assertEqual((stopped.status, stopped.reason), ("stopped", "per_action_approval_required"))
+        self.assertIsNone(self.store.read_state()["pending_public_action"])
+        self.assertFalse(any(call[0] == "submit" for call in self.transport.calls))
+        approved = self.wake(
+            choose=lambda _: WakeChoice(action=action),
+            approve_public_action=lambda selected: selected is action,
+            now=NOW + timedelta(seconds=1),
+        )
+        self.assertEqual(approved.status, "acted")
+
+    def test_interactive_invocation_does_not_imply_supervised_mode(self) -> None:
+        requested = []
+        action = PublicAction("thread", title="Interactive but autonomous")
+        result = self.wake(
+            choose=lambda _: WakeChoice(action=action),
+            approve_public_action=lambda selected: requested.append(selected) or False,
+            invocation_mode="human_triggered",
+        )
+        self.assertEqual(result.status, "acted")
+        self.assertEqual(requested, [])
+        self.assertEqual(read_recent_runs(self.store)[0]["public_action_mode"], "autonomous")
+
+    def test_unauthorized_tool_or_resource_expansion_requires_operator_authorization(self) -> None:
+        approvals = []
+        for offset, action in enumerate((
+            PublicAction("thread", title="Needs web", required_tools=("web_search",)),
+            PublicAction("thread", title="Needs paid scope", required_resource_scopes=("new_paid_resource",)),
+        )):
+            result = self.wake(
+                choose=lambda _context, selected=action: WakeChoice(action=selected),
+                approve_public_action=lambda selected: approvals.append(selected) or True,
+                now=NOW + timedelta(seconds=offset),
+            )
+            self.assertEqual((result.status, result.reason), ("stopped", "operator_authorization_required"))
+        self.assertEqual(approvals, [])
+        self.assertFalse(any(call[0] == "submit" for call in self.transport.calls))
+
+    def test_legacy_config_is_not_silently_autonomous_and_can_be_explicitly_updated(self) -> None:
+        legacy = approved_config()
+        legacy.pop("public_actions")
+        before_identity = copy.deepcopy(self.store.read_identity())
+        save_approved_operator_config(self.store, legacy, approved_at="2026-09-24T00:00:00Z",
+                                      approval_reference="legacy-v04-without-public-action-authority")
+        action = PublicAction("thread", title="Must wait for explicit authority")
+        blocked = self.wake(choose=lambda _: WakeChoice(action=action))
+        self.assertEqual((blocked.status, blocked.reason),
+                         ("stopped", "public_action_authorization_required"))
+        self.assertEqual(read_recent_runs(self.store)[0]["public_action_mode"], "legacy_unset")
+        self.assertEqual(self.wake(now=NOW + timedelta(seconds=1)).status, "no_op")
+
+        updated = copy.deepcopy(legacy)
+        updated["public_actions"] = {"mode": "autonomous"}
+        updated_identity = copy.deepcopy(before_identity)
+        updated_identity["operator_config_id"] = "99999999-9999-4999-8999-999999999999"  # offline fixture for a new server config
+        self.store.update_identity(updated_identity)
+        save_approved_operator_config(self.store, updated, approved_at="2026-09-25T00:00:02Z",
+                                      approval_reference="explicit-autonomous-mode-approval")
+        self.assertEqual(self.wake(choose=lambda _: WakeChoice(action=action),
+                                   now=NOW + timedelta(seconds=2)).status, "acted")
+        after_identity = self.store.read_identity()
+        self.assertEqual(after_identity["agent_id"], before_identity["agent_id"])
+        self.assertEqual(after_identity["registration"], before_identity["registration"])
+
+    def test_noop_records_supervised_mode_without_requesting_action_approval(self) -> None:
+        config = approved_config()
+        config["public_actions"] = {"mode": "supervised"}
+        save_approved_operator_config(self.store, config, approved_at="2026-09-24T00:00:00Z",
+                                      approval_reference="supervised-noop-mode")
+        requested = []
+        self.assertEqual(self.wake(approve_public_action=lambda action: requested.append(action) or True).status,
+                         "no_op")
+        self.assertEqual(requested, [])
+        summary = read_recent_runs(self.store)[0]
+        self.assertEqual(summary["public_action_mode"], "supervised")
+        self.assertEqual(summary["confirmed_public_actions"], [])
+
     def test_two_bound_roots_and_single_directory_migration(self) -> None:
         first = IDENTITY["agent_id"]
         second = "44444444-4444-4444-8444-444444444444"
@@ -393,6 +709,13 @@ class AgentLifecycleTests(unittest.TestCase):
             self.assertEqual(b.read_identity()["agent_id"], second)
             self.assertNotEqual((a.root / "keys" / "agent-ed25519.key").read_bytes(), key.read_bytes())
             self.assertEqual(a.read_identity()["agent_id"], first)
+            for local, agent_id in ((a, first), (b, second)):
+                outcome = run_wake(local, transport=FakeTransport(),
+                                   control=lambda: ControlDecision(True, True, True, source="live"),
+                                   choose=lambda _: WakeChoice(), expected_agent_id=agent_id, now=NOW)
+                self.assertEqual(outcome.status, "no_op")
+                self.assertEqual(read_recent_runs(local)[0]["agent_id"], agent_id)
+            self.assertNotEqual(read_recent_runs(a)[0]["run_id"], read_recent_runs(b)[0]["run_id"])
             with self.assertRaises((IdentityConflictError, StateValidationError)):
                 run_wake(b, transport=self.transport, control=lambda: ControlDecision(True, True, True, source="live"),
                          choose=lambda _: WakeChoice(), expected_agent_id=first, now=NOW)
@@ -408,6 +731,247 @@ class AgentLifecycleTests(unittest.TestCase):
             self.assertTrue((restored.root / "agent-notes.json").is_file())
             for filename in ("operator-config.json", "operator-approval.json", "governance-application.json", "policy-acceptance.json", "state.json", "identity.json"):
                 self.assertEqual(stat.S_IMODE((restored.root / filename).stat().st_mode), 0o600)
+
+    def test_selected_source_paths_use_existing_filtered_feed_and_self_endpoints(self) -> None:
+        self.assertEqual(attention_page_path("challenges", limit=20), "/api/v1/feed?space=challenges&limit=20")
+        self.assertEqual(attention_page_path("world-pulse", limit=7), "/api/v1/feed?space=world-pulse&limit=7")
+        self.assertEqual(attention_page_path("agent-commons"), "/api/v1/feed?space=agent-commons")
+        self.assertEqual(attention_page_path("feed", cursor="abc"), "/api/v1/feed?cursor=abc")
+        self.assertEqual(attention_page_path("own-threads"), "/api/v1/me/threads")
+        self.assertEqual(attention_page_path("own-posts"), "/api/v1/me/posts")
+        with self.assertRaises(ValueError):
+            attention_page_path("own-idea")
+
+    def test_new_inbox_item_after_acknowledged_page_is_visible_next_wake(self) -> None:
+        self.transport.pages["inbox"] = {"items": [{"kind": "reply", "post_id": "old"}], "next_cursor": "old-cursor"}
+        def choose(context):
+            context.mark_handled("inbox")
+            return WakeChoice()
+        self.assertEqual(self.wake(attention=("inbox",), choose=choose).status, "no_op")
+        self.transport.pages["inbox"] = {"items": [{"kind": "reply", "post_id": "new"}], "next_cursor": "new-cursor"}
+        self.assertEqual(self.wake(attention=("inbox",), choose=choose, now=NOW + timedelta(seconds=1)).status, "no_op")
+        calls = [c for c in self.transport.calls if c[0] == "fetch" and c[1] == "inbox"]
+        self.assertEqual([c[2] for c in calls], [None, "old-cursor"])
+        self.assertEqual(self.store.read_state()["attention_handled"]["inbox"], "new-cursor")
+
+    def test_all_sources_can_be_selected_without_a_space_quota(self) -> None:
+        from client.mas_client.agent_lifecycle import SOCIAL_SOURCES
+        self.assertEqual(self.wake(attention=SOCIAL_SOURCES).status, "no_op")
+        fetched = [c[1] for c in self.transport.calls if c[0] == "fetch"]
+        self.assertEqual(fetched, ["notices", *[s for s in SOCIAL_SOURCES if s not in {"known-thread", "own-idea"}]])
+        self.assertEqual(read_recent_runs(self.store)[0]["selected_attention"], list(SOCIAL_SOURCES))
+        self.assertEqual(self.store.read_state()["rolling_action_timestamps"], [])
+
+    def test_known_thread_and_own_history_are_optional(self) -> None:
+        def choose(context):
+            self.assertEqual(context.fetch_source("own-posts"), [])
+            self.assertEqual(context.canonical_thread(THREAD_ID)["thread_id"], THREAD_ID)
+            context.mark_handled("known-thread")
+            return WakeChoice()
+        self.assertEqual(self.wake(attention=("own-threads",), choose=choose).status, "no_op")
+        self.assertEqual([c[1] for c in self.transport.calls if c[0] == "fetch"],
+                         ["notices", "own-threads", "own-posts"])
+        self.assertEqual(read_recent_runs(self.store)[0]["handled_attention"], ["known-thread"])
+        self.assertEqual(self.store.read_state()["rolling_action_timestamps"], [])
+
+    def test_unfetched_source_cannot_be_marked_handled(self) -> None:
+        def choose(context):
+            with self.assertRaises(ValueError):
+                context.mark_handled("inbox")
+            return WakeChoice()
+        self.assertEqual(self.wake(attention=(), choose=choose).status, "no_op")
+        self.assertNotIn("attention_handled", self.store.read_state())
+
+    def test_only_selected_inbox_is_fetched_and_handled(self) -> None:
+        self.transport.pages["inbox"] = {"items": [{"kind": "mention", "content": "private fixture"}], "next_cursor": "i1"}
+        def choose(context):
+            self.assertEqual(context.inbox[0]["kind"], "mention")
+            context.mark_handled("inbox")
+            return WakeChoice()
+        result = self.wake(attention=("inbox",), choose=choose)
+        self.assertEqual(result.status, "no_op")
+        self.assertEqual([call[1] for call in self.transport.calls if call[0] == "fetch"], ["notices", "inbox"])
+        self.assertEqual(self.store.read_state()["attention_handled"],
+                         {"notices": None, "inbox": "i1", "thread-updates": None})
+        summary = read_recent_runs(self.store)[0]
+        self.assertEqual(summary["selected_attention"], ["inbox"])
+        self.assertEqual(summary["fetched_attention"], ["notices", "inbox"])
+        self.assertEqual(summary["handled_attention"], ["inbox"])
+        self.assertNotIn("private fixture", str(summary))
+
+    def test_only_challenges_can_be_selected_without_other_social_fetches(self) -> None:
+        self.transport.pages["challenges"] = {"items": [{"thread_id": THREAD_ID}], "next_cursor": None}
+        def choose(context):
+            self.assertEqual(context.source_pages["challenges"][0]["thread_id"], THREAD_ID)
+            context.mark_handled("challenges")
+            return WakeChoice(stop_early=True)
+        self.assertEqual(self.wake(attention=("challenges",), choose=choose).status, "no_op")
+        self.assertEqual([c[1] for c in self.transport.calls if c[0] == "fetch"], ["notices", "challenges"])
+        self.assertNotIn("attention_handled", self.store.read_state())
+        summary = read_recent_runs(self.store)[0]
+        self.assertEqual(summary["handled_attention"], ["challenges"])
+        self.assertTrue(summary["stopped_early"])
+
+    def test_combined_and_filtered_sources_are_independent_optional_views(self) -> None:
+        self.transport.pages["feed"] = {"items": [{"thread_id": THREAD_ID}], "next_cursor": None}
+        self.transport.pages["world-pulse"] = {"items": [], "next_cursor": None}
+        self.transport.pages["agent-commons"] = {"items": [], "next_cursor": None}
+        def choose(context):
+            self.assertIn("own-idea", context.available_attention_sources)
+            self.assertEqual(context.fetch_source("agent-commons"), [])
+            context.mark_handled("feed")
+            return WakeChoice()
+        self.assertEqual(self.wake(attention=("feed", "world-pulse"), choose=choose).status, "no_op")
+        self.assertEqual([c[1] for c in self.transport.calls if c[0] == "fetch"],
+                         ["notices", "feed", "world-pulse", "agent-commons"])
+        self.assertEqual(read_recent_runs(self.store)[0]["selected_attention"],
+                         ["feed", "world-pulse", "agent-commons"])
+        self.assertIsNone(self.store.read_state()["feed_cursor"])
+
+    def test_no_social_source_is_mandatory_and_noop_stops_early(self) -> None:
+        result = run_wake(self.store, transport=self.transport,
+                          control=lambda: ControlDecision(True, True, True, source="live"),
+                          choose=lambda context: WakeChoice(),
+                          expected_agent_id=IDENTITY["agent_id"], now=NOW)
+        self.assertEqual(result.status, "no_op")
+        self.assertEqual([c[1] for c in self.transport.calls if c[0] == "fetch"], ["notices"])
+        self.assertEqual(read_recent_runs(self.store)[0]["selected_attention"], [])
+        self.assertTrue(read_recent_runs(self.store)[0]["stopped_early"])
+        self.assertEqual(self.store.read_state()["rolling_action_timestamps"], [])
+
+    def test_self_initiated_thread_needs_no_feed_or_incoming_item(self) -> None:
+        action = PublicAction("thread", title="A question the Agent chose")
+        result = self.wake(attention=("own-idea",), choose=lambda _: WakeChoice(action=action))
+        self.assertEqual(result.status, "acted")
+        self.assertEqual([c[1] for c in self.transport.calls if c[0] == "fetch"], ["notices"])
+        self.assertEqual([c[1].kind for c in self.transport.calls if c[0] == "submit"], ["thread"])
+        self.assertEqual(read_recent_runs(self.store)[0]["selected_attention"], ["own-idea"])
+
+    def test_fetch_is_not_acknowledgment_even_for_mention_or_operational_notice(self) -> None:
+        self.transport.pages["notices"] = {"items": [{"notice_type": "maintenance"}], "next_cursor": "n1"}
+        self.transport.pages["inbox"] = {"items": [{"kind": "mention"}], "next_cursor": "i1"}
+        self.assertEqual(self.wake(attention=("inbox",), choose=lambda _: WakeChoice(stop_early=True)).status, "no_op")
+        self.assertNotIn("attention_handled", self.store.read_state())
+        self.assertEqual(self.store.read_state()["rolling_action_timestamps"], [])
+        self.assertEqual(read_recent_runs(self.store)[0]["handled_attention"], [])
+
+    def test_concurrent_handled_marker_cannot_be_moved_backward(self) -> None:
+        self.transport.pages["inbox"] = {"items": [{"kind": "reply"}], "next_cursor": "older"}
+        def choose(context):
+            context.mark_handled("inbox")
+            def concurrent(state):
+                state["attention_handled"] = {"notices": None, "inbox": "newer", "thread-updates": None}
+                return state, None
+            self.store.update_state(concurrent)
+            return WakeChoice()
+        with self.assertRaises(StateValidationError):
+            self.wake(attention=("inbox",), choose=choose)
+        self.assertEqual(self.store.read_state()["attention_handled"]["inbox"], "newer")
+
+    def test_later_fetched_page_is_not_implicitly_acknowledged(self) -> None:
+        original = self.transport.fetch_page
+        def fetch(stream, cursor):
+            if stream == "inbox":
+                self.transport.calls.append(("fetch", stream, cursor))
+                return ({"items": [{"kind": "reply", "post_id": "first"}], "next_cursor": "first"} if cursor is None
+                        else {"items": [{"kind": "reply", "post_id": "second"}], "next_cursor": "second"})
+            return original(stream, cursor)
+        self.transport.fetch_page = fetch
+        def choose(context):
+            context.mark_handled("inbox")
+            context.fetch_more("inbox")
+            return WakeChoice(stop_early=True)
+        self.assertEqual(self.wake(attention=("inbox",), choose=choose).status, "no_op")
+        self.assertEqual(self.store.read_state()["attention_handled"]["inbox"], "first")
+        summary = read_recent_runs(self.store)[0]
+        self.assertEqual(summary["observed_counts"]["inbox"], 2)
+        inbox_pages = [item for item in summary["attention"]["fetches"] if item["source"] == "inbox"]
+        self.assertEqual([item["handled"] for item in inbox_pages], [True, False])
+        self.assertEqual(summary["attention"]["handled_sources"], ["inbox"])
+
+    def test_feed_cursor_is_page_local_and_new_activity_appears_next_wake(self) -> None:
+        self.transport.pages["feed"] = {"items": [{"thread_id": "old"}], "next_cursor": None}
+        seen = []
+        def choose(context):
+            seen.append(context.feed[0]["thread_id"])
+            context.mark_handled("feed")
+            return WakeChoice()
+        self.assertEqual(self.wake(attention=("feed",), choose=choose).status, "no_op")
+        self.transport.pages["feed"] = {"items": [{"thread_id": "new"}, {"thread_id": "old"}], "next_cursor": None}
+        self.assertEqual(self.wake(attention=("feed",), choose=choose, now=NOW + timedelta(seconds=1)).status, "no_op")
+        self.assertEqual(seen, ["old", "new"])
+        feed_calls = [c for c in self.transport.calls if c[0] == "fetch" and c[1] == "feed"]
+        self.assertEqual([c[2] for c in feed_calls], [None, None])
+        self.assertIsNone(self.store.read_state()["feed_cursor"])
+        self.assertEqual(self.store.read_state()["rolling_action_timestamps"], [])
+
+    def test_same_feed_page_can_be_reread_without_automatic_processing(self) -> None:
+        self.transport.pages["feed"] = {"items": [{"thread_id": THREAD_ID}], "next_cursor": None}
+        for offset in (0, 1):
+            self.assertEqual(self.wake(attention=("feed",), now=NOW + timedelta(seconds=offset)).status, "no_op")
+        self.assertEqual([c[2] for c in self.transport.calls if c[0] == "fetch" and c[1] == "feed"],
+                         [None, None])
+        self.assertEqual(len(self.store.read_state()["rolling_check_timestamps"]), 2)
+        self.assertEqual(self.store.read_state()["rolling_action_timestamps"], [])
+        self.assertEqual([r["confirmed_public_actions"] for r in read_recent_runs(self.store)], [[], []])
+
+    def test_control_failure_prevents_attention_selection_and_social_fetch(self) -> None:
+        selected = []
+        result = run_wake(self.store, transport=self.transport,
+                          control=lambda: ControlDecision(False, False, False, source="live", stop_reason="maintenance"),
+                          choose_attention=lambda _: selected.append(True) or ("feed",),
+                          choose=lambda _: self.fail("decision after denied control"),
+                          expected_agent_id=IDENTITY["agent_id"], now=NOW)
+        self.assertEqual((result.status, result.reason), ("stopped", "maintenance"))
+        self.assertEqual(selected, [])
+        self.assertFalse(any(c[0] == "fetch" for c in self.transport.calls))
+
+    def test_feed_can_page_older_within_wake_without_persisting_cursor(self) -> None:
+        original = self.transport.fetch_page
+        def fetch(stream, cursor):
+            if stream == "feed":
+                self.transport.calls.append(("fetch", stream, cursor))
+                return ({"items": [{"thread_id": "recent"}], "next_cursor": "older"} if cursor is None
+                        else {"items": [{"thread_id": "older"}], "next_cursor": None})
+            return original(stream, cursor)
+        self.transport.fetch_page = fetch
+        def choose(context):
+            self.assertEqual(context.fetch_more("feed"), [{"thread_id": "older"}])
+            self.assertEqual(context.source_pages["feed"],
+                             [{"thread_id": "recent"}, {"thread_id": "older"}])
+            context.mark_handled("feed")
+            return WakeChoice()
+        self.assertEqual(self.wake(attention=("feed",), choose=choose).status, "no_op")
+        self.assertEqual([c[2] for c in self.transport.calls if c[0] == "fetch" and c[1] == "feed"], [None, "older"])
+        self.assertIsNone(self.store.read_state()["feed_cursor"])
+        attention = read_recent_runs(self.store)[0]["attention"]
+        pages = [item for item in attention["fetches"] if item["source"] == "combined_feed"]
+        self.assertEqual([item["pages_fetched"] for item in pages], [1, 2])
+        self.assertEqual([item["items_returned"] for item in pages], [1, 1])
+        self.assertEqual([item["pagination_used"] for item in pages], [False, True])
+        self.assertEqual([item["next_cursor_present"] for item in pages], [True, False])
+        self.assertEqual([item["requested_limit"] for item in pages], [None, None])
+        self.assertEqual(attention["handled_sources"], ["combined_feed"])
+
+    def test_legacy_cursors_are_preserved_but_not_trusted_as_handled(self) -> None:
+        original_identity = self.store.read_identity()
+        original_notes = (self.store.root / "agent-notes.json").read_bytes()
+        state = self.store.read_state()
+        state["feed_cursor"] = "legacy-older-page"
+        state["social"]["inbox_cursor"] = "legacy-auto-advanced"
+        state["social"]["participated_threads_cursor"] = "legacy-auto-advanced"
+        self.store.write_state(state)
+        self.transport.pages["inbox"] = {"items": [{"kind": "reply"}], "next_cursor": "first-real-handled"}
+        self.transport.pages["feed"] = {"items": [{"thread_id": THREAD_ID}], "next_cursor": None}
+        self.assertEqual(self.wake(attention=("inbox", "feed"), now=NOW).status, "no_op")
+        self.assertEqual([c[2] for c in self.transport.calls if c[0] == "fetch" and c[1] in {"inbox", "feed"}], [None, None])
+        after = self.store.read_state()
+        self.assertNotIn("attention_handled", after)
+        self.assertEqual(after["feed_cursor"], "legacy-older-page")
+        self.assertEqual(after["social"]["inbox_cursor"], "legacy-auto-advanced")
+        self.assertEqual(after["rolling_action_timestamps"], state["rolling_action_timestamps"])
+        self.assertEqual(self.store.read_identity(), original_identity)
+        self.assertEqual((self.store.root / "agent-notes.json").read_bytes(), original_notes)
 
 if __name__ == "__main__":
     unittest.main()

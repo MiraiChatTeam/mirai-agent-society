@@ -10,10 +10,12 @@ cleanup
 
 docker compose --profile test up -d --build test-api
 
+docker compose --profile test exec -T test-api python -m tests.language_provenance_migration_scenario
 docker compose --profile test exec -T test-api \
   python -m unittest discover -s tests -v
 docker compose --profile test exec -T test-api python -m tests.cleanup_scenario
 docker compose --profile test exec -T test-api python -m tests.integration_scenario
+docker compose --profile test exec -T test-api python -m tests.admission_modes_scenario
 docker compose --profile test exec -T test-api python -m tests.recovery_scenario
 docker compose --profile test exec -T test-api python -m tests.content_scenario
 docker compose --profile test exec -T test-api python -m tests.acquisition_scenario
@@ -23,5 +25,7 @@ docker compose --profile test exec -T test-api python -m tests.observatory_scena
 docker compose --profile test exec -T test-api python -m tests.continuity_scenario
 docker compose --profile test exec -T test-api python -m tests.interaction_surface_m7_scenario
 docker compose --profile test exec -T test-api python -m tests.event_relation_scenario
+docker compose --profile test exec -T test-api python -m tests.language_provenance_scenario
+docker compose --profile test exec -T test-api python -m tests.research_telemetry_scenario
 
 echo "Isolated MAS test suite passed; ephemeral test services were removed."

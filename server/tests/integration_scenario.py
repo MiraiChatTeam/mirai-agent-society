@@ -19,6 +19,7 @@ from app.admin import cleanup_auth, create_invite, moderate_agent, revoke_invite
 from app.db import SessionLocal
 from app.models import (
     Agent,
+    AgentAdmission,
     AgentKey,
     AgentModerationAction,
     AgentSession,
@@ -104,11 +105,13 @@ def assert_canonical_challenge(challenge: dict[str, Any]) -> None:
 
 
 def new_invite(
-    *, max_uses: int = 1, expires_in: timedelta | None = timedelta(days=7)
+    *, max_uses: int = 1, expires_in: timedelta | None = timedelta(days=7),
+    admission_cohort: str | None = None,
 ) -> tuple[str, str]:
     with SessionLocal() as db:
         invite, token = create_invite(
-            db, max_uses=max_uses, expires_in=expires_in, label="integration"
+            db, max_uses=max_uses, expires_in=expires_in, label="integration",
+            admission_cohort=admission_cohort,
         )
         return str(invite.invite_id), token
 
@@ -246,7 +249,7 @@ def test_invitation_lifecycle() -> tuple[dict[str, Any], Ed25519PrivateKey]:
         expected=422,
     )
 
-    single_id, single_token = new_invite()
+    single_id, single_token = new_invite(admission_cohort="resident-early")
     reusable_agent_key = Ed25519PrivateKey.generate()
     existing_agent = register(reusable_agent_key, single_token)
     assert register(Ed25519PrivateKey.generate(), single_token, expected=403) == {
@@ -257,15 +260,29 @@ def test_invitation_lifecycle() -> tuple[dict[str, Any], Ed25519PrivateKey]:
         assert stored is not None
         assert stored.token_hash != single_token
         assert stored.token_hash == hashlib.sha256(single_token.encode()).hexdigest()
+        admission = db.get(AgentAdmission, uuid.UUID(existing_agent["agent_id"]))
+        assert admission is not None
+        assert admission.invite_id == uuid.UUID(single_id)
+        assert admission.admission_mode == "private_invite"
+        assert admission.admission_cohort == "resident-early"
+        assert admission.registered_at is not None
+        assert single_token not in str(admission.__dict__)
 
-    multi_id, multi_token = new_invite(max_uses=2)
-    register(Ed25519PrivateKey.generate(), multi_token)
-    register(Ed25519PrivateKey.generate(), multi_token)
+    multi_id, multi_token = new_invite(max_uses=2, admission_cohort="public-cohort")
+    multi_a = register(Ed25519PrivateKey.generate(), multi_token)
+    multi_b = register(Ed25519PrivateKey.generate(), multi_token)
     assert register(Ed25519PrivateKey.generate(), multi_token, expected=403) == {
         "error": "exhausted_invite"
     }
     with SessionLocal() as db:
         assert db.get(RegistrationInvite, uuid.UUID(multi_id)).use_count == 2
+        admissions = [db.get(AgentAdmission, uuid.UUID(item["agent_id"])) for item in (multi_a, multi_b)]
+        assert all(item is not None and item.invite_id == uuid.UUID(multi_id) for item in admissions)
+        assert all(item.admission_mode == "private_invite" for item in admissions)
+        assert all(item.admission_cohort == "public-cohort" for item in admissions)
+        assert all(multi_token not in str(item.__dict__) for item in admissions)
+        assert admissions[0].agent_id != admissions[1].agent_id
+        assert admissions[0].admission_cohort != admission.admission_cohort
 
     expired_id, expired_token = new_invite()
     with SessionLocal.begin() as db:
@@ -302,11 +319,17 @@ def test_invitation_lifecycle() -> tuple[dict[str, Any], Ed25519PrivateKey]:
     assert sorted(result[0] for result in results) == [201, 403]
     with SessionLocal() as db:
         assert db.get(RegistrationInvite, uuid.UUID(concurrency_id)).use_count == 1
+        assert db.scalar(select(func.count()).select_from(AgentAdmission).where(
+            AgentAdmission.invite_id == uuid.UUID(concurrency_id)
+        )) == 1
 
     failed_id, failed_token = new_invite()
     register(reusable_agent_key, failed_token, expected=409)
     with SessionLocal() as db:
         assert db.get(RegistrationInvite, uuid.UUID(failed_id)).use_count == 0
+        assert db.scalar(select(func.count()).select_from(AgentAdmission).where(
+            AgentAdmission.invite_id == uuid.UUID(failed_id)
+        )) == 0
 
     existing_token, _ = authenticate(existing_agent, reusable_agent_key)
     request("POST", "/api/v1/auth/logout", token=existing_token, expected=204)

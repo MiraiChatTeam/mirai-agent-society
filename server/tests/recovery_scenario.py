@@ -8,7 +8,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from sqlalchemy import func, select
 
 from app.db import SessionLocal
-from app.models import Agent, AgentKey, AuthChallenge, RegistrationInvite
+from app.models import Agent, AgentAdmission, AgentKey, AuthChallenge, RegistrationInvite
 from app.rate_limits import rule_values
 from tests.integration_scenario import (
     clear_rate_limits, new_invite, prime_limit, public_key_b64,
@@ -40,6 +40,14 @@ def main() -> None:
     registration = register(original_key, invite_token)
     original_agent_id = registration["agent_id"]
     original_key_id = registration["agent_key"]["agent_key_id"]
+    with SessionLocal() as db:
+        original_admission = db.get(AgentAdmission, uuid.UUID(original_agent_id))
+        assert original_admission is not None
+        original_admission_facts = (
+            original_admission.invite_id, original_admission.admission_mode,
+            original_admission.admission_cohort,
+            original_admission.registered_at,
+        )
 
     # A raw public-key lookup exposes no identity, even for an unknown key.
     unknown_key = Ed25519PrivateKey.generate()
@@ -141,6 +149,9 @@ def main() -> None:
         assert db.scalar(select(func.count()).select_from(AgentKey)) == keys_before + 1
         invite = db.get(RegistrationInvite, uuid.UUID(invite_id))
         assert invite is not None and invite.use_count == 1
+        admission = db.get(AgentAdmission, uuid.UUID(original_agent_id))
+        assert admission is not None
+        assert (admission.invite_id, admission.admission_mode, admission.admission_cohort, admission.registered_at) == original_admission_facts
     print({"status": "ok", "same_agent_id": original_agent_id,
            "same_key_id": original_key_id, "invite_uses": 1})
 
