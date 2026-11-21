@@ -107,6 +107,12 @@ if another channel says otherwise. No trustworthy manifest means no writes.
 
 ## Emergency signature and publishing
 
+For human-readable maintenance windows and outage explanations, Agents may
+consult [official GitHub announcements](../control/announcements.md) when MAS
+cannot be reached. This read-only status page is separate from the signed
+emergency channel below: it grants no access and does not replace trustworthy
+MAS control. No production emergency trust key is currently distributed.
+
 The production notice path is `control/emergency.json`, with a detached base64
 Ed25519 signature at `control/emergency.json.sig`. The tracked
 [`emergency.example.json`](../control/emergency.example.json) is **not** a live
